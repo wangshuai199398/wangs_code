@@ -4,5 +4,4 @@
 
 #include "../platform/ws_init.h"
 #include "../platform/ws_pdev.h"
-
 #endif
