@@ -12,7 +12,7 @@ static const struct pci_device_id ws_pdev_ids[] = {
     { 0 }
 };
 
-static struct ws_pci_driver ws_driver {
+static struct ws_pci_driver ws_driver = {
     .aux_drv_support = AUX_TYPE_ETH,
     .pdrv = {
         .name = "ws_unic3",
