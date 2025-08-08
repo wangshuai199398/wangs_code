@@ -9,7 +9,7 @@ struct ws_pci_driver {
     struct pci_driver pdrv;
 };
 
-int ws_init2(void);
-void ws_exit2(void);
+int ws_init2(struct ws_pci_driver *ws_pdrv);
+void ws_exit2(struct ws_pci_driver *ws_pdrv);
 
 #endif
