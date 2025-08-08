@@ -1,6 +1,6 @@
 #include <linux/module.h>
 
-#include <ws_init.h>
+#include "ws_init.h"
 
 int ws_init2(struct ws_pci_driver *ws_pdrv)
 {
