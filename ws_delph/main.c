@@ -1,6 +1,6 @@
 #include <linux/module.h>
 
-#include "ws_platform.h"
+#include "../include/ws_platform.h"
 
 static struct ws_pdev_hw pf_type = {
     .irq_flag = PCI_IRQ_MSIX | PCI_IRQ_MSI,
