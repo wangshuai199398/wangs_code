@@ -2,6 +2,7 @@
 DRV_OBJS := platform/ws_init.o \
 			platform/ws_pdev.o \
 			platform/ws_auxiliary.o \
+			platform/ws_debugfs.o \
 
 #ccflags-y += -Wall -Werror
 ccflags-y += -I$(src)/include
