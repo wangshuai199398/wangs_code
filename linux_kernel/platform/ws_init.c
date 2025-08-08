@@ -2,12 +2,13 @@
 
 #include "ws_init.h"
 #include "ws_debugfs.h"
+#include "../ver.h"
 
 int ws_init2(struct ws_pci_driver *ws_pdrv)
 {
     int ret;
     pr_info("Driver %s Init\n", THIS_MODULE->name);
-
+    pr_info("Driver %s Init\n", WS_HW_NAME);
     ws_debugfs_init();
     return ret;
 }
