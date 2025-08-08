@@ -8,7 +8,7 @@ static struct ws_pdev_hw pf_type = {
 };
 
 static const struct pci_device_id ws_pdev_ids[] = {
-    { PCI_DEVICE(PCI_VENDOR_ID_WANGS, 0x1001), .driver_data = (unsigned long)&pf_type },
+    { PCI_DEVICE(PCI_VENDOR_ID_WANGS, 0x1011), .driver_data = (unsigned long)&pf_type },
     { 0 }
 };
 
