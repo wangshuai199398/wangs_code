@@ -12,6 +12,9 @@ ifneq ($(wildcard $(PWD)/ws/Makefile),)
 include $(PWD)/ws/Makefile
 endif
 
+all:ver
+	$(MAKE) -C $(KDIR) M=$(PWD) modules
+
 ver:
 	@HW_NAME=; \
 	HW_TYPE=; \
@@ -22,8 +25,7 @@ ver:
 		echo "#define WS_HW_TYPE \"$$HW_TYPE\"" >> ver.h; \
 	fi
 
-all:ver
-	$(MAKE) -C $(KDIR) M=$(PWD) modules
+
 
 clean:
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
