@@ -3,7 +3,7 @@ DRV_OBJS := platform/ws_init.o \
 			platform/ws_pdev.o \
 			platform/ws_auxiliary.o \
 
-ccflags-y += -Wall -Werror
+#ccflags-y += -Wall -Werror
 ccflags-y += -I$(src)/include
 
 KDIR ?= /lib/modules/$(shell uname -r)/build
