@@ -1,6 +1,6 @@
 #include <linux/pci.h>
 
-#include "ys_pdev.h"
+#include "ws_pdev.h"
 
 int ws_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
