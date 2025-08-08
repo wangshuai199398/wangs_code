@@ -5,7 +5,7 @@ DRV_OBJS := platform/ws_init.o \
 
 KDIR ?= /lib/modules/$(shell uname -r)/build
 
-all:clean
+all:
 	$(MAKE) -C $(KDIR) M=$(PWD) modules
 
 clean:
