@@ -13,7 +13,7 @@ int ws_init2(struct ws_pci_driver *ws_pdrv)
 
     ws_pdev_manager_init();
 
-    ret = ws_aux_init(ws_pdev->aux_drv_support);
+    ret = ws_aux_init(ws_pdrv->aux_drv_support);
     if (ret)
         goto err_aux_init;
     
