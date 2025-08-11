@@ -28,7 +28,7 @@ struct ws_auxiliary_driver {
         .aux_drv_support = _aux_drv_support,   \
     }
 
-#define WS_AUX_MODULE_NAME WS_DEV_NAME(name)
+#define WS_AUX_MODULE_NAME WS_DEV_NAME("unic")
 
 int ws_aux_init(u32 pci_support_type);
 void ws_aux_uninit(u32 pci_support_type);
