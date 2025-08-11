@@ -1,6 +1,8 @@
 #ifndef __WS_PDEV_H_
 #define __WS_PDEV_H_
 
+#include <linux/pci.h>
+
 #include "ws_utils.h"
 
 #define WS_DEV_NAME(name) WS_HW_STRING("ws_", name)

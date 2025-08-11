@@ -31,7 +31,6 @@ int ws_aux_init(u32 pci_support_type)
 
 void ws_aux_uninit(u32 pci_support_type)
 {
-    int ret;
     int i = 0;
 
     for(; !IS_ERR_OR_NULL(ws_adrvs[i].drv.name); i++) {
