@@ -25,7 +25,7 @@ err_pdev_init:
     ws_pdev_uninit(&ws_pdrv->pdrv);
 
 err_aux_init:
-    ws_aux_uninit(ws_pdev->aux_drv_support);
+    ws_aux_uninit(ws_pdrv->aux_drv_support);
     
     return ret;
 }
