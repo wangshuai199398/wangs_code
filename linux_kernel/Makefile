@@ -113,7 +113,8 @@ ccflags-y += -I$(src)/user_include
 
 KDIR ?= /lib/modules/$(shell uname -r)/build
 
-GIT_DESC = awk '/^version: / {print $$2}' ./hados_ver;
+GIT_DESC = awk '/^version: / {print $$2}' ../.hados-ci.yaml;
+
 
 SYMBDIR ?= ./kernel_compat/symbolsfile
 
