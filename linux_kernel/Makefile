@@ -125,13 +125,8 @@ ifneq ($(wildcard $(PWD)/$(HW_DIR)/Makefile),)
 include $(PWD)/$(HW_DIR)/Makefile
 endif
 
-all:clean modules
-aux_check:compat
-ifeq ($(AUXILIARY_INSTALL), yes)
-	@exit 1
-else
-	@exit 0
-endif
+all:modules
+
 ver:
 	@echo "/* SPDX-License-Identifier: GPL-2.0 */" > ver.h
 	@echo "#define YS_GIT_VERSION \"1.9.5\"" >> ver.h
@@ -140,67 +135,18 @@ ver:
 	@echo "#define YS_GCC_VERSION \"$(shell gcc -dumpversion)\"" >> ver.h
 	@echo "#define YS_KERNEL_HEADER_VERSION \"$(KDIR)\"" >> ver.h
 	@echo "#define YS_K2U_DRV_VERSION \"$(shell cat $(PWD)/$(HW_DIR)/k2u_ver)\"" >> ver.h
-
-	@HW_NAME=; \
-	HW_TYPE=; \
-	if [ "$(CONFIG_YSARCH_PLAT)" = "y" ]; then \
-		HW_NAME="PLAT"; \
-		HW_TYPE="PLAT"; \
-	elif [ "$(CONFIG_YSHW_K2ULTRA)" = "m" ]; then \
-		HW_NAME="K2ULTRA"; \
-		HW_TYPE="NDEV"; \
-	elif [ "$(CONFIG_YSHW_K2ULTRA_U200)" = "m" ]; then \
-		HW_NAME="K2ULTRA_U200"; \
-		HW_TYPE="NDEV"; \
-	elif [ "$(CONFIG_YSHW_K2ULTRA_CS)" = "m" ]; then \
-		HW_NAME="K2ULTRA_CS"; \
-		HW_TYPE="NDEV"; \
-	else \
-		HW_NAME="UNKNOWN"; \
-	fi; \
-	if [ -n "$$HW_NAME" ]; then \
-		echo "#define YS_HW_NAME \"$$HW_NAME\"" >> ver.h; \
-		echo "#define YS_HW_TYPE \"$$HW_TYPE\"" >> ver.h; \
-	fi
-config:
-	@./gen_config.sh
+	echo "#define YS_HW_NAME \"K2ULTRA\"" >> ver.h
+	echo "#define YS_HW_TYPE \"NDEV\"" >> ver.h
+	
 compat:
 	@rm -f compat_config.h
 	@bash ./kernel_compat/autocompat.sh $(KDIR) $(SYMBDIR)
+
 modules:ver compat
 	$(MAKE) -C $(KDIR) M=$(PWD) modules
-header_install:
-	sudo mkdir -p /opt/yusur/hados/include
-	sudo cp ./user_include/* /opt/yusur/hados/include
-modules_install:
-	$(MAKE) -C $(KDIR) M=$(PWD) modules_install
-	@depmod
-udev_install:
-	cp -f ../scripts/udev/69-yusur-soc-name.rules /etc/udev/rules.d/
-	cp -f ../scripts/udev/func-netdev-rename /etc/udev/
-	cp -f ../scripts/udev/yusur_udev /etc/udev/
-	chmod +x /etc/udev/func-netdev-rename
-	chmod +x /etc/udev/yusur_udev
-	udevadm control --reload-rules
-udev_soc_install:
-	cp -f ../scripts/udev/69-yusur-soc-name-soc.rules /etc/udev/rules.d/
-	cp -f ../scripts/udev/func-netdev-rename-soc /etc/udev/
-	cp -f ../scripts/udev/yusur_udev /etc/udev/
-	chmod +x /etc/udev/func-netdev-rename-soc
-	chmod +x /etc/udev/yusur_udev
-	udevadm control --reload-rules
-udev_clean:
-	rm -f /etc/udev/rules.d/*yusur*.rules
-	rm -f /etc/udev/func-netdev-rename*
-	rm -f /etc/udev/yusur_udev
-	rm -f /lib/udev/rules.d/*yusur*.rules
-	rm -f /lib/udev/func-netdev-rename*
-	rm -f /lib/udev/yusur_udev
 
 clean:
-ifneq ($(wildcard $(PWD)/mod_config.mk),)
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
-endif
 
 k2ultra:clean
 	@./gen_config.sh k2u
