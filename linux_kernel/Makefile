@@ -136,11 +136,6 @@ endif
 ver:
 	@echo "/* SPDX-License-Identifier: GPL-2.0 */" > ver.h
 	@echo "#define YS_GIT_VERSION \"1.9.5\"" >> ver.h
-	@echo "#define YS_GIT_COMMIT \"$(shell if $(GIT_CHECK); then git rev-parse HEAD; else echo "UNKNOWN"; fi)\"" >> ver.h
-	@echo "#define YS_GIT_AUTHOR \"$(shell if $(GIT_CHECK); then git log -1 --pretty=format:%an; else echo "UNKNOWN"; fi)\"" >> ver.h
-	@echo "#define YS_GIT_BRANCH \"$(shell if $(GIT_CHECK); then git branch --show-current 2>/dev/null || git rev-parse --abbrev-ref HEAD; else echo "UNKNOWN"; fi)\"" >> ver.h
-	@echo "#define YS_GIT_TAG \"$(shell if $(GIT_CHECK); then git describe --tags --abbrev=0; else echo "UNKNOWN"; fi)\"" >> ver.h
-	@echo "#define YS_GIT_IS_DIRTY \"$(shell if $(GIT_CHECK); then git diff-index --quiet HEAD -- || echo "true"; else echo "UNKNOWN"; fi)\"" >> ver.h
 	@echo "#define YS_COMPILE_TIME \"$(shell date +"%Y-%m-%d %H:%M:%S")\"" >> ver.h
 	@echo "#define YS_COMPILE_PAGE_SIZE $(shell getconf PAGE_SIZE)" >> ver.h
 	@echo "#define YS_GCC_VERSION \"$(shell gcc -dumpversion)\"" >> ver.h
