@@ -111,24 +111,6 @@ ccflags-y += -Wall -Werror
 ccflags-y += -I$(src)/include
 ccflags-y += -I$(src)/user_include
 
-
-#ifneq (,$(findstring ccc-analyzer, $(CC)))
-#	ccflags-y += -Wno-pointer-sign
-#endif
-
-ifeq ($(CC), clang)
-	ccflags-remove-y += -fconserve-stack
-	ccflags-remove-y += -fno-inline-functions-called-once
-	ccflags-remove-y += -Wno-maybe-uninitialized
-	ccflags-remove-y += -mfunction-return=thunk-extern
-
-	ccflags-y += -Wno-unknown-attributes
-	ccflags-y += -Wno-address-of-packed-member
-	ccflags-y += -Wno-gnu-variable-sized-type-not-at-end
-	ccflags-y += -Wno-uninitialized
-	ccflags-y += -Wno-pointer-sign
-endif
-
 KDIR ?= /lib/modules/$(shell uname -r)/build
 GIT_CHECK = git rev-parse --is-inside-work-tree >/dev/null 2>&1
 GIT_DESC = if $(GIT_CHECK); then \
