@@ -1,0 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+#define YS_GIT_VERSION "1.9.5"
+#define YS_GIT_COMMIT "UNKNOWN"
+#define YS_GIT_AUTHOR "UNKNOWN"
+#define YS_GIT_BRANCH "UNKNOWN"
+#define YS_GIT_TAG "UNKNOWN"
+#define YS_GIT_IS_DIRTY "UNKNOWN"
+#define YS_COMPILE_TIME "2025-08-13 10:28:08"
+#define YS_COMPILE_PAGE_SIZE 4096
+#define YS_GCC_VERSION "8"
+#define YS_KERNEL_HEADER_VERSION "/lib/modules/4.18.0-553.5.1.el8.x86_64/build"
+#define YS_K2U_DRV_VERSION "bnic_0801"
+#define YS_HW_NAME "K2ULTRA"
+#define YS_HW_TYPE "NDEV"

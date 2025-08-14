@@ -1,0 +1,90 @@
+YS_HAVE_DEVLINK_PARAM_DRIVER		symbol	DEVLINK_PARAM_DRIVER			include/net/devlink.h
+YS_HAVE_DEVLINK_PARAM_INIT		symbol	devlink_param_driverinit_value_set	include/net/devlink.h
+YS_HAVE_ETH_HW_ADDR_SET			symbol	eth_hw_addr_set				include/linux/etherdevice.h
+YS_HAVE_AUXILIARY_ID			symbol	auxiliary_device_id			include/linux/mod_devicetable.h
+YS_HAVE_NETDEV_XMIT_MORE		symbol  netdev_xmit_more			include/linux/netdevice.h
+YS_HAVE_ETH_TLEN			symbol  ETH_TLEN				include/uapi/linux/if_ether.h
+YS_HAVE_KVCALLOC			symbol	kvcalloc				include/linux/slab.h
+YS_HAVE_STRSCPY				symbol	strscpy					include/linux/string.h
+YS_HAVE_ETH_GSTRINT_LEN			symbol  ETH_GSTRING_LEN				include/linux/ethtool.h
+YS_HAVE_ETHTOOL_RXNFC			symbol  ethtool_rxnfc				include/linux/ethtool.h
+YS_HAVE_NETIF_F_GSO_UDP_L4		symbol  NETIF_F_GSO_UDP_L4			include/linux/netdev_features.h
+YS_HAVE_ARRAY_INDEX_NOSPEC		symbol  array_index_nospec			include/linux/nospec.h
+YS_HAVE_NAPI_RESCHEDULE			symbol  napi_reschedule				include/linux/netdevice.h
+YS_HAVE_PIN_USER_PAGES			symbol  pin_user_pages_fast			include/linux/mm.h
+YS_HAVE_UNPIN_USER_PAGES		symbol  unpin_user_pages			include/linux/mm.h
+YS_HAVE_ETHTOOL_LINK_MODE		symbol  ETHTOOL_LINK_MODE_50000baseSR_Full_BIT	include/linux/ethtool.h
+YS_HAVE_BUS_FIND_DEVICE			symbol	bus_find_device				include/linux/device/bus.h
+YS_HAVE_FLOW_INDR_BLOCK_CB_ALLOC	symbol	flow_indr_block_cb_alloc		include/net/flow_offload.h
+YS_HAVE_FLOW_INDR_DEV_REGISTER		symbol	flow_indr_dev_register			include/net/flow_offload.h
+YS_HAVE_DEFINE_SEQ_ATTRIBUTE		symbol	DEFINE_SEQ_ATTRIBUTE			include/linux/seq_file.h
+YS_HAVE_CRC_CCITT			symbol  crc_ccitt_false				include/linux/crc-ccitt.h
+YS_HAVE_TIMER_SETUP			symbol  timer_setup				include/linux/timer.h
+YS_HAVE_NETIF_F_GRO_HW			symbol  NETIF_F_GRO_HW				include/linux/netdev_features.h
+YS_HAVE_NETDEV_LAG_HASH			symbol  netdev_lag_hash				include/linux/netdevice.h
+YS_HAVE_BEFOR_JIFFIES66			symbol  time_is_after_jiffies64			include/linux/jiffies.h
+YS_HAVE_VDPA_MAP_LOCAL                  symbol  kmap_local_page				include/linux/highmem.h
+YS_HAVE_UDP_TUNNEL_NIC_INFO		symbol  udp_tunnel_nic_info			include/net/udp_tunnel.h
+YS_HAVE_GUP_HAS_PIN			symbol	pin_user_pages				include/linux/mm.h
+YS_HAVE_GET_RANDOM_U32			symbol	get_random_u32				include/linux/random.h
+YS_HAVE_NETDEV_NET_NOTIFIER		symbol	netdev_net_notifier			include/linux/netdevice.h
+YS_HAVE_SET_TSO_MAX_SIZE		symbol  netif_set_tso_max_size			include/linux/netdevice.h
+YS_HAVE_NETIF_F_GSO_UDP_L4              symbol  NETIF_F_GSO_UDP_L4			include/linux/netdev_features.h
+
+YS_HAVE_NETIF_NAPI_ADD			symtype	netif_napi_add		include/linux/netdevice.h	void (struct net_device *, struct napi_struct *, int (*)(struct napi_struct *, int), int)
+YS_HAVE_DEV_OPEN_NETLINK		symtype dev_open		include/linux/netdevice.h	int (struct net_device *dev, struct netlink_ext_ack *extack)
+YS_HAVE_DEVLINK_ALLOC_DEV		symtype devlink_alloc		include/net/devlink.h		struct devlink *(const struct devlink_ops *, size_t, struct device *)
+YS_HAVE_VOID_DEVLINK_REGISTER		symtype devlink_register	include/net/devlink.h		void(struct devlink *)
+YS_HAVE_BUS_FIND_DEVICE_TAKES_CONST	symtype	bus_find_device		include/linux/device.h		struct device*(struct bus_type *bus, struct device *start, const void *data,  int (*match)(struct device *dev, const void *data))
+YS_HAVE_IOMMU_MAP_GFP			symtype	iommu_map		include/linux/iommu.h		int (struct iommu_domain *domain, unsigned long iova,phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
+YS_HAVE_VDPA_ALLOC_NAS			symtype	__vdpa_alloc_device	include/linux/vdpa.h		struct vdpa_device *(struct device *parent,const struct vdpa_config_ops *config,unsigned int ngroups, unsigned int nas,size_t size, const char *name,bool use_va)
+YS_HAVE_GUP_PIN_NO_VMAS			symtype	pin_user_pages		include/linux/mm.h		long(unsigned long, unsigned long, unsigned int, struct page **)
+YS_HAVE_GUP_RCINT_TASK_SEPARATEFLAGS 	symtype get_user_pages 		include/linux/mm.h 		int(struct task_struct *, struct mm_struct *, unsigned long, int, int, int, struct page **, struct vm_area_struct **)
+YS_HAVE_GUP_RCLONG_TASK_SEPARATEFLAGS 	symtype get_user_pages 		include/linux/mm.h 		long(struct task_struct *, struct mm_struct *, unsigned long, unsigned long, int, int, struct page **, struct vm_area_struct **)
+YS_HAVE_GUP_RCLONG_TASK_COMBINEDFLAGS 	symtype get_user_pages 		include/linux/mm.h 		long(struct task_struct *, struct mm_struct *, unsigned long, unsigned long, unsigned int, struct page **, struct vm_area_struct **)
+YS_HAVE_GUP_RCLONG_NOTASK_COMBINEDFLAGS symtype get_user_pages 		include/linux/mm.h 		long(unsigned long, unsigned long, unsigned int, struct page **, struct vm_area_struct **)
+
+YS_HAVE_PTP_ADJFREQ			member  struct_ptp_clock_info		adjfreq				include/linux/ptp_clock_kernel.h
+YS_HAVE_ETHTOOL_MAC_STATS		member  struct_ethtool_ops		get_eth_mac_stats		include/linux/ethtool.h
+YS_HAVE_SRIOV_GET_SET_MSIX_VEC_COUNT	member  struct_pci_driver		sriov_set_msix_vec_count	include/linux/pci.h
+YS_HAVE_MAX_MTU				member  struct_net_device		max_mtu				include/linux/netdevice.h
+YS_HAVE_MAX_NAME_ASSIGN_TYPE		member  struct_net_device		name_assign_type		include/linux/netdevice.h
+YS_HAVE_TRANSCEIVER			member  struct_ethtool_link_settings 	transceiver			include/linux/ethtool.h
+YS_HAVE_ETHTOOL_GET_LINK_SETTING	member  struct_ethtool_ops		get_link_ksettings		include/linux/ethtool.h
+YS_HAVE_CHANGE_MTU_RH74			member  struct_net_device_ops		ndo_change_mtu_rh74		include/linux/netdevice.h
+YS_HAVE_NDO_SIOCDEVPRIVATE		member  struct_net_device_ops		ndo_siocdevprivate		include/linux/netdevice.h
+YS_HAVE_NDO_PHYSPORTNAME		member  struct_net_device_ops		ndo_get_phys_port_name		include/linux/netdevice.h
+YS_HAVE_NDO_PHYSPORTPARENT_ID		member  struct_net_device_ops		ndo_get_port_parent_id		include/linux/netdevice.h
+YS_HAVE_NDO_ETHIOCTL			member  struct_net_device_ops		ndo_eth_ioctl			include/linux/netdevice.h
+YS_HAVE_NDO_NDO_UDP_TUNNEL		member  struct_net_device_ops		ndo_udp_tunnel_add		include/linux/netdevice.h
+YS_HAVE_FLOW_CLS_OFFLOAD		member  struct_flow_cls_offload		common				include/net/flow_offload.h
+YS_HAVE_FLOW_ACTION_OFFLOAD		member  struct_flow_offload_action	command				include/net/flow_offload.h
+YS_HAVE_NDO_SET_VF_TRUST		member  struct_net_device_ops		ndo_set_vf_trust		include/linux/netdevice.h
+YS_HAVE_VDPA_BIND_MM			member  struct_vdpa_config_ops		bind_mm				include/linux/vdpa.h
+YS_HAVE_VDPA_GET_F_TYPE			member  struct_vdpa_config_ops		get_device_features		include/linux/vdpa.h
+YS_HAVE_VDPA_RESET			member  struct_vdpa_config_ops		reset				include/linux/vdpa.h
+YS_HAVE_VDPA_RESET_STATE		memtype struct_vdpa_config_ops	reset	include/linux/vdpa.h	int (*)(struct vdpa_device *, int)
+
+YS_HAVE_SELECT_QUEUE_RH310		memtype	struct_net_device_ops		ndo_select_queue	include/linux/netdevice.h	u16 (*)(struct net_device *, struct sk_buff *, void *, u16 (*)(struct net_device *, struct sk_buff *))
+YS_HAVE_SELECT_QUEUE_NOCB		memtype	struct_net_device_ops		ndo_select_queue	include/linux/netdevice.h	u16 (*)(struct net_device *, struct sk_buff *, struct net_device *)
+YS_HAVE_NDO_EXT_CHANGE_MTU		memtype struct_net_device_ops_extended	ndo_change_mtu	include/linux/netdevice.h	int (*)(struct net_device *, int    )
+YS_HAVE_NDO_EXT_SET_VF_VLAN		memtype struct_net_device_ops_extended	ndo_set_vf_vlan	include/linux/netdevice.h	int (*)(struct net_device *, int, u16, u8, __be16)
+YS_HAVE_ETHTOOL_COALESCE_CQE		memtype struct_ethtool_ops      	get_coalesce	include/linux/ethtool.h		int (*)(struct net_device *, struct ethtool_coalesce *, struct kernel_ethtool_coalesce *, struct netlink_ext_ack *)
+YS_HAVE_KERNEL_RING			memtype struct_ethtool_ops		get_ringparam	include/linux/ethtool.h         void(*)(struct net_device *,struct ethtool_ringparam *,struct kernel_ethtool_ringparam *,struct netlink_ext_ack *)
+YS_HAVE_ETHTOOL_GET_RXFH_PARAM		memtype struct_ethtool_ops		get_rxfh	include/linux/ethtool.h		int (*)(struct net_device *, struct ethtool_rxfh_param *)
+YS_HAVE_ETHTOOL_SET_RXFH_PARAM		memtype struct_ethtool_ops		set_rxfh	include/linux/ethtool.h		int (*)(struct net_device *, struct ethtool_rxfh_param *, struct netlink_ext_ack *)
+YS_HAVE_DEVLINK_VALIDATE		memtype struct_devlink_param		validate	include/net/devlink.h           int (*)(struct devlink *,u32,union devlink_param_value)
+YS_HAVE_AUXILIARY_REMOVE		memtype struct_auxiliary_driver		remove		include/linux/auxiliary_bus.h   int (*)(struct auxiliary_device *)
+YS_HAVE_VDPA_ADD_CONFIG			memtype	struct_vdpa_mgmtdev_ops		dev_add		include/linux/vdpa.h		int (*)(struct vdpa_mgmt_dev *mdev, const char *name, const struct vdpa_dev_set_config *config)
+YS_HAVE_CONST_BUS_DEVICE		memtype	struct_device			bus		include/linux/device.h		const struct bus_type *
+YS_HAVE_VDPA_MAP_ASID			memtype	struct_vdpa_config_ops   	dma_map		include/linux/vdpa.h		int (*)(struct vdpa_device *vdev,unsigned int asid,u64 iova,u64 size,u64 pa,u32 perm,void *opaque)
+YS_HAVE_DEV_ADDR_SHADOW			member	struct_net_device		dev_addr_shadow include/linux/netdevice.h
+YS_HAVE_EROM_VERSION			member	struct_ethtool_drvinfo		erom_version include/uapi/linux/ethtool.h
+
+YS_HAVE_AUXILIARY_BUS			file	include/linux/auxiliary_bus.h
+YS_HAVE_FLOW_OFFLOAD			file	include/net/flow_offload.h
+YS_HAVE_VDPA				file	include/linux/vdpa.h
+YS_HAVE_MMAP_LOCK_WRAPPERS		file	include/linux/mmap_lock.h
+
+
+

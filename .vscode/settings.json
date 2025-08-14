@@ -1,5 +1,14 @@
 {
     "files.associations": {
-        "ws_utils.h": "c"
+        "complex": "cpp",
+        "ys_utils.h": "c",
+        "netdevice.h": "c",
+        "pci.h": "c",
+        "ys_pdev.h": "c",
+        "ys_auxiliary.h": "c",
+        "ys_reg_ops.h": "c",
+        "ys_adapter.h": "c",
+        "ys_debug.h": "c",
+        "ys_ndev_ops.h": "c"
     }
 }
