@@ -1,10 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
 
-ifeq ($(wildcard $(PWD)/mod_config.mk),)
-$(info mod_config.mk does not exist)
-$(shell cp $(PWD)/default.mk $(PWD)/mod_config.mk)
-endif
-
 include $(PWD)/mod_config.mk
 
 # basic
@@ -42,6 +37,8 @@ NET_OBJS := 	net/ys_ethtool_ops.o \
 		net/tc/ys_tc.o \
 		net/ppp/ys_cuckoo_hash.o \
 		net/lan/k2ulan/ys_k2ulan_cuckoo.o
+
+$(info CONFIG_YSMOD_CDEV = [$(CONFIG_YSMOD_CDEV)])
 
 ifeq ($(CONFIG_YSMOD_CDEV), y)
 	EXTRA_CFLAGS += -DCONFIG_YSMOD_CDEV
@@ -249,6 +246,7 @@ ifneq ($(wildcard $(PWD)/mod_config.mk),)
 endif
 
 k2ultra:clean
+	@echo "CONFIG_YSMOD_CDEV = $(CONFIG_YSMOD_CDEV)"
 	@echo "--> CC using $(CC) <--"
 ifeq ($(YSONLYCONFIG),only_config)
 	@./gen_config.sh k2u
