@@ -220,11 +220,6 @@ static ssize_t ys_sysfs_version_show(struct device *dev,
 	int offset = 0;
 
 	offset += sprintf(buf + offset, "|Git version:%49s|\n", YS_GIT_VERSION);
-	offset += sprintf(buf + offset, "|Git commit:%50s|\n", YS_GIT_COMMIT);
-	offset += sprintf(buf + offset, "|Git author:%50s|\n", YS_GIT_AUTHOR);
-	offset += sprintf(buf + offset, "|Git branch:%50s|\n", YS_GIT_BRANCH);
-	offset += sprintf(buf + offset, "|Git tag:%53s|\n", YS_GIT_TAG);
-	offset += sprintf(buf + offset, "|Git Is dirty:%48s|\n", YS_GIT_IS_DIRTY);
 	offset += sprintf(buf + offset, "|Compile time:%48s|\n", YS_COMPILE_TIME);
 	offset += sprintf(buf + offset, "|Compile PAGE_SIZE:%43d|\n", YS_COMPILE_PAGE_SIZE);
 	offset += sprintf(buf + offset, "|GCC version:%49s|\n", YS_GCC_VERSION);
