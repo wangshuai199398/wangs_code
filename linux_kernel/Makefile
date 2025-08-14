@@ -112,24 +112,8 @@ ccflags-y += -I$(src)/include
 ccflags-y += -I$(src)/user_include
 
 KDIR ?= /lib/modules/$(shell uname -r)/build
-GIT_CHECK = git rev-parse --is-inside-work-tree >/dev/null 2>&1
-GIT_DESC = if $(GIT_CHECK); then \
-    git describe --dirty --tags; \
-else \
-    if [ -f ../hados_ver ]; then \
-        awk '/^version: / {print $$2}' ../hados_ver; \
-    else \
-        if [ -f ./hados_ver ]; then \
-            awk '/^version: / {print $$2}' ./hados_ver; \
-        else \
-            if [ -f ../.hados-ci.yaml ]; then \
-                awk '/^version: / {print $$2}' ../.hados-ci.yaml; \
-            else \
-                echo "UNKNOWN in $(pwd)"; \
-            fi; \
-        fi; \
-    fi; \
-fi
+
+GIT_DESC = awk '/^version: / {print $$2}' ./hados_ver;
 
 SYMBDIR ?= ./kernel_compat/symbolsfile
 
