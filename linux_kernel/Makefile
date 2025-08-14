@@ -1,18 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 
-$(info CONFIG_YSMOD_CDEV $(CONFIG_YSMOD_CDEV))
-
-ifeq ($(wildcard $(PWD)/mod_config.mk),)
-$(info mod_config.mk does not exist)
-$(shell cp $(PWD)/default.mk $(PWD)/mod_config.mk)
-endif
-
-$(info CONFIG_YSMOD_CDEV $(CONFIG_YSMOD_CDEV))
-
-
 include $(PWD)/mod_config.mk
-
-$(info CONFIG_YSMOD_CDEV $(CONFIG_YSMOD_CDEV))
 
 # basic
 DRV_OBJS := 	platform/ys_intr.o \
