@@ -9,6 +9,7 @@
         "ys_reg_ops.h": "c",
         "ys_adapter.h": "c",
         "ys_debug.h": "c",
-        "ys_ndev_ops.h": "c"
+        "ys_ndev_ops.h": "c",
+        "symbolsfile": "c"
     }
 }

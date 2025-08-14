@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
 
-include $(PWD)/mod_config.mk
-
 # basic
 DRV_OBJS := 	platform/ys_intr.o \
 		platform/ys_init.o \
@@ -38,22 +36,20 @@ NET_OBJS := 	net/ys_ethtool_ops.o \
 		net/ppp/ys_cuckoo_hash.o \
 		net/lan/k2ulan/ys_k2ulan_cuckoo.o
 
-
-EXTRA_CFLAGS += -DCONFIG_YSMOD_CDEV
-EXTRA_CFLAGS += -DCONFIG_YSMOD_MAC
-EXTRA_CFLAGS += -DCONFIG_YSMOD_XMAC
-EXTRA_CFLAGS += -DCONFIG_YSMOD_LAN
-EXTRA_CFLAGS += -DCONFIG_YSMOD_LAN_K2U
-EXTRA_CFLAGS += -DCONFIG_YSMOD_NP
-EXTRA_CFLAGS += -DCONFIG_YSMOD_NP_K2U
-EXTRA_CFLAGS += -DCONFIG_YSHW_K2ULTRA
-
 ccflags-y += -Wall -Werror
 ccflags-y += -I$(src)/include
 ccflags-y += -I$(src)/user_include
 
-KDIR ?= /lib/modules/$(shell uname -r)/build
+ccflags-y += -DCONFIG_YSMOD_CDEV
+ccflags-y += -DCONFIG_YSMOD_MAC
+ccflags-y += -DCONFIG_YSMOD_XMAC
+ccflags-y += -DCONFIG_YSMOD_LAN
+ccflags-y += -DCONFIG_YSMOD_LAN_K2U
+ccflags-y += -DCONFIG_YSMOD_NP
+ccflags-y += -DCONFIG_YSMOD_NP_K2U
+ccflags-y += -DCONFIG_YSHW_K2ULTRA
 
+KDIR ?= /lib/modules/$(shell uname -r)/build
 SYMBDIR ?= ./kernel_compat/symbolsfile
 
 include $(PWD)/k2ultra/Makefile
@@ -67,10 +63,11 @@ ver:
 	@echo "#define YS_COMPILE_PAGE_SIZE $(shell getconf PAGE_SIZE)" >> ver.h
 	@echo "#define YS_GCC_VERSION \"$(shell gcc -dumpversion)\"" >> ver.h
 	@echo "#define YS_KERNEL_HEADER_VERSION \"$(KDIR)\"" >> ver.h
-	@echo "#define YS_K2U_DRV_VERSION \"$(shell cat $(PWD)/$(HW_DIR)/k2u_ver)\"" >> ver.h
+	@echo "#define YS_K2U_DRV_VERSION \"$(shell cat $(PWD)/k2ultra/k2u_ver)\"" >> ver.h
 	@echo "#define YS_HW_NAME \"K2ULTRA\"" >> ver.h
 	@echo "#define YS_HW_TYPE \"NDEV\"" >> ver.h
-	
+
+# bash ./kernel_compat/autocompat.sh /lib/modules/$(uname -r)/build ./kernel_compat/symbolsfile
 compat:
 	@rm -f compat_config.h
 	@bash ./kernel_compat/autocompat.sh $(KDIR) $(SYMBDIR)

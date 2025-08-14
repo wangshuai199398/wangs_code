@@ -13,6 +13,7 @@ if [ -e ${auto_cfg_file} ]; then
    exit 1
 fi
 
+#移除所有的多行注释和所有包含 #include 的行
 function strip_comments()
 {
     local file=$1
@@ -27,6 +28,8 @@ ba
 s:/\*.*\*/::' | sed -e '/^#include/d'
 }
 
+# 生成 deferred_pos
+# pos "***"
 function defer_test_compile()
 {
     local sense=$1
@@ -36,6 +39,9 @@ function defer_test_compile()
     eval deferred_$sense=\"\$deferred_$sense $key\"
     return $DEFERRED
 }
+
+# 判断头文件中有没有个该符号的定义
+# test_symbol DEVLINK_PARAM_DRIVER include/net/devlink.h
 function test_symbol()
 {
     local symbol=$1
@@ -76,6 +82,7 @@ function test_symbol()
     return 1
 }
 
+# pos netif_napi_add include/linux/netdevice.h void (struct net_device *, struct napi_struct *, int (*)(struct napi_struct *, int), int)
 function defer_test_symtype()
 {
     local sense=$1
@@ -138,7 +145,7 @@ unsigned long test(void) {
 "
 }
 
-#################################################################################
+# do_symbol do_symtype do_member do_memtype do_file
 
 function do_symbol()  { shift 2; test_symbol "$@"; }
 function do_nsymbol() { shift 2; ! test_symbol "$@"; }
@@ -160,6 +167,8 @@ function do_export()
     test_export $sym "$@"
 }
 function do_nexport() { ! do_export "$@"; }
+
+# 直接判断文件是否存在
 function do_file()
 {
     for file in "$@"; do
@@ -180,13 +189,15 @@ function do_EFX_NEED_TIMESPEC64_TO_NS_SIGNED()
 }
 
 
-#################################################################################
-
-
+# cat ./kernel_compat/symbolsfile | egrep -v -e '^#' -e '^$' | sed 's/[ \t][ \t]*/:/g'
+# 去除所有注释和空白行，然后将所有剩余行中的连续空白字符替换为单个冒号
 kompat_symbols="$(cat $SYMBFPATH | egrep -v -e '^#' -e '^$' | sed 's/[ \t][ \t]*/:/g')"
 
+#创建一个临时目录
 compile_dir="$(mktemp -d)"
 rmfiles="$rmfiles $compile_dir"
+
+#在临时目录中创建Makefile文件,并将$makefile_prefix写入
 echo >"$compile_dir/Makefile" "$makefile_prefix"
 echo "ccflags-y += -Wall -Werror" >> "$compile_dir/Makefile"
 deferred_pos=
@@ -199,18 +210,16 @@ echo "/* SPDX-License-Identifier: GPL-2.0 */"  >> "$auto_cfg_file"
 function do_one_symbol() {
     local key=$1
     shift
-    # NB work is in the following if clause "do_${method}"
+    # do_symbol do_symtype do_member do_memtype do_file
     if "$@"; then
-        # So that future compile tests can consume this
         echo "#define $key yes" >> "$auto_cfg_file"
 	elif [ $? -ne $DEFERRED ]; then
         echo "// #define $key" >> "$auto_cfg_file"
     fi
 }
 
-# process each symbol
+# 
 for symbol in $kompat_symbols; do
-    # split symbol at colons; disable globbing (pathname expansion)
     set -o noglob
     IFS=:
     set -- $symbol
@@ -222,18 +231,17 @@ for symbol in $kompat_symbols; do
     do_one_symbol $key do_${method} "$@"
 done
 
+# eval make -C /lib/modules/$(uname -r)/build -k O="" M="/tmp/tmp.CrT8PNcuiS" >"/tmp/tmp.CrT8PNcuiS/log" 2>&1 || true
+# 在 /lib/modules/$(uname -r)/build 下使用 Makefile 构建代码，并将输出信息记录到 $compile_dir/log 文件中。即使错误，整个命令也不会导致脚本停止运行
+eval make -C $KPATH -k $EXTRA_MAKEFLAGS O="$KOUT" M="$compile_dir" >"$compile_dir/log" 2>&1 || true
 
-# Run the deferred compile tests # need compile to check if the memory or type matches.
-eval make -C $KPATH -k $EXTRA_MAKEFLAGS O="$KOUT" M="$compile_dir" \
-    >"$compile_dir/log" 2>&1 \
-    || true
-
-
+# 是否存在 .o 文件
 for key in $deferred_pos; do
-    # Use existence of object file as evidence of compile without warning/errors
+    # 只要生成了目标文件（.o 文件），就认为编译过程没有出现警告或错误
     do_one_symbol $key test -f "$compile_dir/test_$key.o"
 done
 
+# 没有
 for key in $deferred_neg; do
     do_one_symbol $key test ! -f "$compile_dir/test_$key.o"
 done
