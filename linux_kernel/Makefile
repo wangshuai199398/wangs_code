@@ -119,8 +119,7 @@ SYMBDIR ?= ./kernel_compat/symbolsfile
 YSARCH := $(filter double,$(MAKECMDGOALS))
 # Compile without other hw directory
 YSRELEASETEST := $(filter release_test,$(MAKECMDGOALS))
-# Only generate config file
-YSONLYCONFIG := $(filter only_config,$(MAKECMDGOALS))
+
 
 ifneq ($(wildcard $(PWD)/$(HW_DIR)/Makefile),)
 include $(PWD)/$(HW_DIR)/Makefile
@@ -197,86 +196,13 @@ udev_clean:
 	rm -f /lib/udev/rules.d/*yusur*.rules
 	rm -f /lib/udev/func-netdev-rename*
 	rm -f /lib/udev/yusur_udev
+
 clean:
 ifneq ($(wildcard $(PWD)/mod_config.mk),)
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
 endif
 
 k2ultra:clean
-	@echo "--> CC using $(CC) <--"
-ifeq ($(YSONLYCONFIG),only_config)
 	@./gen_config.sh k2u
-else
-ifeq ($(YSARCH),double)
-	@./gen_config.sh k2u double
-else
-	@./gen_config.sh k2u
-endif
-ifeq ($(YSRELEASETEST),release_test)
-	@( make -j16; \
-	   MAKE_RESULT=$$?; \
-	   exit $$MAKE_RESULT )
-else
 	make -j16
-endif
-endif
-k2u_u200:clean
-	 @echo "--> CC using $(CC) <--"
-ifeq ($(YSONLYCONFIG),only_config)
-	@./gen_config.sh K2U_U200
-else
-ifeq ($(YSARCH),double)
-	@./gen_config.sh K2U_U200 double
-else
-	@./gen_config.sh K2U_U200
-endif
-ifeq ($(YSRELEASETEST),release_test)
-	@( make -j16; \
-	   MAKE_RESULT=$$?; \
-	   exit $$MAKE_RESULT )
-else
-	make -j16
-endif
-endif
-k2uc:clean
-ifeq ($(YSONLYCONFIG),only_config)
-	@./gen_config.sh K2U_U200
-else
-ifeq ($(YSARCH),double)
-	@./gen_config.sh K2U_U200 double
-else
-	@( echo "./gen_config.sh K2U_U200" )
-	@./gen_config.sh K2U_U200
-endif
-ifeq ($(YSRELEASETEST),release_test)
-	@( make -j16; \
-	   MAKE_RESULT=$$?; \
-	   exit $$MAKE_RESULT )
-else
-	make -j16
-endif
-endif
 
-compile_all:
-	make k2ultra release_test
-	make k2ultra double release_test
-help:
-	@echo "==============================================================="
-	@echo "make help		:show help"
-	@echo "==============================================================="
-	@echo "make			:make module named ysk_[hw].ko"
-	@echo "make k2ultra		:make k2ultra module"
-	@echo "==============================================================="
-	@echo "make xx double		:make xx hw double module(hw and ysk_platform)"
-	@echo "==============================================================="
-	@echo "make clean		:clean all modules"
-	@echo "make config		:generate mod_config.mk"
-	@echo "==============================================================="
-
-# Special target to handle double as a separate goal that does nothing by itself
-double:
-release_test:
-only_config:
-
-# Ensure that double does not trigger an error or a make rule
-.PHONY: double, release_test, only_config
