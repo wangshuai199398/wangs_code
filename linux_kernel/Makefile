@@ -1,10 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
 
-ifeq ($(wildcard $(PWD)/mod_config.mk),)
-$(info mod_config.mk does not exist)
-$(shell cp $(PWD)/default.mk $(PWD)/mod_config.mk)
-endif
-
 include $(PWD)/mod_config.mk
 
 # basic
