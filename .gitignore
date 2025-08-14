@@ -19,7 +19,6 @@ rss_redir_tool
 app/ioctl_app/cdev_ioctl
 
 linux_kernel/.vscode/
-linux_kernel/mod_config.mk
 linux_kernel/cscope*
 linux_kernel/tags
 linux_kernel/ver.h
