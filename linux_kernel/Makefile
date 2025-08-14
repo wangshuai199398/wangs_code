@@ -113,9 +113,6 @@ ccflags-y += -I$(src)/user_include
 
 KDIR ?= /lib/modules/$(shell uname -r)/build
 
-GIT_DESC = awk '/^version: / {print $$2}' ../.hados-ci.yaml;
-
-
 SYMBDIR ?= ./kernel_compat/symbolsfile
 
 # Check if ysarch is passed as an argument to make command
@@ -138,7 +135,7 @@ else
 endif
 ver:
 	@echo "/* SPDX-License-Identifier: GPL-2.0 */" > ver.h
-	@echo "#define YS_GIT_VERSION \"$(shell $(GIT_DESC))\"" >> ver.h
+	@echo "#define YS_GIT_VERSION 1.9.5" >> ver.h
 	@echo "#define YS_GIT_COMMIT \"$(shell if $(GIT_CHECK); then git rev-parse HEAD; else echo "UNKNOWN"; fi)\"" >> ver.h
 	@echo "#define YS_GIT_AUTHOR \"$(shell if $(GIT_CHECK); then git log -1 --pretty=format:%an; else echo "UNKNOWN"; fi)\"" >> ver.h
 	@echo "#define YS_GIT_BRANCH \"$(shell if $(GIT_CHECK); then git branch --show-current 2>/dev/null || git rev-parse --abbrev-ref HEAD; else echo "UNKNOWN"; fi)\"" >> ver.h
