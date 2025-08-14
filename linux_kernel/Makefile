@@ -7,6 +7,8 @@ $(info mod_config.mk does not exist)
 $(shell cp $(PWD)/default.mk $(PWD)/mod_config.mk)
 endif
 
+$(info CONFIG_YSMOD_CDEV $(CONFIG_YSMOD_CDEV))
+
 include $(PWD)/mod_config.mk
 
 # basic
