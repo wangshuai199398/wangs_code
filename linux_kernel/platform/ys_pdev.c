@@ -144,6 +144,7 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	struct list_head *pdev_list;
 	int ret = 0;
 #ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
+	ys_info("YS_HAVE_DEVLINK_PARAM_DRIVER is true");
 	struct devlink *devlink = NULL;
 
 	devlink = ys_devlink_alloc(dev);
