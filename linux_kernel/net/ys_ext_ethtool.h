@@ -11,16 +11,10 @@
 
 #define YS_IOCG_EXTETHTOOL (SIOCDEVPRIVATE + 6)
 
-#ifdef YS_HAVE_KERNEL_RING
 struct kernel_ethtool_ringparam;
-#endif /* YS_HAVE_KERNEL_RING */
-#ifdef YS_HAVE_ETHTOOL_MAC_STATS
 struct ethtool_eth_mac_stats;
-#endif /* YS_HAVE_ETHTOOL_MAC_STATS */
-#ifdef YS_HAVE_ETHTOOL_COALESCE_CQE
 struct netlink_ext_ack;
 struct kernel_ethtool_coalesce;
-#endif
 struct ys_ext_ethtool_ops {
 #ifdef ETHTOOL_COALESCE_USECS
 	u32     supported_coalesce_params;
@@ -34,27 +28,14 @@ struct ys_ext_ethtool_ops {
 	int     (*get_eeprom_len)(struct net_device *ndev);
 	int     (*get_eeprom)(struct net_device *ndev, struct ethtool_eeprom *e, u8 *d);
 	int     (*set_eeprom)(struct net_device *ndev, struct ethtool_eeprom *e, u8 *d);
-#ifdef YS_HAVE_ETHTOOL_COALESCE_CQE
 	int     (*get_coalesce)(struct net_device *ndev, struct ethtool_coalesce *ec,
 				struct kernel_ethtool_coalesce *kec, struct netlink_ext_ack *nea);
 	int     (*set_coalesce)(struct net_device *ndev, struct ethtool_coalesce *ec,
 				struct kernel_ethtool_coalesce *kec, struct netlink_ext_ack *nea);
-#else
-	int	(*get_coalesce)(struct net_device *ndev, struct ethtool_coalesce *ec);
-	int	(*set_coalesce)(struct net_device *ndev, struct ethtool_coalesce *ec);
-#endif /* YS_HAVE_ETHTOOL_COALESCE_CQE */
-#ifdef YS_HAVE_KERNEL_RING
 	void    (*get_ringparam)(struct net_device *ndev, struct ethtool_ringparam *ringp,
 				 struct kernel_ethtool_ringparam *rp, struct netlink_ext_ack *nea);
-#else
-	void	(*get_ringparam)(struct net_device *ndev, struct ethtool_ringparam *ring);
-#endif
-#ifdef YS_HAVE_KERNEL_RING
 	int     (*set_ringparam)(struct net_device *ndev, struct ethtool_ringparam *ringp,
 				 struct kernel_ethtool_ringparam *rp, struct netlink_ext_ack *nea);
-#else
-	int     (*set_ringparam)(struct net_device *ndev, struct ethtool_ringparam *ringp);
-#endif
 	void    (*self_test)(struct net_device *ndev, struct ethtool_test *test, u64 *d);
 	void    (*get_strings)(struct net_device *ndev, u32 stringset, u8 *d);
 	int     (*set_phys_id)(struct net_device *ndev, enum ethtool_phys_id_state);

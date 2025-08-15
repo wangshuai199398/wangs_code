@@ -288,6 +288,41 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		ys_dev_err("ys_debug_init failed\n");
 		goto err_debug;
 	}
+	#ifdef PLDA_VERSION
+	pr_err("PLDA_VERSION is true");
+	#else
+	pr_err("PLDA_VERSION is false");
+	#endif
+
+	#ifdef MM_VERBOSE_DEBUG
+	pr_err("MM_VERBOSE_DEBUG is true");
+	#else
+	pr_err("MM_VERBOSE_DEBUG is false");
+	#endif
+
+	#ifdef PLDA_VERSION
+	pr_err("PLDA_VERSION is true");
+	#else
+	pr_err("PLDA_VERSION is false");
+	#endif
+
+	#ifdef __BIG_ENDIAN
+	pr_err("__BIG_ENDIAN is true");
+	#else
+	pr_err("__BIG_ENDIAN is false");
+	#endif
+
+	#ifdef ETHTOOL_COALESCE_USECS
+	pr_err("ETHTOOL_COALESCE_USECS is true");
+	#else
+	pr_err("ETHTOOL_COALESCE_USECS is false");
+	#endif
+
+	#ifdef __KERNEL__
+	pr_err("__KERNEL__ is true");
+	#else
+	pr_err("__KERNEL__ is false");
+	#endif
 
 	/* YUSUR mdev init */
 	ret = ys_cdev_init(pdev);

@@ -246,7 +246,6 @@ static inline void ys_k2u_doe_writel(struct ys_k2u_doe_device *ys_k2u_doe, u32 v
 	writel(val, addr);
 }
 
-#ifdef DOE_VERBOSE_DEBUG
 static inline void buffer_dump(struct ys_k2u_doe_device *ys_k2u_doe, const char *name,
 			       void *addr, u32 size)
 {
@@ -269,10 +268,6 @@ static inline void buffer_dump(struct ys_k2u_doe_device *ys_k2u_doe, const char 
 			ys_dev_info("%s\n", buf);
 	}
 }
-#else
-static inline void buffer_dump(struct ys_k2u_doe_device *ys_k2u_doe, const char *name,
-			       void *addr, u32 size) {}
-#endif /* DOE_VERBOSE_DEBUG */
 
 static inline u8 ys_k2u_doe_get_order(u32 len)
 {

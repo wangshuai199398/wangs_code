@@ -534,11 +534,7 @@ int ys_k2u_activate_rxq(struct ys_k2u_rxq *rxq)
 	ys_k2u_rxcq_irq_enable(rxcq);
 
 	ndev_priv->rx_napi_list[rxq->qid.l_id].priv_data = rxcq;
-#ifdef YS_HAVE_NETIF_NAPI_ADD
-	netif_napi_add(ndev_priv->ndev, napi, ys_k2u_rxcq_handler, NAPI_POLL_WEIGHT);
-#else
 	netif_napi_add(ndev_priv->ndev, napi, ys_k2u_rxcq_handler);
-#endif
 	napi_enable(napi);
 	/* txcq */
 	rxcq->napi = napi;

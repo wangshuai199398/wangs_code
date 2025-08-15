@@ -169,11 +169,6 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 	struct ys_ndev_priv *ndev_priv = NULL;
 	struct net_device *ndev;
 	int ret = 0;
-	#ifdef RB_ROOT_CACHED
-	ys_err("RB_ROOT_CACHED is true");
-	#else
-	ys_err("RB_ROOT_CACHED is false");
-	#endif
 	if (adev->qi.ndev_qnum == 0) {
 		ys_dev_err("etherdev alloc max queue can't be 0");
 		return NULL;

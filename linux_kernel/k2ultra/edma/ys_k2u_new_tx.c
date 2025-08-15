@@ -394,11 +394,7 @@ int ys_k2u_activate_txq(struct ys_k2u_txq *txq)
 	ys_wr32(txcq->hw_addr, YS_K2U_RE_TXCQ_CPLLEN, txcq->qcpllen);
 
 	/* napi */
-#ifdef YS_HAVE_NETIF_NAPI_ADD
-	netif_napi_add(ndev_priv->ndev, napi, ys_k2u_txcq_handler, NAPI_POLL_WEIGHT);
-#else
 	netif_napi_add(ndev_priv->ndev, napi, ys_k2u_txcq_handler);
-#endif
 	napi_enable(napi);
 	txq->tx_queue = netdev_get_tx_queue(k2u_ndev->ndev, txq->qid.l_id);
 	ndev_priv->tx_napi_list[txq->qid.l_id].priv_data = txcq;

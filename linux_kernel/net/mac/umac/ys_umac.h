@@ -95,13 +95,7 @@ enum {
 	UMAC_D2M_CMD_MAX,
 };
 
-#ifdef YS_HAVE_ETHTOOL_MAC_STATS
 #define get_umac_stats(umac) ((umac)->et_get_mac_stats = ys_umac_get_mac_stats)
-#else
-#define get_umac_stats(umac) \
-	do {                \
-	} while (0)
-#endif
 
 int ys_umac_init(struct auxiliary_device *auxdev);
 void ys_umac_uninit(struct auxiliary_device *auxdev);

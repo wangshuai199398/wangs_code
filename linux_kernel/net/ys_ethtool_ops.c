@@ -397,7 +397,6 @@ void ys_build_ehtool_ksetting_supported(struct ys_ethtool_ksetting *cmd,
 	__set_bit(bit, &cmd->supported[idx]);
 }
 
-#ifdef YS_HAVE_ETHTOOL_GET_LINK_SETTING
 static int ys_get_link_ksettings(struct net_device *ndev,
 				 struct ethtool_link_ksettings *ksettings)
 {
@@ -456,58 +455,6 @@ static int ys_get_link_ksettings(struct net_device *ndev,
 
 	return 0;
 }
-
-#else
-static int ys_get_link_ksettings(struct net_device *ndev,
-				 struct ethtool_cmd *ksettings)
-{
-	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-	u32 port_type;
-	u32 transceiver_type;
-	u8 autoneg_enable;
-	struct ys_ethtool_ksetting cmd;
-
-	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
-		return -EPERM;
-
-	memset(&cmd, 0, sizeof(struct ys_ethtool_ksetting));
-	if (ndev_priv->ys_eth_hw && ndev_priv->ys_eth_hw->et_get_supported_advertising) {
-		ndev_priv->ys_eth_hw->et_get_supported_advertising(ndev, &cmd);
-		memcpy(&ksetings->supported,
-		       cmd.supported,
-		       __ETHTOOL_LINK_MODE_MASK_NBITS);
-		memcpy(&ksetings->advertising,
-		       cmd.advertising,
-		       __ETHTOOL_LINK_MODE_MASK_NBITS);
-		memcpy(&ksetings->lp_advertising,
-		       cmd.lp_advertising,
-		       __ETHTOOL_LINK_MODE_MASK_NBITS);
-	}
-	if (ndev_priv->ys_eth_hw && ndev_priv->ys_eth_hw->et_get_link_speed) {
-		ndev_priv->speed = ndev_priv->ys_eth_hw->et_get_link_speed(ndev);
-		ksettings->speed = ndev_priv->speed;
-	}
-	if (ndev_priv->ys_eth_hw && ndev_priv->ys_eth_hw->et_get_link_duplex) {
-		ndev_priv->duplex = ndev_priv->ys_eth_hw->et_get_link_duplex(ndev);
-		ksettings->duplex = ndev_priv->duplex;
-	}
-	if (ndev_priv->ys_eth_hw && ndev_priv->ys_eth_hw->et_get_link_autoneg) {
-		autoneg_enable = ndev_priv->ys_eth_hw->et_get_link_autoneg(ndev);
-		ksettings->autoneg = autoneg_enable;
-		ndev_priv->port_flags |= autoneg_enable << YS_PORT_FLAG_AUTONEG_ENABLE;
-	}
-	if (ndev_priv->ys_eth_hw && ndev_priv->ys_eth_hw->et_get_link_port_type) {
-		port_type = ndev_priv->ys_eth_hw->et_get_link_port_type(ndev);
-		ksettings->port = port_type;
-	}
-	if (ndev_priv->ys_eth_hw && ndev_priv->ys_eth_hw->et_get_link_transceiver) {
-		transceiver_type = ndev_priv->ys_eth_hw->et_get_link_transceiver(ndev);
-		ksettings->transceiver = transceiver_type;
-	}
-
-	return 0;
-}
-#endif /* YS_HAVE_ETHTOOL_GET_LINK_SETTING */
 
 static int ys_set_link_ksettings(struct net_device *ndev,
 				 const struct ethtool_link_ksettings *ksettings)
@@ -588,14 +535,10 @@ static int ys_set_priv_flags(struct net_device *ndev, u32 flag)
 	return -EOPNOTSUPP;
 }
 
-#ifdef YS_HAVE_ETHTOOL_COALESCE_CQE
 
 static int ys_get_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec,
 			   struct kernel_ethtool_coalesce *kec,
 			   struct netlink_ext_ack *ack)
-#else
-static int ys_get_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec)
-#endif /* YS_HAVE_ETHTOOL_COALESCE_CQE */
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 
@@ -606,13 +549,9 @@ static int ys_get_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec)
 	return -EOPNOTSUPP;
 }
 
-#ifdef YS_HAVE_ETHTOOL_COALESCE_CQE
 static int ys_set_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec,
 			   struct kernel_ethtool_coalesce *kec,
 			   struct netlink_ext_ack *ack)
-#else
-static int ys_set_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec)
-#endif /* YS_HAVE_ETHTOOL_COALESCE_CQE */
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 
@@ -861,24 +800,6 @@ static u32 ys_get_rxfh_key_size_eth(struct net_device *ndev)
 	return -EOPNOTSUPP;
 }
 
-#ifdef YS_HAVE_ETHTOOL_GET_RXFH_PARAM
-static int ys_get_rxfh_eth(struct net_device *ndev, struct ethtool_rxfh_param *param)
-{
-	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
-	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
-		return -EPERM;
-
-	if (ndev_priv->ys_eth_hw->ys_get_rxfh)
-		return ndev_priv->ys_eth_hw->ys_get_rxfh(ndev,
-							 param->indir,
-							 param->key,
-							 &param->hfunc);
-
-	return -EOPNOTSUPP;
-}
-#endif /* YS_HAVE_ETHTOOL_GET_RXFH_PARAM */
-
 static int ys_get_rxfh_eth_old(struct net_device *ndev, u32 *indir, u8 *key, u8 *hfunc)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
@@ -892,26 +813,6 @@ static int ys_get_rxfh_eth_old(struct net_device *ndev, u32 *indir, u8 *key, u8 
 
 	return -EOPNOTSUPP;
 }
-
-#ifdef YS_HAVE_ETHTOOL_SET_RXFH_PARAM
-static int ys_set_rxfh_eth(struct net_device *ndev,
-			   struct ethtool_rxfh_param *param,
-			   struct netlink_ext_ack *extack)
-{
-	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
-	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
-		return -EPERM;
-
-	if (ndev_priv->ys_eth_hw->ys_set_rxfh)
-		return ndev_priv->ys_eth_hw->ys_set_rxfh(ndev,
-							 param->indir,
-							 param->key,
-							 param->hfunc);
-
-	return -EOPNOTSUPP;
-}
-#endif /* YS_HAVE_ETHTOOL_SET_RXFH_PARAM */
 
 static int ys_set_rxfh_eth_old(struct net_device *ndev, const u32 *indir,
 			       const u8 *key, const u8 hfunc)
@@ -1025,15 +926,10 @@ static int ys_set_phys_id_eth(struct net_device *ndev,
 	return -EOPNOTSUPP;
 }
 
-#ifdef YS_HAVE_KERNEL_RING
 static void ys_get_ringparam_eth(struct net_device *ndev,
 				 struct ethtool_ringparam *ring,
 				 struct kernel_ethtool_ringparam *kring,
 				 struct netlink_ext_ack *ext_ack)
-#else
-static void ys_get_ringparam_eth(struct net_device *ndev,
-				 struct ethtool_ringparam *ring)
-#endif /* YS_HAVE_KERNEL_RING */
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 
@@ -1044,15 +940,10 @@ static void ys_get_ringparam_eth(struct net_device *ndev,
 		ndev_priv->ys_eth_hw->ys_get_ringparam(ndev, ring);
 }
 
-#ifdef YS_HAVE_KERNEL_RING
 static int ys_set_ringparam_eth(struct net_device *ndev,
 				struct ethtool_ringparam *ring,
 				struct kernel_ethtool_ringparam *kring,
 				struct netlink_ext_ack *ext_ack)
-#else
-static int ys_set_ringparam_eth(struct net_device *ndev,
-				struct ethtool_ringparam *ring)
-#endif /* YS_HAVE_KERNEL_RING */
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	int ret = -EOPNOTSUPP;
@@ -1278,11 +1169,7 @@ const struct ethtool_ops ys_ethtool_ops = {
 	.get_module_eeprom = ys_get_module_eeprom,
 	.get_module_info = ys_get_module_info,
 	.self_test = ys_self_test,
-#ifdef YS_HAVE_ETHTOOL_GET_LINK_SETTING
 	.get_link_ksettings = ys_get_link_ksettings,
-#else
-	.get_settings = ys_get_link_ksettings,
-#endif /* YS_HAVE_ETHTOOL_GET_LINK_SETTING */
 	.set_link_ksettings = ys_set_link_ksettings,
 	.get_priv_flags = ys_get_priv_flags,
 	.set_priv_flags = ys_set_priv_flags,
@@ -1291,18 +1178,11 @@ const struct ethtool_ops ys_ethtool_ops = {
 	.get_ts_info = ys_get_ts_info,
 	.get_fecparam = ys_get_fecparam,
 	.set_fecparam = ys_set_fecparam,
-#ifdef YS_HAVE_ETHTOOL_MAC_STATS
 	.get_eth_mac_stats = ys_get_eth_mac_stats,
-#endif /* YS_HAVE_ETHTOOL_MAC_STATS */
 	.get_rxfh_indir_size = ys_get_rxfh_indir_size_eth,
 	.get_rxfh_key_size = ys_get_rxfh_key_size_eth,
-#ifdef YS_HAVE_ETHTOOL_GET_RXFH_PARAM
-	.get_rxfh = ys_get_rxfh_eth,
-	.set_rxfh = ys_set_rxfh_eth,
-#else
 	.get_rxfh = ys_get_rxfh_eth_old,
 	.set_rxfh = ys_set_rxfh_eth_old,
-#endif
 	.get_rxnfc = ys_get_rxnfc_eth,
 	.set_rxnfc = ys_set_rxnfc_eth,
 	.get_eeprom_len = ys_get_eeprom_len,
@@ -1325,11 +1205,7 @@ struct ys_ext_ethtool_ops exttool_ops = {
 #endif /* ETHTOOL_COALESCE_USECS */
 	.get_fecparam = ys_get_fecparam,
 	.set_fecparam = ys_set_fecparam,
-#ifdef YS_HAVE_ETHTOOL_GET_LINK_SETTING
 	.get_link_ksettings = ys_get_link_ksettings,
-#else
-	.get_settings = ys_get_link_ksettings,
-#endif /* YS_HAVE_ETHTOOL_GET_LINK_SETTING */
 	.set_link_ksettings = ys_set_link_ksettings,
 	.get_module_info = ys_get_module_info,
 	.get_ts_info = ys_get_ts_info,

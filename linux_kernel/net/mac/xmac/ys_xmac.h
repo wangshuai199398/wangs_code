@@ -14,13 +14,7 @@
 
 #include "ys_xmac_register.h"
 
-#ifdef YS_HAVE_ETHTOOL_MAC_STATS
 #define get_xmac_stats(xmac) ((xmac)->et_get_mac_stats = ys_xmac_get_mac_stats)
-#else
-#define get_xmac_stats(xmac)	\
-	do {			\
-	} while (0)
-#endif
 
 enum ys_xmac_state_statistics {
 	XMAC_STATUS_CYCLE_COUNT,

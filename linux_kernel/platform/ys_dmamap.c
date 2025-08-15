@@ -17,11 +17,7 @@ struct ys_dmamap_node {
 };
 
 struct ys_dmamap_table {
-#ifdef RB_ROOT_CACHED
 	struct rb_root_cached root;
-#else
-	struct rb_root root;
-#endif
 	struct mutex mlock;;       //protect root
 	struct list_head node;
 	atomic_t refcnt;
@@ -77,11 +73,7 @@ struct ys_dmamap_table *ys_dmamap_table_create(struct device *dev)
 		iommu_group_put(group);
 		return NULL;
 	}
-#ifdef RB_ROOT_CACHED
 	tbl->root = RB_ROOT_CACHED;
-#else
-	tbl->root = RB_ROOT;
-#endif
 	INIT_LIST_HEAD(&tbl->node);
 	atomic_set(&tbl->refcnt, 1);
 	tbl->dev = dev;

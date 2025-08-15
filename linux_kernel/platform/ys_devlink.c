@@ -91,9 +91,6 @@ static int ys_devlink_params_register(struct devlink *devlink)
 				      ARRAY_SIZE(ys_devlink_params));
 	if (err)
 		return err;
-#ifdef YS_HAVE_DEVLINK_PARAMS_PUBLISH
-	devlink_params_publish(devlink);
-#endif /* YS_HAVE_DEVLINK_PARAMS_PUBLISH */
 	ys_devlink_set_params_init_values(devlink);
 	return 0;
 }
@@ -102,9 +99,6 @@ static void ys_devlink_params_unregister(struct devlink *devlink)
 {
 	devlink_params_unregister(devlink, ys_devlink_params,
 				  ARRAY_SIZE(ys_devlink_params));
-#ifdef YS_HAVE_DEVLINK_PARAMS_PUBLISH
-	devlink_params_unpublish(devlink);
-#endif /* YS_HAVE_DEVLINK_PARAMS_PUBLISH */
 }
 
 int ys_devlink_init(struct pci_dev *pdev)

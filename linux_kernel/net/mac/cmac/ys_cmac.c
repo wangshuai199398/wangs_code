@@ -205,7 +205,6 @@ int ys_cmac_set_fec_mode(struct net_device *ndev, u32 fec)
 	return 0;
 }
 
-#ifdef YS_HAVE_ETHTOOL_MAC_STATS
 void ys_cmac_get_mac_stats(struct net_device *ndev,
 			   struct ethtool_eth_mac_stats *mac_stats)
 {
@@ -247,7 +246,6 @@ void ys_cmac_get_mac_stats(struct net_device *ndev,
 	mac_stats->OutOfRangeLengthField = 0;
 	mac_stats->FrameTooLongErrors = 0;
 }
-#endif /* YS_HAVE_ETHTOOL_MAC_STATS */
 
 static int ys_cmac_init(struct net_device *ndev, int cmac_id)
 {

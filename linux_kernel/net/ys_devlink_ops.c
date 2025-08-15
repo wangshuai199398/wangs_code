@@ -55,18 +55,6 @@ int ys_devlink_switch_mode_set(struct devlink *devlink, u32 id,
 	return 0;
 }
 
-#ifdef YS_HAVE_DEVLINK_VALIDATE
-int ys_devlink_switch_mode_validate(struct devlink *devlink, u32 id,
-				    union devlink_param_value val)
-{
-	char *value = val.vstr;
-
-	if (!strcmp(value, "dpu") || !strcmp(value, "legacy") ||
-	    !strcmp(value, "smartnic"))
-		return 0;
-	return 0;
-}
-#else
 int ys_devlink_switch_mode_validate(struct devlink *devlink, u32 id,
 				    union devlink_param_value val,
 				    struct netlink_ext_ack *extack)
@@ -81,4 +69,4 @@ int ys_devlink_switch_mode_validate(struct devlink *devlink, u32 id,
 			   "Bad parameter: supported values are [\"dpu\", \"smartnic\", \"legacy\"]");
 	return -EINVAL;
 }
-#endif /* YS_HAVE_DEVLINK_VALIDATE */
+

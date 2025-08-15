@@ -1966,7 +1966,6 @@ int ys_umac_get_stats_count(struct net_device *ndev)
 	return ARRAY_SIZE(ys_umac_stats_strings);
 }
 
-#ifdef YS_HAVE_ETHTOOL_MAC_STATS
 static void ys_umac_get_mac_stats(struct net_device *ndev,
 				  struct ethtool_eth_mac_stats *mac_stats)
 {
@@ -2011,7 +2010,6 @@ static void ys_umac_get_mac_stats(struct net_device *ndev,
 	mac_stats->OutOfRangeLengthField = 0;
 	mac_stats->FrameTooLongErrors = 0;
 }
-#endif /* YS_HAVE_ETHTOOL_MAC_STATS */
 
 static void ys_umac_get_supported_advertising(struct net_device *ndev,
 					      struct ys_ethtool_ksetting *cmd)

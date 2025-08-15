@@ -352,24 +352,15 @@ static int ys_ioctl_dma_map(struct ys_cdev_priv *cdev_priv, unsigned long arg)
 
 	umem->vaddr = map.vaddr;
 	umem->nr_pages = (map.size + ~PAGE_MASK) >> PAGE_SHIFT;
-#ifdef YS_HAVE_KVCALLOC
 	umem->pages = kvcalloc(umem->nr_pages, sizeof(*umem->pages), GFP_KERNEL | __GFP_ZERO);
-#else /* YS_HAVE_KVCALLOC */
-	umem->pages = vmalloc(umem->nr_pages * sizeof(*umem->pages));
-#endif /* YS_HAVE_KVCALLOC */
 	if (!umem->pages) {
 		ret = -ENOMEM;
 		goto err_with_umem;
 	}
 
 	/* pin pages */
-#ifdef YS_HAVE_PIN_USER_PAGES
 	nr_pinned_pages = pin_user_pages_fast(vaddr, umem->nr_pages,
 					      0, umem->pages);
-#else
-	nr_pinned_pages = get_user_pages_fast(vaddr, umem->nr_pages,
-					      0, umem->pages);
-#endif /* YS_HAVE_PIN_USER_PAGES */
 	if (nr_pinned_pages != umem->nr_pages) {
 		if (nr_pinned_pages < 0)
 			ret = (int)nr_pinned_pages;
@@ -404,11 +395,7 @@ static int ys_ioctl_dma_map(struct ys_cdev_priv *cdev_priv, unsigned long arg)
 	cdev_priv->vf_num = map.vf_num;
 
 	/* do dma map */
-#ifdef YS_HAVE_KVCALLOC
 	umem->sg_list = kvcalloc(nr_pinned_pages, sizeof(*umem->sg_list), GFP_KERNEL | __GFP_ZERO);
-#else /* YS_HAVE_KVCALLOC */
-	umem->sg_list = vmalloc(nr_pinned_pages * sizeof(*umem->sg_list));
-#endif /* YS_HAVE_KVCALLOC */
 	if (!umem->sg_list) {
 		ret = -ENOMEM;
 		goto err_with_pages;
@@ -446,21 +433,13 @@ static int ys_ioctl_dma_map(struct ys_cdev_priv *cdev_priv, unsigned long arg)
 err_with_dma_map:
 	if (nr_mapped_pages > 0)
 		dma_unmap_sg(dev, umem->sg_list, nr_mapped_pages, DMA_BIDIRECTIONAL);
-#ifdef YS_HAVE_KVCALLOC
 	kvfree(umem->sg_list);
-#else /* YS_HAVE_KVCALLOC */
-	vfree(umem->sg_list);
-#endif /* YS_HAVE_KVCALLOC */
 err_with_pages:
 
 	if (nr_pinned_pages > 0)
 		unpin_user_pages(umem->pages, umem->nr_pages);
 
-#ifdef YS_HAVE_KVCALLOC
 	kvfree(umem->pages);
-#else /* YS_HAVE_KVCALLOC */
-	kvfree(umem->pages);
-#endif /* YS_HAVE_KVCALLOC */
 err_with_umem:
 	kfree(umem);
 
@@ -477,17 +456,9 @@ void ys_umem_unmap(struct ys_pdev_umem *umem)
 
 	list_del(&umem->list);
 	dma_unmap_sg(umem->dev, umem->sg_list, umem->nr_pages, DMA_BIDIRECTIONAL);
-#ifdef YS_HAVE_KVCALLOC
 	kvfree(umem->sg_list);
-#else /* YS_HAVE_KVCALLOC */
-	vfree(umem->sg_list);
-#endif /* YS_HAVE_KVCALLOC */
 	unpin_user_pages(umem->pages, umem->nr_pages);
-#ifdef YS_HAVE_KVCALLOC
 	kvfree(umem->pages);
-#else /* YS_HAVE_KVCALLOC */
-	vfree(umem->pages);
-#endif /* YS_HAVE_KVCALLOC */
 
 	ys_dev_debug("UNMAP vfnum[%d] vaddr 0x%016llx pages %lld\n",
 		     umem->vf_num, umem->vaddr, umem->nr_pages);

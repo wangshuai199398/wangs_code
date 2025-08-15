@@ -293,25 +293,7 @@ static int ys_k2ulan_cuckoo_uc_store_rule_data(struct ys_cuckoo_table *table,
 static int ys_k2ulan_cuckoo_uc_store_rule_data2file(struct ys_cuckoo_table *table,
 						    u8 bucket, u32 pos)
 {
-#ifdef YS_CUCKOO_USERSPACE
-	FILE *fp;
-	int i;
-	u32 data[YS_CUCKOO_MAX_DATA_ROUND] = { 0 };
 
-	table->ops->generate_rule_data(table->buckets[bucket][pos].key,
-				       table->buckets[bucket][pos].value, data);
-
-	fp = fopen("/tmp/lan_uc_hw", "a");
-	if (!fp) {
-		ys_err("Failed to open file for writing");
-		return -1;
-	}
-
-	fwrite(data, sizeof(u32), 2, fp);
-
-	fclose(fp);
-
-#endif
 	return 0;
 }
 

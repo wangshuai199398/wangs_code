@@ -15,17 +15,7 @@ struct ys_auxiliary_driver {
 	u8 is_registered;
 };
 
-#ifdef YS_HAVE_AUXILIARY_REMOVE
-#define YS_AUX_DRV(_typename, _probe, _remove, _id_table, _aux_drv_support) { \
-	.aux_drv_support = _aux_drv_support, \
-	.drv = { \
-		.name = _typename, \
-		.probe = _probe, \
-		.remove = (int (*)(struct auxiliary_device *))_remove, \
-		.id_table = _id_table \
-	} \
-}
-#else
+
 #define YS_AUX_DRV(_typename, _probe, _remove, _id_table, _aux_drv_support) { \
 	.aux_drv_support = _aux_drv_support, \
 	.drv = { \
@@ -35,7 +25,6 @@ struct ys_auxiliary_driver {
 		.id_table = _id_table \
 	} \
 }
-#endif /* YS_HAVE_AUXILIARY_REMOVE */ \
 
 
 #define YS_AUX_MODULE_NAME YS_DEV_NAME("unic3")

@@ -923,43 +923,26 @@ static int ys_do_ext_action(struct net_device *dev, void __user *useraddr, u32 e
 	case YS_EXT_ETHTOOL_GCOALESCE: {
 		if (!IS_ERR_OR_NULL(exttool_ops.get_coalesce))
 			return -EOPNOTSUPP;
-#ifdef YS_HAVE_ETHTOOL_COALESCE_CQE
 		rc = exttool_ops.get_coalesce(dev, &buffer.coalesce, NULL, NULL);
-#else
-		rc = exttool_ops.get_coalesce(dev, &buffer.coalesce);
-#endif
 		cp_to_user_size = sizeof(buffer.coalesce);
 		break;
 	}
 	case YS_EXT_ETHTOOL_SCOALESCE: {
 		if (!IS_ERR_OR_NULL(exttool_ops.set_coalesce))
 			return -EOPNOTSUPP;
-#ifdef YS_HAVE_ETHTOOL_COALESCE_CQE
 		rc = exttool_ops.set_coalesce(dev, &buffer.coalesce, NULL, NULL);
-#else
-		rc = exttool_ops.set_coalesce(dev, &buffer.coalesce);
-#endif
-
 		break;
 	}
 	case YS_EXT_ETHTOOL_SRINGPARAM: {
 		if (!IS_ERR_OR_NULL(exttool_ops.set_ringparam))
 			return -EOPNOTSUPP;
-#ifdef YS_HAVE_KERNEL_RING
 		rc = exttool_ops.set_ringparam(dev, &buffer.ringparam, NULL, NULL);
-#else
-		rc = exttool_ops.set_ringparam(dev, &buffer.ringparam);
-#endif
 		break;
 	}
 	case YS_EXT_ETHTOOL_GRINGPARAM: {
 		if (!IS_ERR_OR_NULL(exttool_ops.get_ringparam))
 			return -EOPNOTSUPP;
-#ifdef YS_HAVE_KERNEL_RING
 		exttool_ops.get_ringparam(dev, &buffer.ringparam, NULL, NULL);
-#else
-		exttool_ops.get_ringparam(dev, &buffer.ringparam);
-#endif
 		cp_to_user_size = sizeof(buffer.ringparam);
 		rc = 0;
 		break;

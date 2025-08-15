@@ -113,18 +113,10 @@ static int ys_cuckoo_generate_seed(struct ys_cuckoo_table *table)
 	seed_mask = (1ULL << table->seed_bits) - 1;
 	for (j = 0; j < YS_CUCKOO_MAX_CREATE_SEED_RETRIES; j++) {
 		for (i = 0; i < table->bucket_count; i++)
-#ifdef YS_HAVE_GET_RANDOM_U32
 			seed[i] = get_random_u32() & seed_mask;
-#else
-			seed[i] = prandom_u32() & seed_mask;
-#endif /* YS_HAVE_GET_RANDOM_U32 */
 
 		for (i = 0; i < table->bucket_count; i++)
-#ifdef YS_HAVE_GET_RANDOM_U32
 			mux_seed[i] = get_random_u32() & mux_seed_mask;
-#else
-			mux_seed[i] = prandom_u32() & mux_seed_mask;
-#endif /* YS_HAVE_GET_RANDOM_U32 */
 		if (!ys_cuckoo_check_duplicates(seed, table->bucket_count) &&
 		    !ys_cuckoo_check_duplicates(mux_seed,
 						table->bucket_count)) {

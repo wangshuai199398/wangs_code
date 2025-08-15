@@ -24,13 +24,7 @@ enum { REG_TEST, EEPROM_TEST, LOOPBACK_TEST, LINK_TEST, INT_TEST };
 enum { CMAC_PRIV_FLAG,
 };
 
-#ifdef YS_HAVE_ETHTOOL_MAC_STATS
 #define get_mac_stats(cmac) ((cmac)->et_get_mac_stats = ys_cmac_get_mac_stats)
-#else
-#define get_mac_stats(cmac) \
-	do {                \
-	} while (0)
-#endif
 
 int ys_cmac_eth_init(struct net_device *ndev);
 int ys_cmac_ndev_init(struct net_device *ndev);
@@ -53,23 +47,18 @@ u8 ys_cmac_get_link_autoneg(struct net_device *ndev);
 u32 ys_cmac_get_link_port_type(struct net_device *ndev);
 u32 ys_cmac_get_priv_flags(struct net_device *ndev);
 u32 ys_cmac_set_priv_flags(struct net_device *ndev, u32 falg);
-#ifdef YS_HAVE_ETHTOOL_COALESCE_CQE
 int ys_cmac_get_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec,
 			 struct kernel_ethtool_coalesce *kec,
 			 struct netlink_ext_ack *ack);
 int ys_cmac_set_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec,
 			 struct kernel_ethtool_coalesce *kec,
 			 struct netlink_ext_ack *ack);
-#else
-int ys_cmac_get_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec);
-int ys_cmac_set_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec);
-#endif /* YS_HAVE_ETHTOOL_COALESCE_CQE */
+
 int ys_cmac_get_fec_mode(struct net_device *ndev, struct ethtool_fecparam *fp);
 int ys_cmac_set_fec_mode(struct net_device *ndev, u32 fec);
-#ifdef YS_HAVE_ETHTOOL_MAC_STATS
 void ys_cmac_get_mac_stats(struct net_device *ndev,
 			   struct ethtool_eth_mac_stats *mac_stats);
-#endif /* YS_HAVE_ETHTOOL_MAC_STATS */
+
 int ys_cmac_enable(struct net_device *ndev);
 
 #define CMAC_ETH_FUNC(cmac)                                              \
