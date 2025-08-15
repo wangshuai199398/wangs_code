@@ -143,6 +143,7 @@ int ys_devlink_init(struct pci_dev *pdev)
 
 	pdev_priv->devlink_info.devlink_registered = 0;
 #if defined(YS_HAVE_VOID_DEVLINK_REGISTER)
+	ys_info("YS_HAVE_VOID_DEVLINK_REGISTER is true");
 	devlink_register(devlink);
 #elif defined(YS_HAVE_DEVLINK_ALLOC_DEV)
 	err = devlink_register(devlink);

@@ -20,9 +20,7 @@
 #include "../net/mac/ys_mac.h"
 #include "../net/ys_ndev_ops.h"
 
-#ifdef CONFIG_YSMOD_CDEV
 #include "../platform/ys_cdev.h"
-#endif /* CONFIG_YSMOD_CDEV */
 
 #include "../platform/ys_devlink.h"
 #include "../net/ys_devlink_ops.h"

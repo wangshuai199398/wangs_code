@@ -289,15 +289,12 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto err_debug;
 	}
 
-#ifdef CONFIG_YSMOD_CDEV
-	pr_info("CONFIG_YSMOD_CDEV is true");
 	/* YUSUR mdev init */
 	ret = ys_cdev_init(pdev);
 	if (ret) {
 		ys_dev_err("ys_mdev_init failed\n");
 		goto err_initmiscdev;
 	}
-#endif /* CONFIG_YSMOD_CDEV */
 
 	ret = ys_sysfs_init(pdev);
 	if (ret)
@@ -330,10 +327,8 @@ err_register_devlink:
 	ys_devlink_uninit(pdev);
 err_register_sysfs:
 	ys_sysfs_uninit(pdev);
-#ifdef CONFIG_YSMOD_CDEV
 err_initmiscdev:
 	ys_cdev_uninit(pdev);
-#endif /* CONFIG_YSMOD_CDEV */
 err_debug:
 	ys_debug_uninit(pdev);
 err_initaux:
@@ -392,9 +387,7 @@ void ys_pdev_remove(struct pci_dev *pdev)
 	ys_disable_sriov(pdev);
 	ys_pdev_update_vfinfo(false, pdev);
 	ys_sysfs_uninit(pdev);
-#ifdef CONFIG_YSMOD_CDEV
 	ys_cdev_uninit(pdev);
-#endif /* CONFIG_YSMOD_CDEV */
 	ys_debug_uninit(pdev);
 	ys_aux_dev_uninit(pdev);
 	ys_aux_mbox_dev_uninit(pdev);
