@@ -318,12 +318,6 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	pr_err("ETHTOOL_COALESCE_USECS is false");
 	#endif
 
-	#ifdef __KERNEL__
-	pr_err("__KERNEL__ is true");
-	#else
-	pr_err("__KERNEL__ is false");
-	#endif
-
 	/* YUSUR mdev init */
 	ret = ys_cdev_init(pdev);
 	if (ret) {

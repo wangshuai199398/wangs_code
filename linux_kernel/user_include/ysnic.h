@@ -185,11 +185,6 @@ struct ys_debug_unit {
 
 /****** ysc support start ******/
 
-#ifndef __KERNEL__
-#include <stdint.h>
-#include <stdbool.h>
-#endif
-
 #define YSC_IOCTL_COMM_TYPE	'c'
 #define YSC_IOCTL_NET_TYPE	'n'
 #define YSC_IOCTL_DOE_TYPE	'd'

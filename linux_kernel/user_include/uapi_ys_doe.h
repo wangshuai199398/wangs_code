@@ -69,15 +69,6 @@ struct ys_doe_table_param {
 	unsigned int hash_seed;		/* hash表冲突链最大长度 */
 };
 
-#ifndef __KERNEL__
-struct list_head {
-	struct list_head *next, *prev;
-};
-
-struct llist_node {
-	struct llist_node *next;
-};
-#endif
 struct ys_doe_sw_cmd {
 	unsigned char opcode;
 	unsigned char tbl_id;
