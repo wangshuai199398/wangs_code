@@ -19,6 +19,7 @@
 #include <linux/rbtree.h>
 #include <linux/sched/signal.h>
 #include <linux/sched/mm.h>
+#include <linux/nospec.h>
 #include <linux/slab.h>
 
 #include "ysc_dev.h"

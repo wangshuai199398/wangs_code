@@ -12,6 +12,7 @@
 #include <linux/uaccess.h>
 #include <net/rtnetlink.h>
 #include <linux/iommu.h>
+#include <linux/nospec.h>
 
 #include "ys_cdev.h"
 #include "ys_i2c.h"

@@ -16,6 +16,7 @@
         "mm.h": "c",
         "sched.h": "c",
         "rbtree.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "rtnetlink.h": "c"
     }
 }

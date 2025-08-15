@@ -5,6 +5,8 @@
 #include <linux/netdevice.h>
 #include <uapi/linux/if_bridge.h>
 #include <net/udp_tunnel.h>
+#include <linux/nospec.h>
+
 #include "ys_ndev_ops.h"
 #include "ys_ext_ethtool.h"
 
