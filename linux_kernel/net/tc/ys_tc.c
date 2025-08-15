@@ -3,7 +3,6 @@
 #include "ys_tc.h"
 #include "../../platform/ys_debugfs.h"
 
-#ifndef YS_TC_DISABLE
 
 bool ys_tc_flow_enable;
 
@@ -112,18 +111,11 @@ static int ys_tc_setup_indr_block_cb(enum tc_setup_type type, void *type_data,
 
 static LIST_HEAD(ys_tc_indr_block_list);
 
-#ifdef YS_HAVE_FLOW_INDR_BLOCK_CB_ALLOC
 static int
 ys_tc_indr_setup_block(struct net_device *ndev, struct Qdisc *sch,
 		       struct ys_tc_priv *tc_priv, struct flow_block_offload *f,
 		       flow_setup_cb_t *setup_cb, void *data,
 		       void (*cleanup)(struct flow_block_cb *block_cb))
-#else
-static int ys_tc_indr_setup_block(struct net_device *ndev,
-				  struct ys_tc_priv *tc_priv,
-				  struct flow_block_offload *f,
-				  flow_setup_cb_t *setup_cb)
-#endif
 {
 	struct ys_tc_indr_block_priv *indr_priv;
 	struct flow_block_cb *block_cb;
@@ -150,16 +142,11 @@ static int ys_tc_indr_setup_block(struct net_device *ndev,
 		indr_priv->tunnel_ndev = ndev;
 		indr_priv->tc_priv = tc_priv;
 		list_add(&indr_priv->node, &tc_priv->tc_indr_block_list);
-#ifdef YS_HAVE_FLOW_INDR_BLOCK_CB_ALLOC
 		block_cb = flow_indr_block_cb_alloc(setup_cb, indr_priv,
 						    indr_priv,
 						    ys_tc_indr_block_release, f,
 						    ndev, sch, data, tc_priv,
 						    cleanup);
-#else
-		block_cb = flow_block_cb_alloc(setup_cb, indr_priv, indr_priv,
-					       ys_tc_indr_block_release);
-#endif
 		if (IS_ERR(block_cb)) {
 			list_del(&indr_priv->node);
 			kfree(indr_priv);
@@ -176,11 +163,7 @@ static int ys_tc_indr_setup_block(struct net_device *ndev,
 		block_cb = flow_block_cb_lookup(f->block, setup_cb, indr_priv);
 		if (!block_cb)
 			return -ENOENT;
-#ifdef YS_HAVE_FLOW_INDR_BLOCK_CB_ALLOC
 		flow_indr_block_cb_remove(block_cb, f);
-#else
-		flow_block_cb_remove(block_cb, f);
-#endif
 		list_del(&block_cb->driver_list);
 		return 0;
 	default:
@@ -189,7 +172,6 @@ static int ys_tc_indr_setup_block(struct net_device *ndev,
 	return 0;
 }
 
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 static int
 ys_tc_indr_setup_nodev(struct ys_tc_priv *tc_priv, enum tc_setup_type type, void *data)
 {
@@ -206,19 +188,15 @@ ys_tc_indr_setup_nodev(struct ys_tc_priv *tc_priv, enum tc_setup_type type, void
 		return -EOPNOTSUPP;
 	}
 }
-#endif
 
-#ifdef YS_HAVE_FLOW_INDR_BLOCK_CB_ALLOC
 static int
 ys_tc_indr_block_bind_cb(struct net_device *ndev, struct Qdisc *sch,
 			 void *cb_priv, enum tc_setup_type type,
 			 void *type_data, void *data,
 			 void (*cleanup)(struct flow_block_cb *block_cb))
 {
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 	if (!ndev)
 		return ys_tc_indr_setup_nodev(cb_priv, type, data);
-#endif
 
 	switch (type) {
 	case TC_SETUP_BLOCK:
@@ -229,19 +207,6 @@ ys_tc_indr_block_bind_cb(struct net_device *ndev, struct Qdisc *sch,
 		return -EOPNOTSUPP;
 	}
 }
-#else
-static int ys_tc_indr_block_bind_cb(struct net_device *ndev, void *cb_priv,
-				    enum tc_setup_type type, void *type_data)
-{
-	switch (type) {
-	case TC_SETUP_BLOCK:
-		return ys_tc_indr_setup_block(ndev, cb_priv, type_data,
-					      ys_tc_setup_indr_block_cb);
-	default:
-		return -EOPNOTSUPP;
-	}
-}
-#endif
 
 static int ys_tc_switchdev_event(struct notifier_block *nb, unsigned long event,
 				 void *data)
@@ -289,13 +254,8 @@ void ys_tc_tunnel_cb_exit(struct ys_tc_priv *tc_priv)
 
 	unregister_netdevice_notifier_dev_net(tc_priv->ndev, &tc_priv->tun_nb,
 					      &tc_priv->tun_nn);
-#ifdef YS_HAVE_FLOW_INDR_BLOCK_CB_ALLOC
 	flow_indr_dev_unregister(ys_tc_indr_block_bind_cb, tc_priv,
 				 ys_tc_indr_block_release);
-#else
-	flow_indr_dev_unregister(ys_tc_indr_block_bind_cb, tc_priv,
-				 ys_tc_setup_indr_block_cb);
-#endif
 }
 
 int ys_tc_debug_init(int switchdev_id, bool first, struct dentry **debugfs_root)
@@ -324,5 +284,3 @@ void ys_tc_debug_exit(struct dentry *debugfs_root, bool last)
 
 module_param_named(flow_en, ys_tc_flow_enable, bool, 0644);
 MODULE_PARM_DESC(flow_en, "flow_en: true or false. Default = false");
-
-#endif

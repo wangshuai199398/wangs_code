@@ -315,13 +315,8 @@ static long ysc_net_devinfo(struct file *file, unsigned int cmd, unsigned long a
 	devinfo.vf_id = pdev_priv->vf_id;
 	devinfo.vf_num = pdev_priv->sum_vf;
 	devinfo.ifindex = priv->ndev->ifindex;
-#ifdef YS_HAVE_MAX_MTU
 	devinfo.min_mtu = priv->ndev->min_mtu;
 	devinfo.max_mtu = priv->ndev->max_mtu;
-#else
-	devinfo.min_mtu = priv->ndev->extended->min_mtu;
-	devinfo.max_mtu = priv->ndev->extended->max_mtu;
-#endif /* YS_HAVE_MAX_MTU */
 
 	if (copy_to_user((void __user *)arg, &devinfo, sizeof(devinfo)))
 		return -EFAULT;
@@ -391,13 +386,7 @@ static long ysc_net_macaddr(struct file *file, unsigned int cmd, unsigned long a
 
 static int ysc_net_mtu_set(struct net_device *ndev, int mtu)
 {
-#ifdef YS_HAVE_NDO_EXT_CHANGE_MTU
-	return ndev->netdev_ops->extended.ndo_change_mtu(ndev, mtu);
-#elif defined YS_HAVE_CHANGE_MTU_RH74
-	return ndev->netdev_ops->ndo_change_mtu_rh74(ndev, mtu);
-#else
 	return ndev->netdev_ops->ndo_change_mtu(ndev, mtu);
-#endif
 }
 
 static long ysc_net_mtu(struct file *file, unsigned int cmd, unsigned long arg)
@@ -573,14 +562,7 @@ static void ysc_page_map_free(struct ysc_page_map *page_map)
 
 static void ysc_unpin_user_pages(struct page **pages, unsigned long npages)
 {
-#ifdef YS_HAVE_UNPIN_USER_PAGES
 	unpin_user_pages(pages, npages);
-#else
-	unsigned long i;
-
-	for (i = 0; i < npages; i++)
-		put_page(pages[i]);
-#endif /* YS_HAVE_UNPIN_USER_PAGES */
 }
 
 static void ys_dmamap_unmap_cb(void *opaque)
@@ -620,13 +602,8 @@ static long ysc_net_dma_map(struct file *file, unsigned int cmd, unsigned long a
 
 	/* should be flags = FOLL_WRITE | FOLL_LONGTERM; */
 	flags = FOLL_WRITE;
-#ifdef YS_HAVE_GUP_PIN_NO_VMAS
-	ret = pin_user_pages(page_map->vaddr, page_map->npages, flags,
-			     page_map->pages);
-#else
 	ret = pin_user_pages(page_map->vaddr, page_map->npages, flags,
 			     page_map->pages, NULL);
-#endif /* YS_HAVE_GUP_PIN_NO_VMAS */
 	if (ret <= 0) {
 		ysc_page_map_free(page_map);
 		return ret;
@@ -719,11 +696,7 @@ static long ysc_net_umd(struct file *file, unsigned int cmd, unsigned long arg)
 		netif_device_detach(ndev);
 	} else {
 		netif_device_attach(ndev);
-#ifdef YS_HAVE_DEV_OPEN_NETLINK
 		dev_open(ndev, NULL);
-#else
-		dev_open(ndev);
-#endif /* YS_HAVE_DEV_OPEN_NETLINK */
 		ndev_priv->umd_enable = false;
 		priv->umd_enabled = false;
 		ys_net_debug("umd disable");
@@ -1232,11 +1205,7 @@ static int ysc_release(struct inode *inode, struct file *file)
 		/* Change umd state before to call dev_open -> ys_ndo_open.*/
 		ndev_priv->umd_enable = false;
 		netif_device_attach(ndev);
-#ifdef YS_HAVE_DEV_OPEN_NETLINK
 		dev_open(ndev, NULL);
-#else
-		dev_open(ndev);
-#endif /* YS_HAVE_DEV_OPEN_NETLINK */
 		rtnl_unlock();
 		ys_net_debug("umd disable");
 	}

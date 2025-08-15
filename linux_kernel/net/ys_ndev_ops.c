@@ -359,7 +359,6 @@ static int ys_ndo_ioctl(struct net_device *ndev, struct ifreq *ifr, int cmd)
 		return -EPERM;
 
 	pdev_priv = pci_get_drvdata(ndev_priv->pdev);
-#ifndef YS_HAVE_NDO_SIOCDEVPRIVATE
 	if (!IS_ERR_OR_NULL(pdev_priv->ops->hw_adp_ndo_ioctl)) {
 		int ret;
 
@@ -367,7 +366,6 @@ static int ys_ndo_ioctl(struct net_device *ndev, struct ifreq *ifr, int cmd)
 		if (ret != -EOPNOTSUPP)
 			return ret;
 	}
-#endif /* YS_HAVE_NDO_SIOCDEVPRIVATE */
 
 	switch (cmd) {
 	case SIOCSHWTSTAMP:
@@ -380,38 +378,6 @@ static int ys_ndo_ioctl(struct net_device *ndev, struct ifreq *ifr, int cmd)
 		return -EOPNOTSUPP;
 	}
 }
-
-#ifdef YS_HAVE_NDO_SIOCDEVPRIVATE
-static int ys_ndo_siocdevprivate(struct net_device *ndev,
-				 struct ifreq *ifr, void __user *data, int cmd)
-{
-	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-	struct ys_pdev_priv *pdev_priv;
-	unsigned long args[4];
-	int ret = 0;
-
-	if (copy_from_user(args, ifr->ifr_data, sizeof(args))) {
-		ys_net_err("get args error\n");
-		return -EFAULT;
-	}
-
-	if (args[0] == BRCTL_GET_BRIDGE_INFO) {
-		/* app wants to get bridge info, our device is not a bridge, return error */
-		return -EFAULT;
-	}
-
-	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
-		return -EPERM;
-
-	pdev_priv = pci_get_drvdata(ndev_priv->pdev);
-	if (!IS_ERR_OR_NULL(pdev_priv->ops->hw_adp_ndo_ioctl)) {
-		ret = pdev_priv->ops->hw_adp_ndo_ioctl(ndev, ifr, cmd);
-		if (ret != -EOPNOTSUPP)
-			return ret;
-	}
-	return ret;
-}
-#endif /* YS_HAVE_NDO_SIOCDEVPRIVATE */
 
 static int ys_ndo_change_hw_mtu(struct net_device *ndev, int new_mtu)
 {
@@ -439,17 +405,10 @@ static int ys_ndo_change_mtu(struct net_device *ndev, int new_mtu)
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
-#ifdef YS_HAVE_MAX_MTU
 	if (new_mtu < ndev->min_mtu || new_mtu > ndev->max_mtu) {
 		ys_net_err("Bad MTU: %d", new_mtu);
 		return -EPERM;
 	}
-#else
-	if (new_mtu < ndev->extended->min_mtu || new_mtu > ndev->extended->max_mtu) {
-		ys_net_err("Bad MTU: %d", new_mtu);
-		return -EPERM;
-	}
-#endif /* YS_HAVE_MAX_MTU */
 
 	if (netif_running(ndev)) {
 		mutex_lock(&ndev_priv->state_lock);
@@ -883,7 +842,6 @@ void ys_ndev_debug_uninit(struct net_device *ndev)
 	}
 }
 
-#ifdef YS_HAVE_NDO_PHYSPORTNAME
 static int ys_ndo_get_phys_port_name(struct net_device *ndev, char *buf, size_t len)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
@@ -925,7 +883,6 @@ static int ys_ndo_get_phys_port_name(struct net_device *ndev, char *buf, size_t 
 
 	return 0;
 }
-#endif /* YS_HAVE_NDO_PHYSPORTNAME */
 
 static int ys_ndo_get_phys_port_id(struct net_device *ndev,
 				   struct netdev_phys_item_id *ppid)
@@ -992,7 +949,6 @@ static int ys_ndo_get_phys_port_id(struct net_device *ndev,
 	return 0;
 }
 
-#ifdef YS_HAVE_NDO_PHYSPORTPARENT_ID
 #define PORT_ID_BYTE_LEN 8
 static int ys_ndo_get_port_parent_id(struct net_device *ndev,
 				     struct netdev_phys_item_id *ppid)
@@ -1021,9 +977,7 @@ static int ys_ndo_get_port_parent_id(struct net_device *ndev,
 
 	return 0;
 }
-#endif
 
-#ifdef YS_HAVE_NDO_NDO_UDP_TUNNEL
 static void ys_add_udp_tunnel(struct net_device *ndev,
 			      struct udp_tunnel_info *ti)
 {
@@ -1049,7 +1003,6 @@ static void ys_del_udp_tunnel(struct net_device *ndev,
 	if (!IS_ERR_OR_NULL(ndev_priv->ys_ndev_hw->ys_set_port_udp_tunnel))
 		ndev_priv->ys_ndev_hw->ys_set_port_udp_tunnel(ndev, false);
 }
-#endif
 
 static int ys_ndo_set_vf_spoofchk(struct net_device *ndev, int vf, bool setting)
 {
@@ -1077,7 +1030,6 @@ static int ys_ndo_set_vf_spoofchk(struct net_device *ndev, int vf, bool setting)
 	return ret;
 }
 
-#ifndef YS_HAVE_SELECT_QUEUE_RH310
 static u16 ys_ndo_select_queue_nocb(struct net_device *dev,
 				    struct sk_buff *skb,
 				    struct net_device *sb_dev)
@@ -1096,7 +1048,6 @@ static u16 ys_ndo_select_queue_nocb(struct net_device *dev,
 	return idx;
 }
 
-#ifndef YS_HAVE_SELECT_QUEUE_NOCB
 /* This is need for 4.18 kernel */
 static u16 ys_ndo_select_queue(struct net_device *dev, struct sk_buff *skb,
 			       struct net_device *sb_dev,
@@ -1104,36 +1055,18 @@ static u16 ys_ndo_select_queue(struct net_device *dev, struct sk_buff *skb,
 {
 	return ys_ndo_select_queue_nocb(dev, skb, sb_dev);
 }
-#endif
-#endif /* YS_HAVE_SELECT_QUEUE_RH310 */
 
 const struct net_device_ops ys_ndev_ops = {
-#ifdef YS_HAVE_NDO_PHYSPORTNAME
 	.ndo_get_phys_port_name = ys_ndo_get_phys_port_name,
-#endif /* YS_HAVE_NDO_PHYSPORTNAME */
 	.ndo_get_phys_port_id = ys_ndo_get_phys_port_id,
-#ifdef YS_HAVE_NDO_PHYSPORTPARENT_ID
 	.ndo_get_port_parent_id = ys_ndo_get_port_parent_id,
-#endif
 	.ndo_open = ys_ndo_open,
 	.ndo_stop = ys_ndo_close,
 	.ndo_start_xmit = ys_ndo_start_xmit,
 	.ndo_set_mac_address = ys_ndo_set_mac,
 	.ndo_validate_addr = eth_validate_addr,
 	.ndo_do_ioctl = ys_ndo_ioctl,
-#ifdef YS_HAVE_NDO_ETHIOCTL
-	.ndo_eth_ioctl = ys_ndo_ioctl,
-#endif /* YS_HAVE_NDO_ETHIOCTL */
-#ifdef YS_HAVE_NDO_SIOCDEVPRIVATE
-	.ndo_siocdevprivate = ys_ndo_siocdevprivate,
-#endif /* YS_HAVE_NDO_SIOCDEVPRIVATE */
-#ifdef YS_HAVE_NDO_EXT_CHANGE_MTU
-	.extended.ndo_change_mtu = ys_ndo_change_mtu,
-#elif defined YS_HAVE_CHANGE_MTU_RH74
-	.ndo_change_mtu_rh74 = ys_ndo_change_mtu,
-#else
 	.ndo_change_mtu = ys_ndo_change_mtu,
-#endif /* YS_HAVE_NDO_EXT_CHANGE_MTU */
 	.ndo_get_stats64 = ys_ndo_get_stats64,
 	.ndo_change_rx_flags = ys_ndo_change_rx_flags,
 	.ndo_set_rx_mode = ys_ndo_set_rx_mode,
@@ -1141,38 +1074,19 @@ const struct net_device_ops ys_ndev_ops = {
 	.ndo_fix_features = ys_ndo_fix_features,
 	.ndo_set_vf_mac = ys_ndo_set_vf_mac,
 	.ndo_set_vf_rate = ys_ndo_set_vf_rate,
-#ifdef YS_HAVE_NDO_EXT_SET_VF_VLAN
-	.extended.ndo_set_vf_vlan = ys_ndo_set_vf_vlan,
-#else
 	.ndo_set_vf_vlan = ys_ndo_set_vf_vlan,
-#endif /* YS_HAVE_NDO_EXT_SET_VF_VLAN */
 	.ndo_get_vf_config = ys_ndo_get_vf_config,
 	.ndo_vlan_rx_add_vid = ys_ndo_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid = ys_ndo_vlan_rx_kill_vid,
-#ifndef YS_TC_DISABLE
 	.ndo_setup_tc		= ys_tc_setup_tc,
-#endif
-#ifdef YS_HAVE_NDO_SET_VF_TRUST
 	.ndo_set_vf_trust = ys_ndo_set_vf_trust,
-#else
-	.extended.ndo_set_vf_trust = ys_ndo_set_vf_trust,
-#endif /* YS_HAVE_NDO_SET_VF_TRUST */
-#ifdef YS_HAVE_NDO_NDO_UDP_TUNNEL
 	.ndo_udp_tunnel_add = ys_add_udp_tunnel,
 	.ndo_udp_tunnel_del = ys_del_udp_tunnel,
-#endif
 	.ndo_set_vf_link_state = ys_ndo_set_vf_link_state,
 	.ndo_set_vf_spoofchk = ys_ndo_set_vf_spoofchk,
-#ifndef YS_HAVE_SELECT_QUEUE_RH310
-#ifdef YS_HAVE_SELECT_QUEUE_NOCB
-	.ndo_select_queue = ys_ndo_select_queue_nocb,
-#else
 	.ndo_select_queue = ys_ndo_select_queue,
-#endif /* YS_HAVE_SELECT_QUEUE_NOCB */
-#endif /* YS_HAVE_SELECT_QUEUE_RH310 */
 };
 
-#ifdef YS_HAVE_UDP_TUNNEL_NIC_INFO
 static int ys_udp_tnl_set_port(struct net_device *ndev,
 			       unsigned int table, unsigned int entry,
 			       struct udp_tunnel_info *ti)
@@ -1217,4 +1131,4 @@ const struct udp_tunnel_nic_info ys_udp_tunnels = {
 		},
 	},
 };
-#endif
+

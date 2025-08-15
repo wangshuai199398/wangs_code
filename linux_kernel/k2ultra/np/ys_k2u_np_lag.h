@@ -3,7 +3,6 @@
 #ifndef _YS_LAG_H_
 #define _YS_LAG_H_
 
-#ifndef YS_TC_DISABLE
 
 #include <linux/netdevice.h>
 #include "ys_k2u_np_priv.h"
@@ -54,9 +53,7 @@ struct ys_k2u_lag_group {
 	u8 primary_pf_id;
 	size_t num_slaves;
 	enum netdev_lag_tx_type tx_type;
-#ifdef YS_HAVE_NETDEV_LAG_HASH
 	enum netdev_lag_hash hash_type;
-#endif /* YS_HAVE_NETDEV_LAG_HASH */
 };
 
 #define ys_np_debug(f, arg...) \
@@ -75,5 +72,3 @@ void ys_k2u_deinit_lag(struct ys_np *np);
 int ys_k2u_get_lag_group_id_by_master(int bus_id, struct net_device *netdev);
 
 #endif
-
-#endif /* _YS_LAG_H_ */

@@ -3,8 +3,6 @@
 #include "ys_k2u_tc_priv.h"
 #include "../np/ys_k2u_np.h"
 
-#ifndef YS_TC_DISABLE
-
 static void ys_tc_table_dump(struct ys_tc_priv *tc_priv, const char *note,
 			     struct ys_tc_table *table)
 {
@@ -1511,6 +1509,3 @@ void ys_tc_table_exit(struct ys_tc_priv *tc_priv)
 
 	ys_tc_table_flush(tc_priv);
 }
-
-#endif
-

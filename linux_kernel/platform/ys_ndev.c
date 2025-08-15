@@ -80,12 +80,10 @@ static void ys_ndev_destroy(struct net_device *ndev)
 	/* netif_carrier_off(ndev); */
 	ys_ethtool_hw_uninit(ndev);
 
-#ifdef YS_HAVE_NETDEV_NET_NOTIFIER
 	if (pdev_priv->dpu_mode == MODE_LEGACY &&
 	    !pdev_priv->nic_type->is_vf &&
 	    !IS_ERR_OR_NULL(ndev_priv->ys_ndev_hw->ys_ndev_bond_uninit))
 		ndev_priv->ys_ndev_hw->ys_ndev_bond_uninit(ndev);
-#endif /* YS_HAVE_NETDEV_NET_NOTIFIER */
 
 	if (ndev->reg_state == NETREG_REGISTERED) {
 		ys_net_info("unregister net dev %s\n", ndev->name);
@@ -171,7 +169,11 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 	struct ys_ndev_priv *ndev_priv = NULL;
 	struct net_device *ndev;
 	int ret = 0;
-
+	#ifdef RB_ROOT_CACHED
+	ys_err("RB_ROOT_CACHED is true");
+	#else
+	ys_err("RB_ROOT_CACHED is false");
+	#endif
 	if (adev->qi.ndev_qnum == 0) {
 		ys_dev_err("etherdev alloc max queue can't be 0");
 		return NULL;
@@ -262,20 +264,11 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 		goto fail;
 
 	ndev->mtu = YS_MTU;
-#ifdef YS_HAVE_MAX_MTU
 	ndev->min_mtu = ETH_MIN_MTU;
 	ndev->max_mtu = YS_MAX_MTU;
-#else
-	ndev->extended->min_mtu = ETH_MIN_MTU;
-	ndev->extended->max_mtu = YS_MAX_MTU;
-#endif /* YS_HAVE_MAX_MTU */
 
 	if (!IS_ERR_OR_NULL(pdev_priv->pdev_manager->doe_ops)) {
-#ifdef YS_HAVE_MAX_MTU
 		ndev->max_mtu = YS_NP_MAX_MTU;
-#else
-		ndev->extended->max_mtu = YS_NP_MAX_MTU;
-#endif /* YS_HAVE_MAX_MTU */
 	}
 
 	ret = ys_ethtool_hw_init(ndev);
@@ -317,9 +310,6 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 		ndev->addr_len = ETH_ALEN;
 		eth_hw_addr_random(ndev);
 	}
-#ifdef YS_HAVE_DEV_ADDR_SHADOW
-	memcpy((u8 *)ndev->dev_addr_shadow, (u8 *)ndev->dev_addr, ETH_ALEN);
-#endif
 
 	if (!IS_ERR_OR_NULL(ndev_priv->ys_ndev_hw->ys_init_hw_features))
 		ndev_priv->ys_ndev_hw->ys_init_hw_features(ndev);
@@ -340,9 +330,7 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 
 	ndev->netdev_ops = &ys_ndev_ops;
 	ndev->ethtool_ops = &ys_ethtool_ops;
-#ifdef YS_HAVE_UDP_TUNNEL_NIC_INFO
 	ndev->udp_tunnel_nic_info = &ys_udp_tunnels;
-#endif
 	netif_carrier_off(ndev);
 
 	if (!IS_ERR_OR_NULL(ndev_priv->ys_eth_hw->enable_mac))

@@ -4,7 +4,6 @@
 #include "ys_k2u_tc_priv.h"
 #include "../np/ys_k2u_np.h"
 
-#ifndef YS_TC_DISABLE
 static DEFINE_IDR(ys_tc_switchdev_idr);
 static DEFINE_MUTEX(ys_tc_switchdev_lock);
 
@@ -35,7 +34,6 @@ static int ys_tc_setup_tc_cls_flower(struct ys_tc_priv *tc_priv,
 	return 0;
 }
 
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 static int
 ys_tc_indr_setup_tc_act(struct ys_tc_priv *tc_priv,
 			struct flow_offload_action *fl_act)
@@ -51,13 +49,10 @@ ys_tc_indr_setup_tc_act(struct ys_tc_priv *tc_priv,
 		return -EOPNOTSUPP;
 	}
 }
-#endif
 
 const struct ys_tc_adapter_ops ys_tc_ops = {
 	.setup_tc_cls_flower = ys_tc_setup_tc_cls_flower,
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 	.setup_tc_act = ys_tc_indr_setup_tc_act,
-#endif
 };
 
 static void ys_tc_metrcs_init(struct ys_tc_switchdev *switchdev)
@@ -216,13 +211,11 @@ static int ys_tc_switchdev_init(struct ys_tc_priv *tc_priv,
 		goto fail_with_fs;
 	}
 
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 	ret = ys_tc_meter_init(tc_priv);
 	if (ret) {
 		ys_tc_err("failed to init meter\n");
 		goto fail_with_table;
 	}
-#endif
 	ret = ys_tc_multicast_init(tc_priv);
 	if (ret) {
 		ys_tc_err("failed to init multicast\n");
@@ -234,10 +227,8 @@ out:
 	return 0;
 
 fail_with_meter:
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 	ys_tc_meter_exit(tc_priv);
 fail_with_table:
-#endif
 	ys_tc_table_exit(tc_priv);
 fail_with_fs:
 	ys_tc_debug_exit(switchdev->debugfs_root, true);
@@ -263,9 +254,7 @@ static void ys_tc_switchdev_exit(struct ys_tc_priv *tc_priv)
 	mutex_lock(&ys_tc_switchdev_lock);
 	if (refcount_dec_and_test(&switchdev->refcnt)) {
 		ys_tc_multicast_exit(tc_priv);
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 		ys_tc_meter_exit(tc_priv);
-#endif
 		ys_tc_table_exit(tc_priv);
 		ys_tc_debug_exit(switchdev->debugfs_root, true);
 

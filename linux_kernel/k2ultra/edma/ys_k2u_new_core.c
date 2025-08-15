@@ -30,10 +30,8 @@ static struct hw_adapter_ops ys_k2u_ops = {
 	.hw_adp_sriov_disable = ys_k2u_sriov_disable,
 	.hw_adp_doe_init = ys_k2u_doe_aux_probe,
 	.hw_adp_doe_uninit = ys_k2u_doe_aux_remove,
-#ifdef CONFIG_YSMOD_NP
 	.hw_adp_np_init = ys_k2u_np_aux_probe,
 	.hw_adp_np_uninit = ys_k2u_np_aux_remove,
-#endif /* CONFIG_YSMOD_NP */
 	.hw_adp_add_cdev = ys_k2u_doe_module_add_cdev,
 	.hw_adp_cdev_start = ys_k2u_ndev_cdev_start,
 	.hw_adp_cdev_qgroup_get = ys_k2u_ndev_cdev_qgroup_get,
@@ -59,12 +57,7 @@ int ys_k2u_pdev_init(struct ys_pdev_priv *pdev_priv)
 	if (dpu_soc)
 		pdev_priv->dpu_mode = MODE_DPU_SOC;
 
-#ifdef CONFIG_YSHW_K2ULTRA
 	pdev_priv->hw_type = YS_HW_TYPE_K2ULTRA;
-#elif defined(CONFIG_YSHW_K2ULTRA_CS)
-	pdev_priv->hw_type = YS_HW_TYPE_K2ULTRA_CS;
-#endif /* CONFIG_YSHW_K2ULTRA */
-
 	hw_addr = pdev_priv->bar_addr[0];
 	val = ys_rd32(hw_addr, YS_K2U_RP_PFVFID);
 	pdev_priv->pf_id = FIELD_GET(YS_K2U_RP_PFID_GMASK, val);

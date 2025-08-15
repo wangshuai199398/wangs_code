@@ -57,12 +57,6 @@ int ys_aux_mac_probe(struct auxiliary_device *auxdev,
 	mac->irq_vector = -1;
 
 	switch (pdev_priv->nic_type->mac_type) {
-#ifdef CONFIG_YSMOD_CMAC
-	case MAC_TYPE_CMAC:
-		pdev_priv->ops->mac_adp_eth_init = ys_cmac_eth_init;
-		pdev_priv->ops->mac_adp_ndev_init = ys_cmac_ndev_init;
-		break;
-#endif
 	case MAC_TYPE_UMAC:
 		//pdev_priv->ops->mac_adp_eth_init = ys_umac_eth_init;
 		pdev_priv->ops->mac_adp_ndev_init = ys_umac_ndev_init;

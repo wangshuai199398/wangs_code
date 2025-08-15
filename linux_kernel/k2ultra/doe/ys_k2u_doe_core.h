@@ -240,25 +240,11 @@ struct ys_k2u_doe_device {
 	u8				init;
 };
 
-//#define DOE_VERBOSE_DEBUG
-#ifdef DOE_VERBOSE_DEBUG
-static inline void ys_k2u_doe_writel(struct ys_k2u_doe_device *ys_k2u_doe, u32 val,
-				     void __iomem *addr)
-{
-	u32 old = readl(addr);
-	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ys_k2u_doe->pdev);
-
-	writel(val, addr);
-	ys_dev_info("write 0x%08x to 0x%p : 0x%08x -> 0x%08x\n",
-		    val, addr, old, readl(addr));
-}
-#else
 static inline void ys_k2u_doe_writel(struct ys_k2u_doe_device *ys_k2u_doe, u32 val,
 				     void __iomem *addr)
 {
 	writel(val, addr);
 }
-#endif
 
 #ifdef DOE_VERBOSE_DEBUG
 static inline void buffer_dump(struct ys_k2u_doe_device *ys_k2u_doe, const char *name,

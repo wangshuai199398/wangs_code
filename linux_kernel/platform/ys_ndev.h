@@ -17,11 +17,7 @@
 
 #define YS_MTU 1500
 #define YS_MAX_MTU 9600
-#ifdef CONFIG_YSHW_K2ULTRA
 #define YS_NP_MAX_MTU 9600
-#else
-#define YS_NP_MAX_MTU 9000
-#endif
 
 #define YS_ADEV_TYPE_ETH_BASE 0
 #define YS_ADEV_TYPE_SF_BASE 0x100

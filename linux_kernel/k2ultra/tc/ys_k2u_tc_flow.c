@@ -2,8 +2,6 @@
 
 #include "ys_k2u_tc_priv.h"
 
-#ifndef YS_TC_DISABLE
-
 /* ystc basic start */
 
 static inline bool eth_addr_is_zero(unsigned char *addr)
@@ -1124,9 +1122,7 @@ static int ys_tc_flow_act_common(struct ys_tc_priv *tc_priv,
 				 const struct ys_tc_flow_metadata *flow_meta,
 				 struct ys_tc_action_meta *action_meta)
 {
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 	struct ys_tc_meter *meter;
-#endif
 	bool vlan_push_exist = false;
 	__u16 vlan_vid;
 
@@ -1219,7 +1215,6 @@ static int ys_tc_flow_act_common(struct ys_tc_priv *tc_priv,
 			return -EOPNOTSUPP;
 		}
 		break;
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 	case FLOW_ACTION_POLICE:
 		rcu_read_lock();
 		meter = ys_tc_meter_lookup(tc_priv, act->hw_index);
@@ -1236,7 +1231,6 @@ static int ys_tc_flow_act_common(struct ys_tc_priv *tc_priv,
 
 		ys_tc_meter_put(tc_priv, meter);
 		break;
-#endif
 	default:
 		return -EOPNOTSUPP;
 	}
@@ -2160,13 +2154,9 @@ int ys_tc_stat_flower(struct ys_tc_priv *tc_priv,
 	if (!delta_pkts)
 		goto out;
 
-#ifdef YS_HAVE_FLOW_INDR_BLOCK_CB_ALLOC
 	flow_stats_update(&cls_flower->stats, delta_bytes, delta_pkts, 0, used,
 			  FLOW_ACTION_HW_STATS_DELAYED);
-#else
-	flow_stats_update(&cls_flower->stats, delta_bytes, delta_pkts, used,
-			  FLOW_ACTION_HW_STATS_DELAYED);
-#endif
+
 out:
 	ys_tc_flow_put(tc_priv, flow);
 	return ret;
@@ -2498,4 +2488,3 @@ void ys_tc_multicast_exit(struct ys_tc_priv *tc_priv)
 
 	rhashtable_free_and_destroy(&switchdev->multicast_ht, NULL, NULL);
 }
-#endif

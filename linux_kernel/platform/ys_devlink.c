@@ -43,14 +43,7 @@ static void ys_devlink_set_params_init_values(struct devlink *devlink)
 		break;
 	}
 	pdev_priv->devlink_info.switch_mode = mode;
-	#ifdef YS_HAVE_DEVLINK_PARAM_INIT
-	devlink_param_driverinit_value_set(devlink,
-					   YS_DEVLINK_PARAM_ID_SWITCH_MODE,
-					   value);
-	#else
-	devl_param_driverinit_value_set(devlink,
-					YS_DEVLINK_PARAM_ID_SWITCH_MODE, value);
-	#endif /* YS_HAVE_DEVLINK_PARAM_INIT */
+	devlink_param_driverinit_value_set(devlink, YS_DEVLINK_PARAM_ID_SWITCH_MODE, value);
 }
 
 static int ys_devlink_eswitch_mode_get(struct devlink *devlink, u16 *mode)
@@ -81,12 +74,7 @@ static const struct devlink_ops ys_devlink_ops = {
 
 struct devlink *ys_devlink_alloc(struct device *dev)
 {
-	return devlink_alloc(&ys_devlink_ops,
-			     #ifdef YS_HAVE_DEVLINK_ALLOC_DEV
-			     sizeof(struct ys_pdev_priv), dev);
-			     #else
-			     sizeof(struct ys_pdev_priv));
-			     #endif /* YS_HAVE_DEVLINK_ALLOC_DEV */
+	return devlink_alloc(&ys_devlink_ops, sizeof(struct ys_pdev_priv), dev);
 }
 
 void ys_devlink_release(struct devlink *devlink)

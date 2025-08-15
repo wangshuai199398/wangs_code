@@ -13,7 +13,6 @@ static int ys_irq_get_max_required_vectors(struct ys_pdev_priv *pdev_priv)
 	struct ys_irq_table *irq_table = &pdev_priv->irq_table;
 	int ret = 0;
 	int irq_sum = nic_type->irq_sum;
-#ifdef CONFIG_YSHW_K2ULTRA
 	u32 val;
 
 	if (nic_type->is_vf) {
@@ -23,7 +22,6 @@ static int ys_irq_get_max_required_vectors(struct ys_pdev_priv *pdev_priv)
 		irq_sum = FIELD_GET(YS_K2U_RP_VFX_IRQNUM_GMASK, val);
 		irq_sum = min(irq_sum, nic_type->irq_sum);
 	}
-#endif /* CONFIG_YSHW_K2ULTRA */
 
 	/* If the NIC supports MSIX, the maximum MSIX IRQ count should
 	 * be checked. If the NIC supports MSI, the maximum MSI IRQ

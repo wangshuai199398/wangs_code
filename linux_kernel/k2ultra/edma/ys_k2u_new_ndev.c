@@ -373,13 +373,11 @@ int ys_k2u_ndev_init(struct net_device *ndev)
 	}
 
 	/* tc */
-#if defined(CONFIG_YSHW_K2ULTRA) && !defined(YS_TC_DISABLE)
 	if (ndev_priv->adev_type == AUX_TYPE_REP) {
 		ret = ys_tc_init(ndev, pdev_priv->pdev->bus->number, pdev_priv->pf_id, 0);
 		if (ret)
 			ys_dev_err("ystc init fail");
 	}
-#endif
 	ys_k2u_rss_init(ndev);
 
 	return 0;
@@ -403,9 +401,7 @@ void ys_k2u_ndev_uninit(struct net_device *ndev)
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_k2u_ndev *k2u_ndev = ndev_priv->adp_priv;
 
-#if defined(CONFIG_YSHW_K2ULTRA) && !defined(YS_TC_DISABLE)
 	ys_tc_exit(ndev);
-#endif
 	ys_k2u_message_uninit(ndev_priv);
 	ys_k2u_ndev_destroy_queues(k2u_ndev);
 	debugfs_remove(k2u_ndev->debugfs_info_file);

@@ -3,8 +3,6 @@
 #ifndef __YS_TC_H_
 #define __YS_TC_H_
 
-#ifndef YS_TC_DISABLE
-
 #include <linux/types.h>
 #include <linux/stddef.h>
 #include <linux/list.h>
@@ -33,9 +31,7 @@ struct ys_tc_priv;
 
 struct ys_tc_adapter_ops {
 	int (*setup_tc_cls_flower)(struct ys_tc_priv *tc_priv, struct flow_cls_offload *cls_flower);
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 	int (*setup_tc_act)(struct ys_tc_priv *tc_priv, struct flow_offload_action *fl_act);
-#endif
 };
 
 struct ys_tc_priv {
@@ -119,7 +115,5 @@ void ys_tc_tunnel_cb_exit(struct ys_tc_priv *tc_priv);
 
 int ys_tc_debug_init(int switchdev_id, bool first, struct dentry **debugfs_root);
 void ys_tc_debug_exit(struct dentry *debugfs_root, bool last);
-
-#endif
 
 #endif

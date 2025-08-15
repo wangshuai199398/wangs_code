@@ -29,7 +29,6 @@ YS_HAVE_GUP_HAS_PIN			symbol	pin_user_pages				include/linux/mm.h
 YS_HAVE_GET_RANDOM_U32			symbol	get_random_u32				include/linux/random.h
 YS_HAVE_NETDEV_NET_NOTIFIER		symbol	netdev_net_notifier			include/linux/netdevice.h
 YS_HAVE_SET_TSO_MAX_SIZE		symbol  netif_set_tso_max_size			include/linux/netdevice.h
-YS_HAVE_NETIF_F_GSO_UDP_L4              symbol  NETIF_F_GSO_UDP_L4			include/linux/netdev_features.h
 
 YS_HAVE_NETIF_NAPI_ADD			symtype	netif_napi_add		include/linux/netdevice.h	void (struct net_device *, struct napi_struct *, int (*)(struct napi_struct *, int), int)
 YS_HAVE_DEV_OPEN_NETLINK		symtype dev_open		include/linux/netdevice.h	int (struct net_device *dev, struct netlink_ext_ack *extack)

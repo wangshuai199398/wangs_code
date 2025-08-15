@@ -155,11 +155,7 @@ static void ys_dmamap_del_cb_2(struct ys_dmamap_table *tbl, struct ys_dmamap_nod
 
 	iommu_unmap(tbl->domain, iova, size);
 
-#ifdef YS_HAVE_UNPIN_USER_PAGES
 	unpin_user_pages(&page, 1);
-#else
-	put_page(page);
-#endif /* YS_HAVE_UNPIN_USER_PAGES */
 
 	ys_dmamap_node_remove(node, &tbl->root);
 	kfree(node);
@@ -205,11 +201,7 @@ int ys_dmamap_map(struct ys_dmamap_table *tbl, u64 iova, size_t size,
 		return -EEXIST;
 
 	mutex_lock(&tbl->mlock);
-#ifdef YS_HAVE_IOMMU_MAP_GFP
-	ret = iommu_map(tbl->domain, iova, pa, size, prot, GFP_KERNEL);
-#else
 	ret = iommu_map(tbl->domain, iova, pa, size, prot);
-#endif
 	if (ret) {
 		mutex_unlock(&tbl->mlock);
 		return ret;

@@ -430,107 +430,6 @@ static int ys_np_cfg_debugfs_show(struct seq_file *seq, void *data)
 }
 
 DEFINE_SHOW_ATTRIBUTE(ys_np_cfg_debugfs);
-#ifdef YS_NP_DOE_DUMMY
-static s32 ys_np_delete_arraytbl_dummy(u32 card_id, u8 tbl_id, u8 poll_wait)
-{
-	return 0;
-}
-
-static s32 ys_np_delete_hashtbl_dummy(u32 card_id, u8 tbl_id, u8 poll_wait)
-{
-	return 0;
-}
-
-static s32 ys_np_array_store_dummy(u32 card_id, u8 tbl_id, u32 index,
-				   const void *data, u8 size,
-				   u8 high_pri, u8 poll_wait)
-{
-	return 0;
-}
-
-static s32 ys_np_array_load_dummy(u32 card_id, u8 tbl_id, u32 index, void *data,
-				  u8 size, u8 poll_wait)
-{
-	return 0;
-}
-
-static s32 ys_np_hash_insert_dummy(u32 card_id, u8 tbl_id, const void *key,
-				   u8 key_len, const void *value, u8 value_len,
-				   u8 high_pri, u8 poll_wait)
-{
-	return 0;
-}
-
-static s32 ys_np_hash_delete_dummy(u32 card_id, u8 tbl_id, const void *key,
-				   u8 key_len, u8 poll_wait)
-{
-	return 0;
-}
-
-static s32 ys_np_counter_enable_dummy(u32 card_id, u8 tbl_id, u32 index,
-				      u8 enable, u8 high_pri, u8 clear_data, u8 poll_wait)
-{
-	return 0;
-}
-
-static u32 ys_np_counter_load_dummy(u32 card_id, u8 tbl_id, u32 start, u32 cnt,
-				    const void *pair_list, u8 poll_wait)
-{
-	return 0;
-}
-
-static u32 ys_np_meter_store_dummy(u32 card_id, u8 tbl_id, u32 index,
-				   struct meter_config *config, u8 high_pri,
-				   u8 poll_wait)
-{
-	return 0;
-}
-
-static int ys_np_protect_status = 1;
-static s32 ys_np_protect_status_dummy(u32 card_id)
-{
-	return ys_np_protect_status;
-}
-
-static s32 ys_np_set_protect_status_dummy(u32 card_id, u8 status)
-{
-	ys_np_protect_status = status;
-	return 0;
-}
-
-static s32 ys_np_hw_init_dummy(u32 card_id, u8 poll_wait)
-{
-	return 0;
-}
-
-s32 ys_np_create_arraytbl_dummy(u32 card_id, u8 tbl_id, u32 depth, u8 data_len,
-				const struct hw_advance_cfg *cfg, u8 poll_wait)
-{
-	return 0;
-}
-
-s32 ys_np_tbl_valid_dummy(u32 card_id, u8 tbl_id)
-{
-	return false;
-}
-
-struct ys_doe_ops ys_np_doe_ops_dummy = {
-	.hw_init		= ys_np_hw_init_dummy,
-	.tbl_valid		= ys_np_tbl_valid_dummy,
-	.create_arraytbl	= ys_np_create_arraytbl_dummy,
-	.delete_arraytbl	= ys_np_delete_arraytbl_dummy,
-	.delete_hashtbl		= ys_np_delete_hashtbl_dummy,
-	.array_store		= ys_np_array_store_dummy,
-	.array_load		= ys_np_array_load_dummy,
-	.hash_insert		= ys_np_hash_insert_dummy,
-	.hash_delete		= ys_np_hash_delete_dummy,
-	.counter_enable		= ys_np_counter_enable_dummy,
-	.counter_load		= ys_np_counter_load_dummy,
-	.meter_store            = ys_np_meter_store_dummy,
-	.protect_status		= ys_np_protect_status_dummy,
-	.set_protect_status	= ys_np_set_protect_status_dummy,
-};
-#endif /* YS_NP_DOE_DUMMY */
 
 static int ys_np_sw_get(struct ys_np *np, int np_id)
 {
@@ -557,10 +456,6 @@ static int ys_np_sw_get(struct ys_np *np, int np_id)
 		ret = -ENOMEM;
 		goto fail;
 	}
-
-#ifdef YS_NP_DOE_DUMMY
-	doe_ops = &ys_np_doe_ops_dummy;
-#endif /* YS_NP_DOE_DUMMY */
 
 	np_sw->doe_ops = doe_ops;
 	np_sw->bus_id = pdev_priv->pdev->bus->number;
@@ -618,12 +513,10 @@ static int ys_np_sw_get(struct ys_np *np, int np_id)
 		goto fail_with_fs;
 	}
 
-#ifndef YS_TC_DISABLE
 	if ((pdev_priv->dpu_mode == MODE_DPU_SOC ||
 	     pdev_priv->dpu_mode == MODE_SMART_NIC) &&
 	    ys_tc_flow_enable)
 		ys_k2u_init_lag(np);
-#endif
 
 out:
 	mutex_unlock(&ys_k2u_np_dev_lock);
@@ -735,12 +628,10 @@ static void ys_np_sw_put(struct ys_np *np)
 		destroy_workqueue(np_sw->wq);
 		idr_remove(&ys_k2u_np_dev_idr, np_sw->id);
 
-#ifndef YS_TC_DISABLE
 		if ((pdev_priv->dpu_mode == MODE_DPU_SOC ||
 		     pdev_priv->dpu_mode == MODE_SMART_NIC) &&
 		    ys_tc_flow_enable)
 			ys_k2u_deinit_lag(np);
-#endif
 
 		kfree(np_sw);
 	}

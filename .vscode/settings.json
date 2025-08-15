@@ -17,6 +17,7 @@
         "sched.h": "c",
         "rbtree.h": "c",
         "types.h": "c",
-        "rtnetlink.h": "c"
+        "rtnetlink.h": "c",
+        "locale": "c"
     }
 }

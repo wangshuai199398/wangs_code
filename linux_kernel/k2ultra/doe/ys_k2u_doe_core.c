@@ -178,11 +178,7 @@ static long ys_k2u_doe_fops_ioctl(struct file *filep, unsigned int cmd,
 	if (!pdev_priv)
 		return -EFAULT;
 
-#ifdef CONFIG_YSHW_K2ULTRA_U200
-	ys_k2u_doe = pdev_priv->padp_priv;
-#else
 	ys_k2u_doe = ys_aux_match_doe_dev(ys_cdev->pdev);
-#endif
 
 	switch (cmd) {
 	case YS_DOE_SEND_CMD:

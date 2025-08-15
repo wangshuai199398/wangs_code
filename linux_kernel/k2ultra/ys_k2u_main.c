@@ -36,16 +36,8 @@ static struct ys_pdev_hw k2u_pf_type = {
 	.func_name = YS_DEV_NAME("k2u_pf"),
 	.is_vf = false,
 	.doe_enable = true,
-#ifdef CONFIG_YSMOD_LAN
-#ifdef CONFIG_YSMOD_LAN_K2U
 	.lan_type = LAN_TYPE_K2U,
-#endif /* CONFIG_YSMOD_LAN_K2U */
-#endif /* CONFIG_YSMOD_LAN */
-#ifdef CONFIG_YSMOD_NP
-#ifdef CONFIG_YSMOD_NP_K2U
 	.np_type = NP_TYPE_K2U,
-#endif /* CONFIG_YSMOD_NP_K2U */
-#endif /* CONFIG_YSMOD_NP */
 	.hw_pdev_init = ys_k2u_pdev_init,
 	.hw_pdev_uninit = ys_k2u_pdev_uninit,
 	.hw_pdev_fix_mode = ys_k2u_pdev_fix_mode,
@@ -62,11 +54,7 @@ static struct ys_pdev_hw k2u_vf_type = {
 	.func_name = YS_DEV_NAME("k2u_vf"),
 	.is_vf = true,
 	.doe_enable = false,
-#ifdef CONFIG_YSMOD_LAN
-#ifdef CONFIG_YSMOD_LAN_K2U
 	.lan_type = LAN_TYPE_K2U,
-#endif /* CONFIG_YSMOD_LAN_K2U */
-#endif /* CONFIG_YSMOD_LAN */
 	.hw_pdev_init = ys_k2u_pdev_init,
 	.hw_pdev_uninit = ys_k2u_pdev_uninit,
 };

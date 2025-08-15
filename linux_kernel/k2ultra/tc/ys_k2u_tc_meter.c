@@ -2,9 +2,6 @@
 
 #include "ys_k2u_tc_priv.h"
 
-#ifndef YS_TC_DISABLE
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
-
 static void
 find_att_factor_and_cir(u64 rate, int *best_att_factor, int *best_cir)
 {
@@ -395,14 +392,8 @@ int ys_tc_stat_act(struct ys_tc_priv *tc_priv,
 	if (!delta_pkts)
 		goto out;
 
-#ifdef YS_HAVE_FLOW_INDR_BLOCK_CB_ALLOC
 	flow_stats_update(&fl_act->stats, delta_bytes, delta_pkts, delta_drops, used,
 			  FLOW_ACTION_HW_STATS_DELAYED);
-#else
-	(void)delta_drops;
-	flow_stats_update(&fl_act->stats, delta_bytes, delta_pkts, used,
-			  FLOW_ACTION_HW_STATS_DELAYED);
-#endif
 
 out:
 	ys_tc_meter_put(tc_priv, meter);
@@ -448,6 +439,3 @@ void ys_tc_meter_exit(struct ys_tc_priv *tc_priv)
 
 	rhashtable_free_and_destroy(&switchdev->meter_ht, meter_ht_release, NULL);
 }
-#endif
-
-#endif

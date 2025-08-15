@@ -8,8 +8,6 @@
 #include "ys_k2u_np.h"
 #include "../edma/ys_k2u_new_ndev.h"
 
-#ifndef YS_TC_DISABLE
-
 #define YS_K2U_NP_SHM_ADDR_REG_OFFSET   (0X10010)
 #define YS_k2U_NP_SHM_DATA_REG_OFFSET   (0X10014)
 #define YS_k2U_NP_SHM_ATOM_REG_OFFSET   (0X1001C)
@@ -141,7 +139,6 @@ static int ys_k2u_bond_hw_setup(struct ys_k2u_lag *lag, struct ys_pdev_priv *pde
 			agg_mode = YS_k2U_NP_MODE_HASH_BALANCE;
 			agg_shm_mode = lag_group->bond_mode + 1;
 			ys_np_debug("hash balance mode.");
-#ifdef YS_HAVE_NETDEV_LAG_HASH
 			if (lag_group->hash_type == NETDEV_LAG_HASH_L2) {
 				agg_hash_mode = YS_k2U_NP_POLICY_L2;
 				ys_np_debug("L2 hash type.");
@@ -155,7 +152,6 @@ static int ys_k2u_bond_hw_setup(struct ys_k2u_lag *lag, struct ys_pdev_priv *pde
 				ys_np_debug("Unsupported hash type.");
 				return -EOPNOTSUPP;
 			}
-#endif
 		} else if (lag_group->tx_type == NETDEV_LAG_TX_TYPE_ROUNDROBIN) {
 			agg_mode = YS_k2U_NP_MODE_ROUND_ROBIN;
 			agg_shm_mode = YS_k2U_NP_SHM_MODE_ROUND_ROBIN;
@@ -301,9 +297,7 @@ static void ys_k2u_lag_changeupper_event(struct ys_k2u_lag *lag, void *ptr)
 			lag_upper_info = info->upper_info;
 			lag->lag_group[idx].tx_type = lag_upper_info->tx_type;
 
-#ifdef YS_HAVE_NETDEV_LAG_HASH
 			lag->lag_group[idx].hash_type = lag_upper_info->hash_type;
-#endif
 		} else {
 			ys_np_info("clear bond status: %d,\n", lag->lag_group[idx].bond_status);
 			ys_k2u_bond_hw_setup(lag, pdev_priv, idx, false);
@@ -738,5 +732,3 @@ int ys_k2u_np_set_lag_linkstatus_cfg(struct pci_dev *pdev, u16 port_id, bool ena
 
 	return 0;
 }
-
-#endif

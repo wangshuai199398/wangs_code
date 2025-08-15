@@ -6,8 +6,6 @@
 #include "ys_debug.h"
 #include "ys_platform.h"
 
-#ifndef YS_TC_DISABLE
-
 #include <linux/types.h>
 #include <linux/stddef.h>
 #include <linux/list.h>
@@ -168,11 +166,10 @@ struct ys_tc_switchdev {
 	/* work */
 	struct workqueue_struct *wq;
 
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 	/* meter */
 	struct rhashtable meter_ht;
 	struct rhashtable_params *meter_ht_params;
-#endif
+
 	/* multicast group */
 	atomic_t group_id_used;
 	DECLARE_BITMAP(group_id_bitmap, YS_K2ULAN_TC_MC_GROUP_NUM);
@@ -631,7 +628,6 @@ int ys_tc_flow_once_init(struct ys_tc_priv *tc_priv);
 int ys_tc_multicast_init(struct ys_tc_priv *tc_priv);
 void ys_tc_multicast_exit(struct ys_tc_priv *tc_priv);
 
-#ifdef YS_HAVE_FLOW_ACTION_OFFLOAD
 int ys_tc_add_act(struct ys_tc_priv *tc_priv,
 		  struct flow_offload_action *fl_act);
 int ys_tc_del_act(struct ys_tc_priv *tc_priv,
@@ -644,8 +640,5 @@ struct ys_tc_meter *
 ys_tc_meter_lookup(struct ys_tc_priv *tc_priv, __u32 index);
 void ys_tc_meter_put(struct ys_tc_priv *tc_priv,
 		     struct ys_tc_meter *meter);
-#endif
-
-#endif
 
 #endif

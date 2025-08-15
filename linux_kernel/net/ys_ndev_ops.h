@@ -10,9 +10,7 @@ typedef int (*ptp_switch)(void *data);
 void set_ptp_switch(ptp_switch ptp_on_cb, ptp_switch ptp_off_cb);
 
 extern const struct net_device_ops ys_ndev_ops;
-#ifdef YS_HAVE_UDP_TUNNEL_NIC_INFO
 extern const struct udp_tunnel_nic_info ys_udp_tunnels;
-#endif
 
 #define YS_NP_DOE_OP_VLAN		BIT(0)
 #define YS_NP_DOE_OP_RXQ		BIT(1)

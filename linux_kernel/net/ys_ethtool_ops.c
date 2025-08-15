@@ -51,7 +51,6 @@ static void ys_get_drvinfo(struct net_device *ndev,
 	snprintf(drvinfo->fw_version, ETHTOOL_FWVERS_LEN, "%d.%d.%d",
 		 major_ver, minor_ver, debug_ver);
 
-#ifdef YS_HAVE_EROM_VERSION
 	if (pdev_priv->hw_info) {
 		major_ver = pdev_priv->hw_info->ver_info.pxe_ver[0];
 		minor_ver = pdev_priv->hw_info->ver_info.pxe_ver[1];
@@ -59,7 +58,6 @@ static void ys_get_drvinfo(struct net_device *ndev,
 		snprintf(drvinfo->erom_version, ETHTOOL_FWVERS_LEN, "%d.%d.%d",
 			 major_ver, minor_ver, debug_ver);
 	}
-#endif
 }
 
 static int ys_get_module_eeprom(struct net_device *ndev,
@@ -405,9 +403,7 @@ static int ys_get_link_ksettings(struct net_device *ndev,
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	u32 port_type;
-#ifdef YS_HAVE_TRANSCEIVER
 	u32 transceiver_type;
-#endif /* YS_HAVE_TRANSCEIVER */
 	u8 autoneg_enable;
 	struct ys_ethtool_ksetting cmd;
 
@@ -453,12 +449,10 @@ static int ys_get_link_ksettings(struct net_device *ndev,
 		port_type = ndev_priv->ys_eth_hw->et_get_link_port_type(ndev);
 		ksettings->base.port = port_type;
 	}
-#ifdef YS_HAVE_TRANSCEIVER
 	if (ndev_priv->ys_eth_hw && ndev_priv->ys_eth_hw->et_get_link_transceiver) {
 		transceiver_type = ndev_priv->ys_eth_hw->et_get_link_transceiver(ndev);
 		ksettings->base.transceiver = transceiver_type;
 	}
-#endif /* YS_HAVE_TRANSCEIVER */
 
 	return 0;
 }
@@ -469,9 +463,7 @@ static int ys_get_link_ksettings(struct net_device *ndev,
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	u32 port_type;
-#ifdef YS_HAVE_TRANSCEIVER
 	u32 transceiver_type;
-#endif /* YS_HAVE_TRANSCEIVER */
 	u8 autoneg_enable;
 	struct ys_ethtool_ksetting cmd;
 
@@ -508,12 +500,10 @@ static int ys_get_link_ksettings(struct net_device *ndev,
 		port_type = ndev_priv->ys_eth_hw->et_get_link_port_type(ndev);
 		ksettings->port = port_type;
 	}
-#ifdef YS_HAVE_TRANSCEIVER
 	if (ndev_priv->ys_eth_hw && ndev_priv->ys_eth_hw->et_get_link_transceiver) {
 		transceiver_type = ndev_priv->ys_eth_hw->et_get_link_transceiver(ndev);
 		ksettings->transceiver = transceiver_type;
 	}
-#endif /* YS_HAVE_TRANSCEIVER */
 
 	return 0;
 }

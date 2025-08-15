@@ -315,12 +315,10 @@ ys_k2u_scatter_construct(struct ys_k2u_scatter *scatter, struct device *dev,
 			hdrlen = skb->encapsulation ? (skb_inner_transport_offset(skb) +
 				 inner_tcp_hdrlen(skb)) : (skb_transport_offset(skb) +
 				 tcp_hdrlen(skb));
-#ifdef YS_HAVE_NETIF_F_GSO_UDP_L4
 		else if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4)
 			hdrlen = skb->encapsulation ? (skb_inner_transport_offset(skb) +
 				 sizeof(struct udphdr)) : (skb_transport_offset(skb) +
 				 sizeof(struct udphdr));
-#endif
 		else
 			return -EINVAL;
 

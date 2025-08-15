@@ -68,11 +68,7 @@
 
 /* DOE internal register */
 #define YS_K2U_DOE_REG_BAR		0
-#ifdef CONFIG_YSHW_K2ULTRA_U200
-#define YS_K2U_DOE_REG_BASE             0x800000
-#else
 #define YS_K2U_DOE_REG_BASE		0x1800000
-#endif
 #define YS_K2U_DOE_VERSION		0x00
 #define YS_K2U_DOE_RESET		0x04
 #define YS_K2U_DOE_PF_NUM		0x08

@@ -96,11 +96,7 @@ static int ys_umd_set(struct net_device *ndev, struct ys_cdev_priv *cdev_priv,
 	if (!enable) {
 		ndev_priv->umd_enable = false;
 		ys_dev_debug("umd disable");
-		#ifdef YS_HAVE_DEV_OPEN_NETLINK
-			dev_open(ndev, NULL);
-		#else
-			dev_open(ndev);
-		#endif /* YS_HAVE_DEV_OPEN_NETLINK */
+		dev_open(ndev, NULL);
 	}
 	rtnl_unlock();
 
@@ -456,14 +452,10 @@ err_with_dma_map:
 	vfree(umem->sg_list);
 #endif /* YS_HAVE_KVCALLOC */
 err_with_pages:
-#ifdef YS_HAVE_UNPIN_USER_PAGES
+
 	if (nr_pinned_pages > 0)
 		unpin_user_pages(umem->pages, umem->nr_pages);
-#else
-	if (nr_pinned_pages > 0)
-		for (i = 0; i < umem->nr_pages; i++)
-			put_page(umem->pages[i]);
-#endif /* YS_HAVE_UNPIN_USER_PAGES */
+
 #ifdef YS_HAVE_KVCALLOC
 	kvfree(umem->pages);
 #else /* YS_HAVE_KVCALLOC */
@@ -478,9 +470,6 @@ err_with_umem:
 void ys_umem_unmap(struct ys_pdev_umem *umem)
 {
 	struct ys_pdev_priv *pdev_priv;
-#ifndef YS_HAVE_UNPIN_USER_PAGES
-	int i = 0;
-#endif /* YS_HAVE_UNPIN_USER_PAGES */
 	if (!umem)
 		return;
 
@@ -493,12 +482,7 @@ void ys_umem_unmap(struct ys_pdev_umem *umem)
 #else /* YS_HAVE_KVCALLOC */
 	vfree(umem->sg_list);
 #endif /* YS_HAVE_KVCALLOC */
-#ifdef YS_HAVE_UNPIN_USER_PAGES
 	unpin_user_pages(umem->pages, umem->nr_pages);
-#else
-	for (i = 0; i < umem->nr_pages; i++)
-		put_page(umem->pages[i]);
-#endif /* YS_HAVE_UNPIN_USER_PAGES */
 #ifdef YS_HAVE_KVCALLOC
 	kvfree(umem->pages);
 #else /* YS_HAVE_KVCALLOC */
