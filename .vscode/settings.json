@@ -15,6 +15,7 @@
         "auxiliary_bus.h": "c",
         "mm.h": "c",
         "sched.h": "c",
-        "rbtree.h": "c"
+        "rbtree.h": "c",
+        "types.h": "c"
     }
 }

@@ -3,8 +3,6 @@
 #ifndef __YS_TC_CORE_H_
 #define __YS_TC_CORE_H_
 
-#include "../lib/kernel_compat.h"
-
 #ifndef YS_TC_DISABLE
 
 #include "../net/tc/ys_tc.h"

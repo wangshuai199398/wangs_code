@@ -7,7 +7,6 @@
 #include <linux/fs.h>
 
 #include "../ver.h"
-#include "../lib/kernel_compat.h"
 
 #define STRINGIZE(a) a
 #define YS_HW_STRING(prefix, name) STRINGIZE(prefix name)

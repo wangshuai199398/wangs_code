@@ -20,8 +20,6 @@
 #include <linux/moduleparam.h>
 #include <linux/refcount.h>
 
-#include "../../lib/kernel_compat.h"
-
 #include "ys_platform.h"
 #include "ys_adapter.h"
 #include "ys_debug.h"
