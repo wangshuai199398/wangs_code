@@ -137,35 +137,10 @@ int ys_k2u_doe_send_cmd(struct ys_k2u_doe_interface *doe_if,
 	return 0;
 }
 
-#ifdef PLDA_VERSION
-int ys_k2u_doe_check_irq(struct ys_k2u_doe_interface *doe_if)
-{
-	u32 val;
-
-	/* Check interrupt status register */
-	val = readl(doe_if->ys_k2u_doe->doe_base + PLDA_ISTATUS_HOST);
-	if (!(val & BIT(doe_if->msi_index)))
-		return -EINVAL;
-
-	return 0;
-}
-
-void ys_k2u_doe_clean_irq(struct ys_k2u_doe_interface *doe_if)
-{
-	struct ys_k2u_doe_device *ys_k2u_doe = doe_if->ys_k2u_doe;
-	u32 val;
-
-	/* Write 1 to clean interrupt status, enable interrupt */
-	val = readl(doe_if->ys_k2u_doe->dma_base + PLDA_ISTATUS_HOST);
-	if (val & BIT(doe_if->msi_index))
-		writel(BIT(doe_if->msi_index),
-		       ys_k2u_doe->dma_base + PLDA_ISTATUS_HOST);
-}
-#else
 int ys_k2u_doe_check_irq(struct ys_k2u_doe_interface *doe_if)
 {
 	return 0;
 }
 
 void ys_k2u_doe_clean_irq(struct ys_k2u_doe_interface *doe_if) {}
-#endif
+

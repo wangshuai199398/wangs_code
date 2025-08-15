@@ -27,25 +27,7 @@ struct ys_k2u_doe_mm {
 	struct mm_region *free_list;
 };
 
-#ifdef MM_VERBOSE_DEBUG
-static inline void ys_k2u_doe_mm_dump(struct ys_k2u_doe_mm *ymm)
-{
-	struct mm_region *mr;
-	int i;
-
-	pr_debug("Memory Manage %s used list:\n", ymm->name);
-
-	for (i = 1, mr = ymm->used_list; mr; i++, mr = mr->next)
-		pr_debug("[%d] 0x%llx+0x%llx ->\n", i, mr->address, mr->size);
-
-	pr_debug("Memory Manage %s freed list:\n", ymm->name);
-
-	for (i = 1, mr = ymm->free_list; mr; i++, mr = mr->next)
-		pr_debug("[%d] 0x%llx+0x%llx ->\n", i, mr->address, mr->size);
-}
-#else
 static inline void ys_k2u_doe_mm_dump(struct ys_k2u_doe_mm *ymm) {}
-#endif /* MM_VERBOSE_DEBUG */
 
 struct ys_k2u_doe_mm *ys_k2u_doe_mm_init(struct device *dev, u64 base, u64 size,
 					 bool use_host_mem, u32 align_mask, const char *name);

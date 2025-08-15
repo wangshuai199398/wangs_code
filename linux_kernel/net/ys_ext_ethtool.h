@@ -16,9 +16,7 @@ struct ethtool_eth_mac_stats;
 struct netlink_ext_ack;
 struct kernel_ethtool_coalesce;
 struct ys_ext_ethtool_ops {
-#ifdef ETHTOOL_COALESCE_USECS
 	u32     supported_coalesce_params;
-#endif /* ETHTOOL_COALESCE_USECS */
 	int	(*get_settings)(struct net_device *ndev, struct ethtool_cmd *cmd);
 	int	(*set_settings)(struct net_device *ndev, struct ethtool_cmd *cmd);
 	void    (*get_drvinfo)(struct net_device *ndev, struct ethtool_drvinfo *info);

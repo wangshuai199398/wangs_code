@@ -1158,9 +1158,7 @@ void ys_ethtool_hw_uninit(struct net_device *ndev)
 }
 
 const struct ethtool_ops ys_ethtool_ops = {
-#ifdef ETHTOOL_COALESCE_USECS
 	.supported_coalesce_params = ETHTOOL_COALESCE_USECS | ETHTOOL_COALESCE_USE_ADAPTIVE,
-#endif /* ETHTOOL_COALESCE_USECS */
 	.get_drvinfo = ys_get_drvinfo,
 	.get_link = ethtool_op_get_link,
 	.get_ethtool_stats = ys_get_ethtool_stats,
@@ -1200,9 +1198,7 @@ const struct ethtool_ops ys_ethtool_ops = {
 };
 
 struct ys_ext_ethtool_ops exttool_ops = {
-#ifdef ETHTOOL_COALESCE_USECS
 	.supported_coalesce_params = ETHTOOL_COALESCE_USECS | ETHTOOL_COALESCE_USE_ADAPTIVE,
-#endif /* ETHTOOL_COALESCE_USECS */
 	.get_fecparam = ys_get_fecparam,
 	.set_fecparam = ys_set_fecparam,
 	.get_link_ksettings = ys_get_link_ksettings,

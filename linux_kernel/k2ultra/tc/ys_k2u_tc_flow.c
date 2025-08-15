@@ -376,15 +376,9 @@ out:
 /* Convert 64 bit tunnel ID to 24 bit VNI. */
 static void tunnel_id_to_vni(__be64 tun_id, __u8 *vni)
 {
-#ifdef __BIG_ENDIAN
-	vni[0] = (__force __u8)(tun_id >> 16);
-	vni[1] = (__force __u8)(tun_id >> 8);
-	vni[2] = (__force __u8)tun_id;
-#else
 	vni[0] = (__force __u8)((__force u64)tun_id >> 40);
 	vni[1] = (__force __u8)((__force u64)tun_id >> 48);
 	vni[2] = (__force __u8)((__force u64)tun_id >> 56);
-#endif
 }
 
 static int

@@ -125,15 +125,9 @@
 
 /* Interrupt vector */
 enum ys_k2u_doe_irq_type {
-#ifdef PLDA_VERSION
-	YS_K2U_DOE_IRQ_WRITE_EQ = 24,
-	YS_K2U_DOE_IRQ_READ_EQ = 25,
-	YS_K2U_DOE_IRQ_MAX = 32,
-#else
 	YS_K2U_DOE_IRQ_WRITE_EQ = 0,
 	YS_K2U_DOE_IRQ_READ_EQ = 1,
 	YS_K2U_DOE_IRQ_MAX = 32,
-#endif
 };
 
 #define GEN_HEAD_ENABLE(report) (((report) & 0x1) << 1)
