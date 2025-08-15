@@ -13,31 +13,15 @@
 #include "ysc_dev.h"
 #include "ys_debugfs.h"
 
-static int check_compile_args(void)
-{
-	/* check compile PAGE_SIZE */
-	if (PAGE_SIZE != YS_COMPILE_PAGE_SIZE) {
-		ys_err("PAGE_SIZE(%ld) is not equal to YS_COMPILE_PAGE_SIZE(%d)\n",
-		       PAGE_SIZE, YS_COMPILE_PAGE_SIZE);
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
 int ys_init(struct ys_pci_driver *ys_pdrv)
 {
 	int ret;
 
 	ys_info("YUSUR Platform Driver %s Init\n", THIS_MODULE->name);
-
-	ret = check_compile_args();
-	if (ret)
-		goto err_check_compile_args;
-
 	ys_debugfs_init();
 
 #ifndef CONFIG_YSARCH_PLAT
+	ys_info("CONFIG_YSARCH_PLAT is true");
 	ys_pdev_manager_init();
 
 	ret = ys_aux_init(ys_pdrv->aux_drv_support);
@@ -62,8 +46,6 @@ err_pdev_init:
 err_aux_init:
 	ys_aux_uninit(ys_pdrv->aux_drv_support);
 #endif /* CONFIG_YSARCH_PLAT */
-err_check_compile_args:
-	return ret;
 }
 
 #ifdef CONFIG_YSARCH_PLAT
