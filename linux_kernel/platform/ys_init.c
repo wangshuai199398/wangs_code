@@ -46,6 +46,7 @@ err_pdev_init:
 err_aux_init:
 	ys_aux_uninit(ys_pdrv->aux_drv_support);
 #endif /* CONFIG_YSARCH_PLAT */
+	return ret;
 }
 
 #ifdef CONFIG_YSARCH_PLAT
