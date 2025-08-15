@@ -142,6 +142,7 @@ int ys_devlink_init(struct pci_dev *pdev)
 		pdev_priv->ops->lan_adp_devlink_init(pdev);
 
 	pdev_priv->devlink_info.devlink_registered = 0;
+	ys_info("YS_HAVE_VOID_DEVLINK_REGISTER is trueffffffffffffff");
 #if defined(YS_HAVE_VOID_DEVLINK_REGISTER)
 	ys_info("YS_HAVE_VOID_DEVLINK_REGISTER is true");
 	devlink_register(devlink);
