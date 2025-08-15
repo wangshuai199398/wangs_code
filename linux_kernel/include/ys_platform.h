@@ -24,9 +24,7 @@
 #include "../platform/ys_cdev.h"
 #endif /* CONFIG_YSMOD_CDEV */
 
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 #include "../platform/ys_devlink.h"
 #include "../net/ys_devlink_ops.h"
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
 
 #endif /* __YS_PLATFORM_H_ */

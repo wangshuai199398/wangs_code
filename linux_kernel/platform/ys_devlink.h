@@ -5,7 +5,6 @@
 
 #include "ys_utils.h"
 
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 #include <net/devlink.h>
 
 struct ys_devlink_hw_ops {
@@ -30,5 +29,4 @@ void ys_devlink_release(struct devlink *devlink);
 int ys_devlink_init(struct pci_dev *pdev);
 void ys_devlink_uninit(struct pci_dev *pdev);
 
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
 #endif /* __YS_DEVLINK_H_ */

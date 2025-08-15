@@ -143,9 +143,7 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	struct device *dev = &pdev->dev;
 	struct list_head *pdev_list;
 	int ret = 0;
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 	struct devlink *devlink = NULL;
-	ys_info("YS_HAVE_DEVLINK_PARAM_DRIVER is true");
 
 	devlink = ys_devlink_alloc(dev);
 	if (!devlink) {
@@ -156,15 +154,6 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	}
 
 	pdev_priv = devlink_priv(devlink);
-#else
-	pdev_priv = kzalloc(sizeof(*pdev_priv), GFP_KERNEL);
-	if (!pdev_priv) {
-		ret = -ENOMEM;
-		goto err_priv_alloc;
-	}
-
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
-
 	INIT_LIST_HEAD(&pdev_priv->umem_list);
 	pdev_priv->dev = dev;
 	pdev_priv->pdev = pdev;
@@ -200,8 +189,7 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	 *      |
 	 *      |---VF1---INDEX3
 	 */
-	pdev_priv->index = find_first_zero_bit(g_ys_pdev_manager.pf_index,
-					       YS_PDEV_MAX);
+	pdev_priv->index = find_first_zero_bit(g_ys_pdev_manager.pf_index, YS_PDEV_MAX);
 	/* pf_id init */
 	pdev_priv->pf_id = pdev_priv->index;
 	/* default mode is legacy */
@@ -212,12 +200,8 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	bitmap_set(g_ys_pdev_manager.pf_index, pdev_priv->index, 1);
 
 	ys_dev_info("Vendor: 0x%04x, Device: 0x%04x", pdev->vendor, pdev->device);
-	ys_dev_info("Sub vendor: 0x%04x, Sub device: 0x%04x",
-		    pdev->subsystem_vendor, pdev->subsystem_device);
-	ys_dev_info("PCI ID: %04x:%02x:%02x.%d, Class: 0x%06x",
-		    pci_domain_nr(pdev->bus),
-		    pdev->bus->number, PCI_SLOT(pdev->devfn),
-		    PCI_FUNC(pdev->devfn), pdev->class);
+	ys_dev_info("Sub vendor: 0x%04x, Sub device: 0x%04x", pdev->subsystem_vendor, pdev->subsystem_device);
+	ys_dev_info("PCI ID: %04x:%02x:%02x.%d, Class: 0x%06x", pci_domain_nr(pdev->bus), pdev->bus->number, PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn), pdev->class);
 
 	/* Enable the device */
 	ret = pci_enable_device(pdev);
@@ -306,6 +290,7 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	}
 
 #ifdef CONFIG_YSMOD_CDEV
+	pr_info("CONFIG_YSMOD_CDEV is true");
 	/* YUSUR mdev init */
 	ret = ys_cdev_init(pdev);
 	if (ret) {
@@ -318,11 +303,9 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (ret)
 		goto err_register_sysfs;
 
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 	ret = ys_devlink_init(pdev);
 	if (ret)
 		goto err_register_devlink;
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
 
 	if (!IS_ERR_OR_NULL(pdev_priv->nic_type->hw_pdev_fix_mode)) {
 		ret = pdev_priv->nic_type->hw_pdev_fix_mode(pdev_priv);
@@ -343,10 +326,8 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 err_register_fix_mode:
 	if (!IS_ERR_OR_NULL(pdev_priv->nic_type->hw_pdev_unfix_mode))
 		pdev_priv->nic_type->hw_pdev_unfix_mode(pdev_priv);
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 err_register_devlink:
 	ys_devlink_uninit(pdev);
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
 err_register_sysfs:
 	ys_sysfs_uninit(pdev);
 #ifdef CONFIG_YSMOD_CDEV
@@ -383,11 +364,7 @@ err_regions:
 	pci_disable_device(pdev);
 	pci_release_regions(pdev);
 err_pci_enable:
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 	ys_devlink_release(devlink);
-#else /* YS_HAVE_DEVLINK_PARAM_DRIVER */
-	kfree(pdev_priv);
-#endif
 err_priv_alloc:
 	return ret;
 }
@@ -400,7 +377,6 @@ void ys_pdev_remove(struct pci_dev *pdev)
 	struct ys_pdev_priv *pfdev_priv;
 	struct list_head *pdev_list;
 	struct pci_dev *pfdev;
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 	struct devlink *devlink;
 
 	if (IS_ERR_OR_NULL(pdev_priv)) {
@@ -413,8 +389,6 @@ void ys_pdev_remove(struct pci_dev *pdev)
 
 	devlink = priv_to_devlink(pdev_priv);
 	ys_devlink_uninit(pdev);
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
-
 	ys_disable_sriov(pdev);
 	ys_pdev_update_vfinfo(false, pdev);
 	ys_sysfs_uninit(pdev);
@@ -461,11 +435,7 @@ void ys_pdev_remove(struct pci_dev *pdev)
 			ys_umem_unmap(umem);
 	}
 
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 	ys_devlink_release(devlink);
-#else
-	kfree(pdev_priv);
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
 }
 
 void ys_pdev_manager_init(void)

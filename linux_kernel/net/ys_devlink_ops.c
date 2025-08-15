@@ -3,8 +3,6 @@
 #include "ys_platform.h"
 #include "ys_utils.h"
 
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
-
 int ys_devlink_get_switch_mode_init_value(struct devlink *devlink)
 {
 	struct ys_pdev_priv *pdev_priv = devlink_priv(devlink);
@@ -84,4 +82,3 @@ int ys_devlink_switch_mode_validate(struct devlink *devlink, u32 id,
 	return -EINVAL;
 }
 #endif /* YS_HAVE_DEVLINK_VALIDATE */
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */

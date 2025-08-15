@@ -3623,7 +3623,6 @@ static void ys_k2ulan_reset_hw_regs(void __iomem *buf, u64 offset, u32 buf_len)
 		ys_wr32(buf, offset + i * 0x4, 0);
 }
 
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 static int ys_k2ulan_devlink_init(struct pci_dev *pdev)
 {
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
@@ -3635,7 +3634,6 @@ static int ys_k2ulan_devlink_init(struct pci_dev *pdev)
 
 	return 0;
 }
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
 
 static void ys_k2ulan_init_h2c_global_en(void __iomem *bar_addr)
 {
@@ -3996,9 +3994,7 @@ int ys_k2ulan_probe(struct auxiliary_device *auxdev)
 	pdev_priv->ops->lan_adp_eth_init = ys_k2ulan_eth_init;
 	pdev_priv->ops->lan_adp_ndev_init = ys_k2ulan_ndev_init;
 	pdev_priv->ops->lan_adp_ndev_uninit = ys_k2ulan_ndev_uninit;
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 	pdev_priv->ops->lan_adp_devlink_init = ys_k2ulan_devlink_init;
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
 
 	mbox = ys_aux_match_mbox_dev(pdev_priv->pdev);
 	if (IS_ERR_OR_NULL(mbox))

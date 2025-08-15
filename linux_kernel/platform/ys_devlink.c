@@ -7,8 +7,6 @@
 #include "ys_reg_ops.h"
 #include "ys_utils.h"
 
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
-
 #include "../net/ys_devlink_ops.h"
 
 static const struct devlink_param ys_devlink_params[] = {
@@ -181,5 +179,3 @@ void ys_devlink_uninit(struct pci_dev *pdev)
 		ys_devlink_params_unregister(devlink);
 	}
 }
-
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */

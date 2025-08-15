@@ -3,8 +3,6 @@
 #ifndef __YS_DEVLINK_OPS_H_
 #define __YS_DEVLINK_OPS_H_
 
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
-
 #include <net/devlink.h>
 
 int ys_devlink_get_switch_mode_init_value(struct devlink *devlink);
@@ -20,5 +18,4 @@ int ys_devlink_switch_mode_validate(struct devlink *devlink, u32 id,
 				    union devlink_param_value val,
 				    struct netlink_ext_ack *extack);
 #endif /* YS_HAVE_DEVLINK_VALIDATE */
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
 #endif /* __YS_DEVLINK_OPS_H_ */

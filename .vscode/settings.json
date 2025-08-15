@@ -10,6 +10,7 @@
         "ys_adapter.h": "c",
         "ys_debug.h": "c",
         "ys_ndev_ops.h": "c",
-        "symbolsfile": "c"
+        "symbolsfile": "c",
+        "ys_devlink.h": "c"
     }
 }

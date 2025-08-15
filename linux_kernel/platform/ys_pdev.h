@@ -212,10 +212,7 @@ struct ys_pdev_priv {
 	 */
 	struct ys_ptp *ptp;
 
-#ifdef YS_HAVE_DEVLINK_PARAM_DRIVER
 	struct ys_devlink devlink_info;
-#endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
-
 	struct list_head sysfs_list;
 	struct ys_sysfs_info *vf_sysfs_infos;
 
