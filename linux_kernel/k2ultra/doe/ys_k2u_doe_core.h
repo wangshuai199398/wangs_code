@@ -249,6 +249,7 @@ static inline void ys_k2u_doe_writel(struct ys_k2u_doe_device *ys_k2u_doe, u32 v
 static inline void buffer_dump(struct ys_k2u_doe_device *ys_k2u_doe, const char *name,
 			       void *addr, u32 size)
 {
+	/*
 	char buf[128];
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ys_k2u_doe->pdev);
 	int i, offset = 0;
@@ -267,6 +268,7 @@ static inline void buffer_dump(struct ys_k2u_doe_device *ys_k2u_doe, const char 
 		if (i % 16 == 15 || i + 1 == size)
 			ys_dev_info("%s\n", buf);
 	}
+	*/
 }
 
 static inline u8 ys_k2u_doe_get_order(u32 len)
