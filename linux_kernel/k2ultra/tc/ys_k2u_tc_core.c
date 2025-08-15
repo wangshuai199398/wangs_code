@@ -413,5 +413,3 @@ MODULE_PARM_DESC(flow_en, "doe_array_cache_max: true or false. Default = false")
 
 module_param_named(doe_hash_cache_max, ys_tc_doe_hash_cache_max, bool, 0444);
 MODULE_PARM_DESC(flow_en, "doe_hash_cache_max: true or false. Default = false");
-
-#endif
