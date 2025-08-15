@@ -6,8 +6,6 @@
 #include "ys_debug.h"
 #include "ys_platform.h"
 
-#include "../lib/kernel_compat.h"
-
 #ifndef YS_TC_DISABLE
 
 #include <linux/types.h>

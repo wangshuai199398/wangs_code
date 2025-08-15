@@ -7,12 +7,7 @@
 
 #include "ys_utils.h"
 #include "ys_queue.h"
-
-#ifdef YS_HAVE_AUXILIARY_BUS
 #include <linux/auxiliary_bus.h>
-#else
-#include "../lib/auxiliary_bus/auxiliary_bus.h"
-#endif  /* YS_HAVE_AUXILIARY_BUS */
 
 struct ys_auxiliary_driver {
 	u32 aux_drv_support;

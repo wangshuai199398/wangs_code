@@ -5,8 +5,6 @@
 #include <linux/rbtree.h>
 #include <linux/iommu.h>
 
-#include "../lib/kernel_compat.h"
-
 #include "ys_dmamap.h"
 
 struct ys_dmamap_node {

@@ -11,6 +11,10 @@
         "ys_debug.h": "c",
         "ys_ndev_ops.h": "c",
         "symbolsfile": "c",
-        "ys_devlink.h": "c"
+        "ys_devlink.h": "c",
+        "auxiliary_bus.h": "c",
+        "mm.h": "c",
+        "sched.h": "c",
+        "rbtree.h": "c"
     }
 }

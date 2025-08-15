@@ -8,7 +8,6 @@
 #include <linux/ethtool.h>
 #include <linux/netlink.h>
 #include "../user_include/ys_ext_ethtool_cmd.h"
-#include "../lib/kernel_compat.h"
 
 #define YS_IOCG_EXTETHTOOL (SIOCDEVPRIVATE + 6)
 

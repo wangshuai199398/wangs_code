@@ -4,11 +4,7 @@
 #define __YS_INIT_H_
 
 #include <linux/pci.h>
-#ifdef YS_HAVE_AUXILIARY_BUS
 #include <linux/auxiliary_bus.h>
-#else
-#include "../lib/auxiliary_bus/auxiliary_bus.h"
-#endif  /* YS_HAVE_AUXILIARY_BUS */
 
 struct ys_pci_driver {
 	u32 aux_drv_support;

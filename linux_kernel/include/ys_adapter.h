@@ -7,12 +7,8 @@
 #include <linux/netdevice.h>
 #include <linux/pci.h>
 #include "../compat_config.h"
-#ifdef YS_HAVE_AUXILIARY_BUS
-#include <linux/auxiliary_bus.h>
-#else
-#include "../lib/auxiliary_bus/auxiliary_bus.h"
-#endif  /* YS_HAVE_AUXILIARY_BUS */
 
+#include <linux/auxiliary_bus.h>
 struct hw_adapter_ops {
 	int (*hw_adp_init)(struct net_device *ndev);
 	void (*hw_adp_uninit)(struct net_device *ndev);
