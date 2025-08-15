@@ -70,10 +70,6 @@ u8 ys_debug_get_unit(struct net_device *ndev, char **data)
 	return ret;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_debug_get_unit);
-#endif /* CONFIG_YSARCH_PLAT */
-
 void ys_debug_back_unit(char *data, u8 gen)
 {
 	struct ys_debug_unit *unit = container_of((void *)data, struct ys_debug_unit, payload);
@@ -82,10 +78,6 @@ void ys_debug_back_unit(char *data, u8 gen)
 	unit->mt.gen = gen;
 	ys_debug("debug back gen:%d", gen);
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_debug_back_unit);
-#endif /* CONFIG_YSARCH_PLAT */
 
 void ys_debug_uninit(struct pci_dev *pdev)
 {

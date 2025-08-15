@@ -391,10 +391,6 @@ err_priv_alloc:
 	return ret;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_pdev_probe);
-#endif /* CONFIG_YSARCH_PLAT */
-
 void ys_pdev_remove(struct pci_dev *pdev)
 {
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
@@ -471,10 +467,6 @@ void ys_pdev_remove(struct pci_dev *pdev)
 #endif /* YS_HAVE_DEVLINK_PARAM_DRIVER */
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_pdev_remove);
-#endif /* CONFIG_YSARCH_PLAT */
-
 void ys_pdev_manager_init(void)
 {
 	static bool init;
@@ -529,10 +521,6 @@ struct pci_dev *ys_pdev_find_another_pf(struct pci_dev *pdev)
 
 	return NULL;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_pdev_find_another_pf);
-#endif /* CONFIG_YSARCH_PLAT */
 
 int ys_pdev_init(struct pci_driver *pdrv)
 {

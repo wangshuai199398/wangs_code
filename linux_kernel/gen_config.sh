@@ -1,8 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0
 
-declare config_ysarch_plat=n
-
 declare -A hw_module_map=(
     ["K2ULTRA"]="cdev:y mac:x lan:k2u np:k2u"
 )
@@ -47,8 +45,5 @@ for key in ${!hw_map[@]}; do
         echo "CONFIG_YSHW_${key} := ${hw_map[$key]}" >> mod_config.mk
     fi
 done
-
-echo "#Decide whether to split into double driver for compilation " >> mod_config.mk
-echo "CONFIG_YSARCH_PLAT := $config_ysarch_plat" >> mod_config.mk
 
 echo "make config done!"

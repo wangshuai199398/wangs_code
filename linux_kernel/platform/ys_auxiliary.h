@@ -42,31 +42,8 @@ struct ys_auxiliary_driver {
 }
 #endif /* YS_HAVE_AUXILIARY_REMOVE */ \
 
-#ifdef CONFIG_YSARCH_PLAT
-#define YS_AUX_MODULE_NAME YS_DEV_NAME("platform")
-#else
-#ifdef CONFIG_YSHW_K2
-#define YS_AUX_MODULE_NAME YS_DEV_NAME("unic2")
-#elif defined(CONFIG_YSHW_K2PRO)
-#define YS_AUX_MODULE_NAME YS_DEV_NAME("unic2")
-#elif defined(CONFIG_YSHW_K2ULTRA)
+
 #define YS_AUX_MODULE_NAME YS_DEV_NAME("unic3")
-#elif defined(CONFIG_YSHW_K2ULTRA_CS)
-#define YS_AUX_MODULE_NAME YS_DEV_NAME("unic3")
-#elif defined(CONFIG_YSHW_2100P)
-#define YS_AUX_MODULE_NAME YS_DEV_NAME("unic2")
-#elif defined(CONFIG_YSHW_SWIFTN)
-#define YS_AUX_MODULE_NAME "swiftn"
-#elif defined(CONFIG_YSHW_LDMA3)
-#define YS_AUX_MODULE_NAME YS_DEV_NAME("swift3")
-#elif defined(CONFIG_YSHW_SEC)
-#define YS_AUX_MODULE_NAME YS_DEV_NAME("sec")
-#elif defined(CONFIG_YSHW_KMACHINE)
-#define YS_AUX_MODULE_NAME YS_DEV_NAME("kmachine")
-#else
-#define YS_AUX_MODULE_NAME YS_DEV_NAME("unic3")
-#endif
-#endif /* CONFIG_YSARCH_PLAT */
 
 #define AUX_NAME_ETH "eth"
 #define AUX_NAME_SF "sf"

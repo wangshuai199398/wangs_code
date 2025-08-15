@@ -28,10 +28,6 @@ int ys_ndev_check_permission(struct ys_ndev_priv *ndev_priv, int bitmap)
 	return 0;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_ndev_check_permission);
-#endif /* CONFIG_YSARCH_PLAT */
-
 static void ys_ndev_destroy(struct net_device *ndev)
 {
 	struct ys_ndev_priv *ndev_priv;

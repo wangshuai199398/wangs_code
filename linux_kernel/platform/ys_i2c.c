@@ -34,10 +34,6 @@ u32 ys_i2c_get_sfp_rate(struct ys_i2c_dev *idev)
 	return (rate >= SPEED_25000 ? YS_I2C_SFP_25G : YS_I2C_SFP_10G);
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_i2c_get_sfp_rate);
-#endif /* CONFIG_YSARCH_PLAT */
-
 int ys_i2c_read(struct ys_i2c_dev *idev, u8 regaddr, u8 *buffer, size_t size)
 {
 	struct i2c_msg msg[2];
@@ -58,10 +54,6 @@ int ys_i2c_read(struct ys_i2c_dev *idev, u8 regaddr, u8 *buffer, size_t size)
 
 	return ret;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_i2c_read);
-#endif /* CONFIG_YSARCH_PLAT */
 
 int ys_i2c_write(struct ys_i2c_dev *idev, u8 regaddr, u8 *buffer, size_t size)
 {
@@ -84,10 +76,6 @@ int ys_i2c_write(struct ys_i2c_dev *idev, u8 regaddr, u8 *buffer, size_t size)
 	return ret;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_i2c_write);
-#endif /* CONFIG_YSARCH_PLAT */
-
 int ys_i2c_eeprom_checksum(struct ys_i2c_dev *idev, u32 start, u32 len)
 {
 	u32 checksum = 0;
@@ -103,10 +91,6 @@ int ys_i2c_eeprom_checksum(struct ys_i2c_dev *idev, u32 start, u32 len)
 
 	return checksum;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_i2c_eeprom_checksum);
-#endif /* CONFIG_YSARCH_PLAT */
 
 int ys_aux_i2c_probe(struct auxiliary_device *auxdev,
 		     const struct auxiliary_device_id *id)

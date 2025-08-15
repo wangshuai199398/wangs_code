@@ -58,10 +58,6 @@ void ys_queue_set_info(struct pci_dev *pdev,
 	}
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_queue_set_info);
-#endif /* CONFIG_YSARCH_PLAT */
-
 void ys_queue_update_info(struct net_device *ndev,
 			  int is_vf,
 			  int vf_id)
@@ -77,10 +73,6 @@ void ys_queue_update_info(struct net_device *ndev,
 			  ndev_priv->qi.ndev_qnum,
 			  ndev->dev_port, is_vf, vf_id, -1);
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_queue_update_info);
-#endif /* CONFIG_YSARCH_PLAT */
 
 void ys_queue_clear_info(struct pci_dev *pdev,
 			 enum ys_queue_type type,
@@ -106,10 +98,6 @@ void ys_queue_clear_info(struct pci_dev *pdev,
 	}
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_queue_clear_info);
-#endif /* CONFIG_YSARCH_PLAT */
-
 bool ys_queue_check_info(struct pci_dev *pdev,
 			 enum ys_queue_type type,
 			 int qbase,
@@ -130,10 +118,6 @@ bool ys_queue_check_info(struct pci_dev *pdev,
 
 	return true;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_queue_check_info);
-#endif /* CONFIG_YSARCH_PLAT */
 
 int ys_queue_cal_vf_max_queue(struct pci_dev *pdev)
 {
@@ -167,10 +151,6 @@ int ys_queue_cal_vf_max_queue(struct pci_dev *pdev)
 	return vfs_max_qnum;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_queue_cal_vf_max_queue);
-#endif /* CONFIG_YSARCH_PLAT */
-
 int ys_queue_find_available_base(struct pci_dev *pdev,
 				 enum ys_queue_type type,
 				 int qcount)
@@ -202,10 +182,6 @@ int ys_queue_find_available_base(struct pci_dev *pdev,
 
 	return -1;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_queue_find_available_base);
-#endif /* CONFIG_YSARCH_PLAT */
 
 int ys_qset_get_id(struct pci_dev *pdev)
 {
@@ -242,10 +218,6 @@ int ys_qset_get_id(struct pci_dev *pdev)
 	return ret;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_qset_get_id);
-#endif /* CONFIG_YSARCH_PLAT */
-
 void ys_qset_release_id(struct pci_dev *pdev, int id)
 {
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
@@ -255,10 +227,6 @@ void ys_qset_release_id(struct pci_dev *pdev, int id)
 	spin_unlock(&pdev_priv->qset_pool.lock);
 	ys_dev_info("Release Qset ID: %d\n", id);
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_qset_release_id);
-#endif /* CONFIG_YSARCH_PLAT */
 
 void ys_qset_pool_init(struct pci_dev *pdev)
 {

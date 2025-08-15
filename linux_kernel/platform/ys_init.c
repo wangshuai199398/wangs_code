@@ -20,15 +20,11 @@ int ys_init(struct ys_pci_driver *ys_pdrv)
 	ys_info("YUSUR Platform Driver %s Init\n", THIS_MODULE->name);
 	ys_debugfs_init();
 
-#ifndef CONFIG_YSARCH_PLAT
-	ys_info("CONFIG_YSARCH_PLAT is true");
 	ys_pdev_manager_init();
 
 	ret = ys_aux_init(ys_pdrv->aux_drv_support);
 	if (ret)
 		goto err_aux_init;
-#endif /* CONFIG_YSARCH_PLAT */
-
 	ret = ys_pdev_init(&ys_pdrv->pdrv);
 	if (ret)
 		goto err_pdev_init;
@@ -42,48 +38,17 @@ int ys_init(struct ys_pci_driver *ys_pdrv)
 err_ysc_init:
 err_pdev_init:
 	ys_pdev_uninit(&ys_pdrv->pdrv);
-#ifndef CONFIG_YSARCH_PLAT
 err_aux_init:
 	ys_aux_uninit(ys_pdrv->aux_drv_support);
-#endif /* CONFIG_YSARCH_PLAT */
 	return ret;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_init);
-#endif /* CONFIG_YSARCH_PLAT */
 
 void ys_exit(struct ys_pci_driver *ys_pdrv)
 {
 	ys_info("YUSUR Platform Driver %s Exit\n", THIS_MODULE->name);
 	ysc_exit();
 	ys_pdev_uninit(&ys_pdrv->pdrv);
-#ifndef CONFIG_YSARCH_PLAT
 	ys_aux_uninit(ys_pdrv->aux_drv_support);
-#endif /* CONFIG_YSARCH_PLAT */
 	ys_debugfs_uninit();
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_exit);
-#endif /* CONFIG_YSARCH_PLAT */
-
-#ifdef CONFIG_YSARCH_PLAT
-static int __init ys_platform_init(void)
-{
-	ys_pdev_manager_init();
-	return ys_aux_init(0xFFFF);
-}
-
-static void __exit ys_platform_exit(void)
-{
-	ys_aux_uninit(0xFFFF);
-}
-
-module_init(ys_platform_init);
-module_exit(ys_platform_exit);
-
-MODULE_DESCRIPTION("YUSUR Platform Driver");
-MODULE_AUTHOR("YUSUR Technology Co., Ltd.");
-MODULE_LICENSE("GPL");
-#endif /* CONFIG_YSARCH_PLAT */

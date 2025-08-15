@@ -7,10 +7,6 @@
 
 bool ys_tc_flow_enable;
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_tc_flow_enable);
-#endif /* CONFIG_YSARCH_PLAT */
-
 struct ys_tc_indr_block_priv {
 	struct net_device *tunnel_ndev;
 	struct ys_tc_priv *tc_priv;
@@ -71,10 +67,6 @@ int ys_tc_setup_tc(struct net_device *ndev, enum tc_setup_type type,
 
 	return 0;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_tc_setup_tc);
-#endif /* CONFIG_YSARCH_PLAT */
 
 static struct ys_tc_indr_block_priv *
 ys_tc_indr_block_priv_lookup(struct ys_tc_priv *tc_priv,
@@ -290,10 +282,6 @@ int ys_tc_tunnel_cb_init(struct ys_tc_priv *tc_priv)
 	return flow_indr_dev_register(ys_tc_indr_block_bind_cb, tc_priv);
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_tc_tunnel_cb_init);
-#endif /* CONFIG_YSARCH_PLAT */
-
 void ys_tc_tunnel_cb_exit(struct ys_tc_priv *tc_priv)
 {
 	if (!tc_priv->is_uplink)
@@ -309,10 +297,6 @@ void ys_tc_tunnel_cb_exit(struct ys_tc_priv *tc_priv)
 				 ys_tc_setup_indr_block_cb);
 #endif
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_tc_tunnel_cb_exit);
-#endif /* CONFIG_YSARCH_PLAT */
 
 int ys_tc_debug_init(int switchdev_id, bool first, struct dentry **debugfs_root)
 {
@@ -331,19 +315,12 @@ int ys_tc_debug_init(int switchdev_id, bool first, struct dentry **debugfs_root)
 	return 0;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_tc_debug_init);
-#endif /* CONFIG_YSARCH_PLAT */
-
 void ys_tc_debug_exit(struct dentry *debugfs_root, bool last)
 {
 	if (last)
 		debugfs_remove_recursive(debugfs_root);
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_tc_debug_exit);
-#endif /* CONFIG_YSARCH_PLAT */
 
 module_param_named(flow_en, ys_tc_flow_enable, bool, 0644);
 MODULE_PARM_DESC(flow_en, "flow_en: true or false. Default = false");

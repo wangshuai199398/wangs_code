@@ -333,7 +333,3 @@ int ys_sriov_configure(struct pci_dev *pdev, int num_vfs)
 
 	return ret;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_sriov_configure);
-#endif /* CONFIG_YSARCH_PLAT */

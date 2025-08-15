@@ -157,10 +157,6 @@ void *ys_aux_match_ndev_by_qset(struct pci_dev *pdev, u16 qset)
 	return NULL;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_aux_match_ndev_by_qset);
-#endif /* CONFIG_YSARCH_PLAT */
-
 void *ys_aux_match_adev(struct pci_dev *pdev, int adev_type, int id)
 {
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
@@ -178,10 +174,6 @@ void *ys_aux_match_adev(struct pci_dev *pdev, int adev_type, int id)
 	read_unlock(&pdev_priv->adev_list_lock);
 	return NULL;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_aux_match_adev);
-#endif /* CONFIG_YSARCH_PLAT */
 
 int ys_aux_match_id(struct pci_dev *pdev, int adev_type, void *adev_priv)
 {
@@ -202,10 +194,6 @@ int ys_aux_match_id(struct pci_dev *pdev, int adev_type, void *adev_priv)
 	return -1;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_aux_match_id);
-#endif /* CONFIG_YSARCH_PLAT */
-
 struct ys_adev *ys_aux_get_adev(struct pci_dev *pdev, int adev_type,
 				void *adev_priv)
 {
@@ -225,10 +213,6 @@ struct ys_adev *ys_aux_get_adev(struct pci_dev *pdev, int adev_type,
 	read_unlock(&pdev_priv->adev_list_lock);
 	return NULL;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_aux_get_adev);
-#endif /* CONFIG_YSARCH_PLAT */
 
 void ys_aux_del_all_adev(struct pci_dev *pdev, const char *name)
 {
@@ -271,10 +255,6 @@ void ys_aux_del_match_adev(struct pci_dev *pdev, int idx, const char *name)
 		}
 	}
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_aux_del_match_adev);
-#endif /* CONFIG_YSARCH_PLAT */
 
 struct ys_adev *ys_aux_add_adev(struct pci_dev *pdev, int idx,
 				const char *name, void *arg)
@@ -351,10 +331,6 @@ struct ys_adev *ys_aux_add_adev(struct pci_dev *pdev, int idx,
 
 	return adev;
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_aux_add_adev);
-#endif /* CONFIG_YSARCH_PLAT */
 
 static int ys_aux_i2c_dev_init(struct pci_dev *pdev)
 {

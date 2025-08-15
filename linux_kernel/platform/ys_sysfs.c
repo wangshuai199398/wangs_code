@@ -336,10 +336,6 @@ err:
 	return -ENOMEM;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_sysfs_create_info_group);
-#endif /* CONFIG_YSARCH_PLAT */
-
 void ys_sysfs_remove_group(struct list_head *list,
 			   int type, int idx, struct kobject *kobj)
 {
@@ -356,10 +352,6 @@ void ys_sysfs_remove_group(struct list_head *list,
 		}
 	}
 }
-
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_sysfs_remove_group);
-#endif /* CONFIG_YSARCH_PLAT */
 
 static int ys_sysfs_create_common_group(struct pci_dev *pdev)
 {

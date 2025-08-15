@@ -1088,10 +1088,6 @@ int ys_add_cdev(struct pci_dev *pdev, const char *name, const struct file_operat
 	return 0;
 }
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_add_cdev);
-#endif /* CONFIG_YSARCH_PLAT */
-
 int ys_cdev_init(struct pci_dev *pdev)
 {
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);

@@ -1170,10 +1170,6 @@ const struct net_device_ops ys_ndev_ops = {
 #endif /* YS_HAVE_SELECT_QUEUE_RH310 */
 };
 
-#ifdef CONFIG_YSARCH_PLAT
-EXPORT_SYMBOL(ys_ndev_ops);
-#endif /* CONFIG_YSARCH_PLAT */
-
 #ifdef YS_HAVE_UDP_TUNNEL_NIC_INFO
 static int ys_udp_tnl_set_port(struct net_device *ndev,
 			       unsigned int table, unsigned int entry,
