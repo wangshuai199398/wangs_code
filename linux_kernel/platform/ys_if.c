@@ -25,11 +25,6 @@ void ys_debugfs_uninit(void)
 	debugfs_remove(ys_debugfs_root);
 }
 
-
-static const struct devlink_ops ys_devlink_ops = {
-	.eswitch_mode_get = ys_devlink_eswitch_mode_get,
-};
-
 static int ys_devlink_eswitch_mode_get(struct devlink *devlink, u16 *mode)
 {
 	struct ys_pdev_priv *pdev_priv;
@@ -51,6 +46,10 @@ static int ys_devlink_eswitch_mode_get(struct devlink *devlink, u16 *mode)
 
 	return 0;
 }
+
+static const struct devlink_ops ys_devlink_ops = {
+	.eswitch_mode_get = ys_devlink_eswitch_mode_get,
+};
 
 struct devlink *ys_devlink_alloc(struct device *dev)
 {
