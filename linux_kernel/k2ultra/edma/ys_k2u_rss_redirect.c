@@ -184,7 +184,5 @@ void ys_k2u_rss_init(struct net_device *ndev)
 	if (IS_ERR_OR_NULL(mbox))
 		return;
 
-#ifndef CONFIG_YSHW_K2ULTRA_U200
 	mbox->mbox_vf_to_pf_set_rss_redirect = ys_k2u_mbox_rss_redirect_proc;
-#endif
 }

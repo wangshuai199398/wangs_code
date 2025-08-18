@@ -127,11 +127,4 @@ void ys_build_ehtool_ksetting_advertising(struct ys_ethtool_ksetting *cmd,
 void ys_build_ehtool_ksetting_supported(struct ys_ethtool_ksetting *cmd,
 					enum ethtool_link_mode_bit_indices link_mode);
 
-#ifndef YS_HAVE_ETH_HW_ADDR_SET
-static inline void eth_hw_addr_set(struct net_device *dev, const u8 *addr)
-{
-	ether_addr_copy(dev->dev_addr, addr);
-}
-#endif /* YS_HAVE_ETH_HW_ADDR_SET */
-
 #endif /* __YS_ETHTOOL_OPS_H_ */
