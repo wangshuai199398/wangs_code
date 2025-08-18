@@ -25,6 +25,37 @@ void ys_debugfs_uninit(void)
 	debugfs_remove(ys_debugfs_root);
 }
 
+void ys_pdev_manager_init(void)
+{
+	static bool init;
+
+	if (init)
+		return;
+
+	bitmap_zero(g_ys_pdev_manager.eth_dev_id, YS_DEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.sf_dev_id, YS_DEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.rep_dev_id, YS_DEV_MAX);
+
+	bitmap_zero(g_ys_pdev_manager.i2c_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.ptp_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.lan_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.mac_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.mbox_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.np_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.pf_index, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.vdpa_dev_id, YS_PDEV_MAX);
+
+	INIT_LIST_HEAD(&g_ys_pdev_manager.pdev_list);
+
+	g_ys_pdev_manager.doe_ops = NULL;
+	spin_lock_init(&g_ys_pdev_manager.doe_manager_lock);
+	spin_lock_init(&g_ys_pdev_manager.doe_schedule_lock);
+	INIT_LIST_HEAD(&g_ys_pdev_manager.doe_schedule_list);
+
+	init = true;
+}
+
+
 static int ys_devlink_eswitch_mode_get(struct devlink *devlink, u16 *mode)
 {
 	struct ys_pdev_priv *pdev_priv;
