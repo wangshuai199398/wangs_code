@@ -71,7 +71,7 @@ ver:
 # bash ./kernel_compat/autocompat.sh /lib/modules/$(uname -r)/build ./kernel_compat/symbolsfile
 compat:
 	@rm -f compat_config.h
-	@bash ./kernel_compat/autocompat.sh $(KDIR) $(SYMBDIR)
+# @bash ./kernel_compat/autocompat.sh $(KDIR) $(SYMBDIR)
 
 modules:ver compat
 	$(MAKE) -C $(KDIR) M=$(PWD) modules

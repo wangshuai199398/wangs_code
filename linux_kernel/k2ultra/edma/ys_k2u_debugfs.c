@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 
-#include "../../platform/ys_debugfs.h"
+#include "../../platform/ys_if.h"
 #include "ys_k2u_debugfs.h"
 
 int ys_k2u_debugfs_init(struct ys_pdev_priv *pdev_priv, struct dentry **root)
