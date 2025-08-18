@@ -11,9 +11,6 @@ extern struct dentry *ys_debugfs_root;
 void ys_debugfs_init(void);
 void ys_debugfs_uninit(void);
 
-struct devlink *ys_devlink_alloc(struct device *dev);
-void ys_pdev_manager_init(void);
-
 
 #endif
 

@@ -24,6 +24,7 @@ struct ys_devlink {
 	struct ys_devlink_hw_ops *devlink_hw_ops;
 };
 
+struct devlink *ys_devlink_alloc(struct device *dev);
 void ys_devlink_release(struct devlink *devlink);
 int ys_devlink_init(struct pci_dev *pdev);
 void ys_devlink_uninit(struct pci_dev *pdev);

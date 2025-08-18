@@ -318,7 +318,7 @@ struct ys_pdev_hw {
 
 extern struct ys_pdev_manager g_ys_pdev_manager;
 bool ys_pdev_supports_sriov(struct pci_dev *dev);
-
+void ys_pdev_manager_init(void);
 struct pci_dev *ys_pdev_find_another_pf(struct pci_dev *pdev);
 int ys_pdev_init(struct pci_driver *pdrv);
 void ys_pdev_uninit(struct pci_driver *pdrv);

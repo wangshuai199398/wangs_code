@@ -433,7 +433,35 @@ void ys_pdev_remove(struct pci_dev *pdev)
 	ys_devlink_release(devlink);
 }
 
+void ys_pdev_manager_init(void)
+{
+	static bool init;
 
+	if (init)
+		return;
+
+	bitmap_zero(g_ys_pdev_manager.eth_dev_id, YS_DEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.sf_dev_id, YS_DEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.rep_dev_id, YS_DEV_MAX);
+
+	bitmap_zero(g_ys_pdev_manager.i2c_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.ptp_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.lan_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.mac_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.mbox_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.np_dev_id, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.pf_index, YS_PDEV_MAX);
+	bitmap_zero(g_ys_pdev_manager.vdpa_dev_id, YS_PDEV_MAX);
+
+	INIT_LIST_HEAD(&g_ys_pdev_manager.pdev_list);
+
+	g_ys_pdev_manager.doe_ops = NULL;
+	spin_lock_init(&g_ys_pdev_manager.doe_manager_lock);
+	spin_lock_init(&g_ys_pdev_manager.doe_schedule_lock);
+	INIT_LIST_HEAD(&g_ys_pdev_manager.doe_schedule_list);
+
+	init = true;
+}
 
 struct pci_dev *ys_pdev_find_another_pf(struct pci_dev *pdev)
 {
@@ -477,3 +505,4 @@ void ys_pdev_uninit(struct pci_driver *pdrv)
 {
 	pci_unregister_driver(pdrv);
 }
+
