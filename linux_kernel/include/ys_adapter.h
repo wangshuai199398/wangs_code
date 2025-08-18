@@ -6,7 +6,6 @@
 #include <linux/ethtool.h>
 #include <linux/netdevice.h>
 #include <linux/pci.h>
-#include "../compat_config.h"
 
 #include <linux/auxiliary_bus.h>
 struct hw_adapter_ops {

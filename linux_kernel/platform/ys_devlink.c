@@ -7,6 +7,8 @@
 #include "ys_reg_ops.h"
 #include "ys_utils.h"
 
+#include "ys_if.h"
+
 #include "../net/ys_devlink_ops.h"
 
 static const struct devlink_param ys_devlink_params[] = {
@@ -46,36 +48,6 @@ static void ys_devlink_set_params_init_values(struct devlink *devlink)
 	devlink_param_driverinit_value_set(devlink, YS_DEVLINK_PARAM_ID_SWITCH_MODE, value);
 }
 
-static int ys_devlink_eswitch_mode_get(struct devlink *devlink, u16 *mode)
-{
-	struct ys_pdev_priv *pdev_priv;
-	int dpu_mode;
-
-	pdev_priv = devlink_priv(devlink);
-	dpu_mode = pdev_priv->dpu_mode;
-	switch (dpu_mode) {
-	case MODE_LEGACY:
-		*mode = DEVLINK_ESWITCH_MODE_LEGACY;
-		break;
-	case MODE_SMART_NIC:
-		*mode = DEVLINK_ESWITCH_MODE_SWITCHDEV;
-		break;
-	default:
-		/* MODE_DPU_HOST/MODE_DPU_SOC */
-		return -EPROTONOSUPPORT;
-	}
-
-	return 0;
-}
-
-static const struct devlink_ops ys_devlink_ops = {
-	.eswitch_mode_get = ys_devlink_eswitch_mode_get,
-};
-
-struct devlink *ys_devlink_alloc(struct device *dev)
-{
-	return devlink_alloc(&ys_devlink_ops, sizeof(struct ys_pdev_priv), dev);
-}
 
 void ys_devlink_release(struct devlink *devlink)
 {

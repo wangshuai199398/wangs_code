@@ -20,7 +20,8 @@ DRV_OBJS := 	platform/ys_intr.o \
 		platform/ys_debug.o \
 		platform/ys_plat_doe.o \
 		platform/ys_plat_np.o \
-		platform/ys_vdpa.o
+		platform/ys_vdpa.o \
+		platform/ys_if.o
 
 NET_OBJS := 	net/ys_ethtool_ops.o \
 		net/ys_ext_ethtool.o \

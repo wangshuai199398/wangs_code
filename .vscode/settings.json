@@ -18,6 +18,10 @@
         "rbtree.h": "c",
         "types.h": "c",
         "rtnetlink.h": "c",
-        "locale": "c"
+        "locale": "c",
+        "ys_doe.h": "c",
+        "ys_k2u_doe_reg.h": "c",
+        "device.h": "c",
+        "debugfs.h": "c"
     }
 }

@@ -11,7 +11,7 @@
 #include "ys_debug.h"
 #include "ys_utils.h"
 #include "ysc_dev.h"
-#include "ys_debugfs.h"
+#include "ys_if.h"
 
 int ys_init(struct ys_pci_driver *ys_pdrv)
 {
