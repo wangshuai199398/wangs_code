@@ -20,9 +20,8 @@ int ys_init(struct ys_pci_driver *ys_pdrv)
 	int ret;
 
 	ys_info("YUSUR Platform Driver %s Init\n", THIS_MODULE->name);
-	ys_debugfs_init();
-
 	ysif_ops_init();
+	ys_debugfs_init();
 
 	ys_pdev_manager_init();
 

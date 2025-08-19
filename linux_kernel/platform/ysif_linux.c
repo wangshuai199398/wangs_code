@@ -2,6 +2,7 @@
 #include <linux/mutex.h>
 #include <linux/errno.h>
 #include <linux/compiler.h>
+#include <linux/debugfs.h>
 
 #include "ysif_linux.h"
 
@@ -37,6 +38,7 @@ static int ys_auxiliary_driver_register(struct auxiliary_driver *drv)
 }
 
 static const struct ysif_ops ysif_linux_ops = {
+    .debugfs_create_dir = debugfs_create_dir,
     .auxiliary_driver_register   = ys_auxiliary_driver_register,
     .auxiliary_driver_unregister = auxiliary_driver_unregister,
 };
