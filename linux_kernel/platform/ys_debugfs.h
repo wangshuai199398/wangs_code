@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-#ifndef __YS_IF_H_
-#define __YS_IF_H_
 
+#ifndef __YS_DEBUGFS_H_
+#define __YS_DEBUGFS_H_
 #include <linux/device.h>
 #include <linux/pci.h>
 #include <linux/debugfs.h>
@@ -11,6 +11,4 @@ extern struct dentry *ys_debugfs_root;
 void ys_debugfs_init(void);
 void ys_debugfs_uninit(void);
 
-
-#endif
-
+#endif /* __YS_DEBUGFS_H_ */

@@ -23,6 +23,13 @@
         "ys_k2u_doe_reg.h": "c",
         "device.h": "c",
         "debugfs.h": "c",
-        "ys_if.h": "c"
+        "ys_if.h": "c",
+        "ysif_provider.h": "c",
+        "ys_mbox.h": "c",
+        "ys_devlink_ops.h": "c",
+        "ys_k2u_np_priv.h": "c",
+        "ys_debugfs.h": "c",
+        "ysif_linux.h": "c",
+        "compiler.h": "c"
     }
 }

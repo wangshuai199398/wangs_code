@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 
 #include "ys_tc.h"
-#include "../../platform/ys_if.h"
-
+#include "../../platform/ys_debugfs.h"
 
 bool ys_tc_flow_enable;
 

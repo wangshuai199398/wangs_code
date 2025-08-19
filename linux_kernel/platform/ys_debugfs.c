@@ -1,12 +1,9 @@
-#include <net/devlink.h>
+// SPDX-License-Identifier: GPL-2.0
+
 #include <linux/debugfs.h>
-
-#include "ys_if.h"
-
-#include "ys_devlink.h"
-#include "ys_pdev.h"
 #include "ys_platform.h"
 #include "ys_debug.h"
+#include "ys_debugfs.h"
 
 struct dentry *ys_debugfs_root;
 EXPORT_SYMBOL(ys_debugfs_root);
@@ -22,6 +19,3 @@ void ys_debugfs_uninit(void)
 {
 	debugfs_remove(ys_debugfs_root);
 }
-
-
-

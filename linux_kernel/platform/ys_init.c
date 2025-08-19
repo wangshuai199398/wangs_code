@@ -11,7 +11,9 @@
 #include "ys_debug.h"
 #include "ys_utils.h"
 #include "ysc_dev.h"
-#include "ys_if.h"
+#include "ys_debugfs.h"
+
+#include "ysif_linux.c"
 
 int ys_init(struct ys_pci_driver *ys_pdrv)
 {
@@ -19,6 +21,8 @@ int ys_init(struct ys_pci_driver *ys_pdrv)
 
 	ys_info("YUSUR Platform Driver %s Init\n", THIS_MODULE->name);
 	ys_debugfs_init();
+
+	ysif_ops_init();
 
 	ys_pdev_manager_init();
 

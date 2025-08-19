@@ -6,7 +6,7 @@
 #include "../../../platform/ys_ndev.h"
 #include "../../../platform/ys_pdev.h"
 #include "../../../platform/ys_mbox.h"
-#include "../../../platform/ys_if.h"
+#include "../../../platform/ys_debugfs.h"
 
 #include "ys_adapter.h"
 #include "ys_debug.h"

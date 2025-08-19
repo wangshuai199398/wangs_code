@@ -7,7 +7,6 @@
 #include "ys_reg_ops.h"
 #include "ys_utils.h"
 
-#include "ys_if.h"
 
 #include "../net/ys_devlink_ops.h"
 

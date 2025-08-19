@@ -14,7 +14,6 @@
 
 #include "ys_debug.h"
 
-#include "ys_if.h"
 
 struct ys_pdev_manager g_ys_pdev_manager;
 
