@@ -13,7 +13,7 @@
 #include "ysc_dev.h"
 #include "ys_debugfs.h"
 
-#include "ysif_linux.c"
+#include "ysif_linux.h"
 
 int ys_init(struct ys_pci_driver *ys_pdrv)
 {
