@@ -59,7 +59,7 @@ static int ys_pdev_mmap(struct ys_pdev_priv *pdev_priv)
 	unsigned long bar_end;
 	u64 bar_offset = 0;
 	int i;
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	for (i = 0; i < BAR_MAX; i++) {
 		bar_start = pci_resource_start(pdev, i);
@@ -146,7 +146,7 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	struct list_head *pdev_list;
 	int ret = 0;
 	struct devlink *devlink = NULL;
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	devlink = ys_devlink_alloc(dev);
 	if (!devlink) {
 		/* Here ys_dev_err is not valid as pdev_priv is NULL. */
@@ -439,7 +439,7 @@ void ys_pdev_manager_init(void)
 
 	if (init)
 		return;
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	ops->bitmap_zero(g_ys_pdev_manager.eth_dev_id, YS_DEV_MAX);
 	ops->bitmap_zero(g_ys_pdev_manager.sf_dev_id, YS_DEV_MAX);
 	ops->bitmap_zero(g_ys_pdev_manager.rep_dev_id, YS_DEV_MAX);
@@ -491,7 +491,7 @@ struct pci_dev *ys_pdev_find_another_pf(struct pci_dev *pdev)
 int ys_pdev_init(struct pci_driver *pdrv)
 {
 	int ret = 0;
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	ret = ops->ypci_register_driver(pdrv);
 	if (ret) {
 		ys_err("PCI driver registration failed\n");

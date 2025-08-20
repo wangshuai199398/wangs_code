@@ -776,7 +776,7 @@ int ys_aux_init(u32 pci_support_type)
 {
 	int ret;
 	int i = 0;
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	for (; !IS_ERR_OR_NULL(ys_adrvs[i].drv.name); i++) {
 		if (pci_support_type & ys_adrvs[i].aux_drv_support) {
 			if (!ys_adrvs[i].is_registered) {

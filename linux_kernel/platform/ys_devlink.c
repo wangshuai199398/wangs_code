@@ -77,7 +77,7 @@ static const struct devlink_ops ys_devlink_ops = {
 
 struct devlink *ys_devlink_alloc(struct device *dev)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	return ops->devlink_alloc(&ys_devlink_ops, sizeof(struct ys_pdev_priv), dev);
 }
 
