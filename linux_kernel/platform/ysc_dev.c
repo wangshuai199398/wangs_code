@@ -1230,12 +1230,12 @@ int ysc_init(void)
 {
 	int ret;
 	static bool inited;
-
+	const struct ysif_ops *ops = ysif_get_ops();
 	if (inited) {
 		atomic_inc(&ysc_dev.refcnt);
 		return 0;
 	}
-	const struct ysif_ops *ops = ysif_get_ops();
+
 	ysc_dev.mdev.minor = MISC_DYNAMIC_MINOR;
 	ysc_dev.mdev.name = YSC_DEV_NAME;
 	ysc_dev.mdev.fops = &ysc_fops;
