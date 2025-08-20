@@ -30,6 +30,7 @@
         "ys_k2u_np_priv.h": "c",
         "ys_debugfs.h": "c",
         "ysif_linux.h": "c",
-        "compiler.h": "c"
+        "compiler.h": "c",
+        "cdev.h": "c"
     }
 }

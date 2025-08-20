@@ -25,6 +25,8 @@
 #include "ysc_dev.h"
 #include "ysnic.h"
 
+#include "ysif_linux.h"
+
 #define YSC_DEV_NAME "yusur"
 
 struct ysc_dev {
@@ -1233,13 +1235,13 @@ int ysc_init(void)
 		atomic_inc(&ysc_dev.refcnt);
 		return 0;
 	}
-
+	struct ysif_ops *ops = ysif_get_ops();
 	ysc_dev.mdev.minor = MISC_DYNAMIC_MINOR;
 	ysc_dev.mdev.name = YSC_DEV_NAME;
 	ysc_dev.mdev.fops = &ysc_fops;
 	atomic_set(&ysc_dev.refcnt, 1);
 
-	ret = misc_register(&ysc_dev.mdev);
+	ret = ops->misc_register(&ysc_dev.mdev);
 	if (ret < 0) {
 		ys_err("Failed to register misc device yusur, error: %d\n", ret);
 		return ret;

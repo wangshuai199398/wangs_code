@@ -13,7 +13,7 @@
 #include "ysc_dev.h"
 
 #include "ys_debug.h"
-
+#include "ysif_linux.h"
 
 struct ys_pdev_manager g_ys_pdev_manager;
 
@@ -59,6 +59,7 @@ static int ys_pdev_mmap(struct ys_pdev_priv *pdev_priv)
 	unsigned long bar_end;
 	u64 bar_offset = 0;
 	int i;
+	struct ysif_ops *ops = ysif_get_ops();
 
 	for (i = 0; i < BAR_MAX; i++) {
 		bar_start = pci_resource_start(pdev, i);
@@ -76,7 +77,7 @@ static int ys_pdev_mmap(struct ys_pdev_priv *pdev_priv)
 							    pdev_priv->bar_size[i]);
 		else
 			pdev_priv->bar_addr[i] =
-				ioremap(bar_start, pdev_priv->bar_size[i]);
+				ops->yioremap(bar_start, pdev_priv->bar_size[i]);
 
 		if (!pdev_priv->bar_addr[i]) {
 			ys_dev_err("could't map BAR_%d[0x%08lx-0x%08lx] flag[0x%08lx]",
@@ -145,7 +146,7 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	struct list_head *pdev_list;
 	int ret = 0;
 	struct devlink *devlink = NULL;
-
+	struct ysif_ops *ops = ysif_get_ops();
 	devlink = ys_devlink_alloc(dev);
 	if (!devlink) {
 		/* Here ys_dev_err is not valid as pdev_priv is NULL. */
@@ -154,8 +155,8 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto err_priv_alloc;
 	}
 
-	pdev_priv = devlink_priv(devlink);
-	INIT_LIST_HEAD(&pdev_priv->umem_list);
+	pdev_priv = ops->devlink_priv(devlink);
+	ops->INIT_LIST_HEAD(&pdev_priv->umem_list);
 	pdev_priv->dev = dev;
 	pdev_priv->pdev = pdev;
 	pdev_priv->nic_type = (const struct ys_pdev_hw *)id->driver_data;
@@ -165,10 +166,10 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (!pdev_priv->nic_type->is_vf)
 		pdev_priv->master = YS_PF_MASTER;
 
-	INIT_LIST_HEAD(&pdev_priv->sysfs_list);
-	INIT_LIST_HEAD(&pdev_priv->adev_list);
-	INIT_LIST_HEAD(&pdev_priv->doe_list);
-	rwlock_init(&pdev_priv->adev_list_lock);
+	ops->INIT_LIST_HEAD(&pdev_priv->sysfs_list);
+	ops->INIT_LIST_HEAD(&pdev_priv->adev_list);
+	ops->INIT_LIST_HEAD(&pdev_priv->doe_list);
+	ops->yrwlock_init(&pdev_priv->adev_list_lock);
 
 	/*
 	 * After insmod pci driver
@@ -196,25 +197,25 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	/* default mode is legacy */
 	pdev_priv->dpu_mode = MODE_LEGACY;
 
-	pci_set_drvdata(pdev, pdev_priv);
+	ops->pci_set_drvdata(pdev, pdev_priv);
 
-	bitmap_set(g_ys_pdev_manager.pf_index, pdev_priv->index, 1);
+	ops->bitmap_set(g_ys_pdev_manager.pf_index, pdev_priv->index, 1);
 
 	ys_dev_info("Vendor: 0x%04x, Device: 0x%04x", pdev->vendor, pdev->device);
 	ys_dev_info("Sub vendor: 0x%04x, Sub device: 0x%04x", pdev->subsystem_vendor, pdev->subsystem_device);
 	ys_dev_info("PCI ID: %04x:%02x:%02x.%d, Class: 0x%06x", pci_domain_nr(pdev->bus), pdev->bus->number, PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn), pdev->class);
 
 	/* Enable the device */
-	ret = pci_enable_device(pdev);
+	ret = ops->pci_enable_device(pdev);
 	if (ret) {
 		ys_dev_err("pci_enable_device() failed\n");
 		goto err_pci_enable;
 	}
 
-	pci_set_master(pdev);
+	ops->pci_set_master(pdev);
 
 	/* Request MMIO/IOP resources */
-	ret = pci_request_regions(pdev, pdev->driver->name);
+	ret = ops->pci_request_regions(pdev, pdev->driver->name);
 	if (ret) {
 		ys_dev_err("pci_request_regions() failed\n");
 		goto err_regions;
@@ -438,26 +439,26 @@ void ys_pdev_manager_init(void)
 
 	if (init)
 		return;
+	struct ysif_ops *ops = ysif_get_ops();
+	ops->bitmap_zero(g_ys_pdev_manager.eth_dev_id, YS_DEV_MAX);
+	ops->bitmap_zero(g_ys_pdev_manager.sf_dev_id, YS_DEV_MAX);
+	ops->bitmap_zero(g_ys_pdev_manager.rep_dev_id, YS_DEV_MAX);
 
-	bitmap_zero(g_ys_pdev_manager.eth_dev_id, YS_DEV_MAX);
-	bitmap_zero(g_ys_pdev_manager.sf_dev_id, YS_DEV_MAX);
-	bitmap_zero(g_ys_pdev_manager.rep_dev_id, YS_DEV_MAX);
+	ops->bitmap_zero(g_ys_pdev_manager.i2c_dev_id, YS_PDEV_MAX);
+	ops->bitmap_zero(g_ys_pdev_manager.ptp_dev_id, YS_PDEV_MAX);
+	ops->bitmap_zero(g_ys_pdev_manager.lan_dev_id, YS_PDEV_MAX);
+	ops->bitmap_zero(g_ys_pdev_manager.mac_dev_id, YS_PDEV_MAX);
+	ops->bitmap_zero(g_ys_pdev_manager.mbox_dev_id, YS_PDEV_MAX);
+	ops->bitmap_zero(g_ys_pdev_manager.np_dev_id, YS_PDEV_MAX);
+	ops->bitmap_zero(g_ys_pdev_manager.pf_index, YS_PDEV_MAX);
+	ops->bitmap_zero(g_ys_pdev_manager.vdpa_dev_id, YS_PDEV_MAX);
 
-	bitmap_zero(g_ys_pdev_manager.i2c_dev_id, YS_PDEV_MAX);
-	bitmap_zero(g_ys_pdev_manager.ptp_dev_id, YS_PDEV_MAX);
-	bitmap_zero(g_ys_pdev_manager.lan_dev_id, YS_PDEV_MAX);
-	bitmap_zero(g_ys_pdev_manager.mac_dev_id, YS_PDEV_MAX);
-	bitmap_zero(g_ys_pdev_manager.mbox_dev_id, YS_PDEV_MAX);
-	bitmap_zero(g_ys_pdev_manager.np_dev_id, YS_PDEV_MAX);
-	bitmap_zero(g_ys_pdev_manager.pf_index, YS_PDEV_MAX);
-	bitmap_zero(g_ys_pdev_manager.vdpa_dev_id, YS_PDEV_MAX);
-
-	INIT_LIST_HEAD(&g_ys_pdev_manager.pdev_list);
+	ops->INIT_LIST_HEAD(&g_ys_pdev_manager.pdev_list);
 
 	g_ys_pdev_manager.doe_ops = NULL;
-	spin_lock_init(&g_ys_pdev_manager.doe_manager_lock);
-	spin_lock_init(&g_ys_pdev_manager.doe_schedule_lock);
-	INIT_LIST_HEAD(&g_ys_pdev_manager.doe_schedule_list);
+	ops->yspin_lock_init(&g_ys_pdev_manager.doe_manager_lock);
+	ops->yspin_lock_init(&g_ys_pdev_manager.doe_schedule_lock);
+	ops->INIT_LIST_HEAD(&g_ys_pdev_manager.doe_schedule_list);
 
 	init = true;
 }
@@ -490,8 +491,8 @@ struct pci_dev *ys_pdev_find_another_pf(struct pci_dev *pdev)
 int ys_pdev_init(struct pci_driver *pdrv)
 {
 	int ret = 0;
-
-	ret = pci_register_driver(pdrv);
+	struct ysif_ops *ops = ysif_get_ops();
+	ret = ops->ypci_register_driver(pdrv);
 	if (ret) {
 		ys_err("PCI driver registration failed\n");
 		return -1;

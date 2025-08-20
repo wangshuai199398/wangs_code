@@ -10,6 +10,8 @@
 
 #include "../net/ys_devlink_ops.h"
 
+#include "ysif_linux.h"
+
 static const struct devlink_param ys_devlink_params[] = {
 	DEVLINK_PARAM_DRIVER(YS_DEVLINK_PARAM_ID_SWITCH_MODE, "switch_mode",
 			     DEVLINK_PARAM_TYPE_STRING,
@@ -75,7 +77,8 @@ static const struct devlink_ops ys_devlink_ops = {
 
 struct devlink *ys_devlink_alloc(struct device *dev)
 {
-	return devlink_alloc(&ys_devlink_ops, sizeof(struct ys_pdev_priv), dev);
+	struct ysif_ops *ops = ysif_get_ops();
+	return ops->devlink_alloc(&ys_devlink_ops, sizeof(struct ys_pdev_priv), dev);
 }
 
 void ys_devlink_release(struct devlink *devlink)

@@ -19,5 +19,6 @@ void ys_debugfs_init(void)
 
 void ys_debugfs_uninit(void)
 {
-	debugfs_remove(ys_debugfs_root);
+	const struct ysif_ops *ops = ysif_get_ops();
+	ops->debugfs_remove(ys_debugfs_root);
 }

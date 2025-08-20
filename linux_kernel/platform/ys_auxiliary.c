@@ -19,6 +19,7 @@
 #include "../net/mac/ys_mac.h"
 
 #include "ys_debug.h"
+#include "ysif_linux.h"
 
 static int ys_aux_allocate_id(unsigned long *bitmap, int max_devices)
 {
@@ -775,11 +776,11 @@ int ys_aux_init(u32 pci_support_type)
 {
 	int ret;
 	int i = 0;
-
+	struct ysif_ops *ops = ysif_get_ops();
 	for (; !IS_ERR_OR_NULL(ys_adrvs[i].drv.name); i++) {
 		if (pci_support_type & ys_adrvs[i].aux_drv_support) {
 			if (!ys_adrvs[i].is_registered) {
-				ret = auxiliary_driver_register(&ys_adrvs[i].drv);
+				ret = ops->yauxiliary_driver_register(&ys_adrvs[i].drv);
 				if (ret)
 					return ret;
 				ys_adrvs[i].is_registered = true;
