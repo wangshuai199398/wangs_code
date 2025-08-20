@@ -436,10 +436,11 @@ void ys_pdev_remove(struct pci_dev *pdev)
 void ys_pdev_manager_init(void)
 {
 	static bool init;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	if (init)
 		return;
-	const struct ysif_ops *ops = ysif_get_ops();
+	
 	ops->bitmap_zero(g_ys_pdev_manager.eth_dev_id, YS_DEV_MAX);
 	ops->bitmap_zero(g_ys_pdev_manager.sf_dev_id, YS_DEV_MAX);
 	ops->bitmap_zero(g_ys_pdev_manager.rep_dev_id, YS_DEV_MAX);
