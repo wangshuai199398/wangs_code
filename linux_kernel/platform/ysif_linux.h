@@ -23,7 +23,7 @@ struct ysif_ops {
     void (*list_add_rcu)(struct list_head *new, struct list_head *head);
 
     unsigned long (*yfind_first_zero_bit)(const unsigned long *addr, unsigned long size);
-    void (*set_bit)(unsigned long nr, volatile unsigned long *addr);
+    void (*set_bit)(long int, volatile unsigned long *addr);
 
     void (*idr_init)(struct idr *idr);
     void *(*idr_find)(const struct idr *, unsigned long id);
@@ -31,7 +31,7 @@ struct ysif_ops {
     
 
     void (*refcount_inc)(refcount_t *r);
-    void (*refcount_set)(refcount_t *r, int n);
+    void (*refcount_set)(refcount_t *r, unsigned int n);
 
     void (*yspin_lock_init)(spinlock_t *spin);
     void (*spin_lock)(spinlock_t *lock);
@@ -63,7 +63,7 @@ struct ysif_ops {
     struct devlink *(*devlink_alloc)(const struct devlink_ops *ops, size_t priv_size, struct device *dev);
     void *(*devlink_priv)(struct devlink *devlink);
     struct devlink *(*priv_to_devlink)(void *priv);
-    int (*devlink_register)(struct devlink *devlink);
+    void (*devlink_register)(struct devlink *devlink);
     int (*devlink_params_register)(struct devlink *devlink, const struct devlink_param *params, size_t params_count);
     int (*devlink_param_driverinit_value_set)(struct devlink *devlink, u32 param_id, union devlink_param_value init_val);
 
