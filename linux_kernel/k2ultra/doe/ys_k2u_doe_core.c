@@ -2753,9 +2753,7 @@ int ys_k2u_doe_fix_mode(struct ys_k2u_doe_device *ys_k2u_doe)
 	
 	pr_debug("f==============");
 	dynamic_pr_debug("ffffffffflflflfl");
-	#ifdef DEBUG
-	pr_err("12345");
-	#endif
+
 	ret = ys_k2u_doe_cache_reset(ys_k2u_doe);
 	/*
 	 * submit air/miu_param for table 239 (hash index resource) which
