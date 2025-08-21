@@ -9,6 +9,7 @@
 #include <net/devlink.h>
 #include <linux/rwlock.h>
 #include <linux/mutex.h>
+#include <linux/completion.h>
 
 
 #include "ysif_linux.h"
