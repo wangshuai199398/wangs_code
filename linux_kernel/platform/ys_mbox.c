@@ -306,6 +306,10 @@ int ys_mbox_send_msg(struct ys_mbox *mbox,
 	return ret;
 }
 
+#ifdef CONFIG_YSARCH_PLAT
+EXPORT_SYMBOL(ys_mbox_send_msg);
+#endif /* CONFIG_YSARCH_PLAT */
+
 static void ys_mbox_test_success_inc(void)
 {
 	spin_lock(&mbox_test_stat.lock);

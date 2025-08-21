@@ -154,6 +154,24 @@ struct ys_k2u_mbox {
 	u32 pf2lf_table[YS_K2U_MBOX_MAX_PF];
 };
 
+#ifdef CONFIG_YSHW_K2ULTRA_CS
+#define YS_K2U_CS_MBOX_BAR                  BAR2
+#define YS_K2U_PF_NUM                       0x1c
+#define YS_K2U_CS_MBOX_BASE                 0x40000
+#define YS_K2U_MBOX_HOST_MASTER             (YS_K2U_CS_MBOX_BASE + 0x2000)
+
+struct ys_k2u_mbox_pf_vector {
+	u32 msix_vector : 10;
+	u32 resv : 22;
+};
+
+struct ys_k2u_mbox_host_master {
+	u32 master_sel : 1;
+	u32 master_pf_id : 6;
+	u32 resv : 25;
+};
+#endif
+
 int ys_k2u_mbox_init(struct pci_dev *pdev);
 
 #endif /* __YS_K2U_MBOX_H__ */
