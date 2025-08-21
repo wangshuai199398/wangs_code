@@ -461,7 +461,7 @@ int ys_k2u_pdev_get_init_qnum(struct pci_dev *pdev)
 
 int ys_k2u_pdev_func_init(struct ys_pdev_priv *pdev_priv)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_new_func *func;
 	void __iomem *hw_addr;
 	size_t size;

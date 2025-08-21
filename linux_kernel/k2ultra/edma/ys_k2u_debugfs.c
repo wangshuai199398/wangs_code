@@ -9,7 +9,7 @@ int ys_k2u_debugfs_init(struct ys_pdev_priv *pdev_priv, struct dentry **root)
 {
 	char name[128];
 	struct pci_dev *pdev = pdev_priv->pdev;
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	sprintf(name, "k2u_%04x:%02x:%02x.%d",
 		pci_domain_nr(pdev->bus),
