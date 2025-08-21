@@ -427,7 +427,7 @@ static int ys_k2ulan_del_l2uc_entry(struct ys_k2ulan *k2ulan, u8 *old_mac,
 	list_for_each_entry(l2uc_key, &steering->l2uc_key_list,
 			    uc_key_node) {
 		if (memcmp(l2uc_key->mac, old_mac, ETH_ALEN) == 0) {
-			ys_info("%s old mac %02x:%02x:%02x:%02x:%02x:%02x match exist entry",
+			ys_debug("%s old mac %02x:%02x:%02x:%02x:%02x:%02x match exist entry",
 				__func__, old_mac[0], old_mac[1], old_mac[2], old_mac[3],
 				old_mac[4], old_mac[5]);
 			break;
@@ -435,7 +435,7 @@ static int ys_k2ulan_del_l2uc_entry(struct ys_k2ulan *k2ulan, u8 *old_mac,
 	}
 
 	if (&l2uc_key->uc_key_node == &steering->l2uc_key_list) {
-		ys_info("%s panic delete old mac %02x:%02x:%02x:%02x:%02x:%02x no exist!",
+		ys_debug("%s panic delete old mac %02x:%02x:%02x:%02x:%02x:%02x no exist!",
 			__func__, old_mac[0], old_mac[1], old_mac[2], old_mac[3], old_mac[4],
 			old_mac[5]);
 		return ret;
@@ -461,7 +461,7 @@ static int ys_k2ulan_del_l2uc_entry(struct ys_k2ulan *k2ulan, u8 *old_mac,
 	} else {
 		if (uc_qbmp_index >= YS_K2ULAN_RX_MAC_RULE_NUMB ||
 		    uc_qbmp_index < 0) {
-			ys_info("%s panic update old mac %02x:%02x:%02x:%02x:%02x:%02x qbmp!",
+			ys_debug("%s panic update old mac %02x:%02x:%02x:%02x:%02x:%02x qbmp!",
 				__func__, old_mac[0], old_mac[1], old_mac[2], old_mac[3],
 				old_mac[4], old_mac[5]);
 			return -EFAULT;
