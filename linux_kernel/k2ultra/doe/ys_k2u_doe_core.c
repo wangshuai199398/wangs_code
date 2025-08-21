@@ -1433,7 +1433,7 @@ static int ys_k2u_doe_cache_reset(struct ys_k2u_doe_device *ys_k2u_doe)
 		addr = ys_k2u_doe->doe_base + ys_k2u_doe_reset_offset[i];
 		ys_k2u_doe_writel(ys_k2u_doe, 1, addr);
 
-		pr_debug("DOE reset. doe_base=%p, offset=%llx, value:%u\n", ys_k2u_doe->doe_base, ys_k2u_doe_reset_offset[i], 1);
+		ys_debug("DOE reset. doe_base=%p, offset=%llx, value:%u\n", ys_k2u_doe->doe_base, ys_k2u_doe_reset_offset[i], 1);
 
 		ret = readl_poll_timeout_atomic(addr, val, !(val & 0x1), 100, 500000);
 		if (ret) {

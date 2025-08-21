@@ -1188,7 +1188,7 @@ static int ys_cuckoo_delete_uncached(struct ys_cuckoo_table_uncached *table,
 			ys_cuckoo_unlock_table(base_info);
 			return ret;
 		}
-		ys_info("bucket %d, pos %d, hw mac: %02x:%02x:%02x:%02x:%02x:%02x", i, to_pos,
+		ys_debug("bucket %d, pos %d, hw mac: %02x:%02x:%02x:%02x:%02x:%02x", i, to_pos,
 			table->entry_swap.key[0], table->entry_swap.key[1],
 			table->entry_swap.key[2], table->entry_swap.key[3],
 			table->entry_swap.key[4], table->entry_swap.key[5]);
