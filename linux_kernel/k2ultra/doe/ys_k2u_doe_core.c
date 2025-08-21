@@ -797,7 +797,6 @@ int ys_k2u_doe_aux_probe(struct auxiliary_device *auxdev)
 	ys_k2u_doe->auxdev_ops = auxdev_ops;
 	adev->adev_extern_ops = auxdev_ops;
 	pdev_priv->doe_schedule.ys_doe_schedule = ys_k2u_doe_hw_resources_move;
-	pr_debug("wangshuai4");
 	/* register irq */
 	ys_k2u_doe_fix_mode(ys_k2u_doe);
 
@@ -1433,10 +1432,10 @@ static int ys_k2u_doe_cache_reset(struct ys_k2u_doe_device *ys_k2u_doe)
 		addr = ys_k2u_doe->doe_base + ys_k2u_doe_reset_offset[i];
 		ys_k2u_doe_writel(ys_k2u_doe, 1, addr);
 
-		pr_debug("DOE reset. doe_base=%p, offset=%llx, value:%u\n", ys_k2u_doe->doe_base, ys_k2u_doe_reset_offset[i], 1);
+		dynamic_pr_debug("DOE reset. doe_base=%p, offset=%llx, value:%u\n", ys_k2u_doe->doe_base, ys_k2u_doe_reset_offset[i], 1);
 		ret = readl_poll_timeout_atomic(addr, val, !(val & 0x1), 100, 500000);
 		if (ret) {
-			pr_debug("DOE reset failed. doe_base=%p, offset=%llx\n",
+			dynamic_pr_debug("DOE reset failed. doe_base=%p, offset=%llx\n",
 				ys_k2u_doe->doe_base,
 				ys_k2u_doe_reset_offset[i]);
 			return ret;
@@ -2749,10 +2748,6 @@ int ys_k2u_doe_fix_mode(struct ys_k2u_doe_device *ys_k2u_doe)
 	INIT_LIST_HEAD(&init_cmd->cache_list);
 	ys_k2u_doe_reset(ys_k2u_doe, init_cmd);
 	ys_k2u_doe_polling_work(ys_k2u_doe->doe_write_if, init_cmd);
-
-	
-	pr_debug("f==============");
-	dynamic_pr_debug("ffffffffflflflfl");
 
 	ret = ys_k2u_doe_cache_reset(ys_k2u_doe);
 	/*

@@ -120,8 +120,6 @@ static int __init ys_k2u_init(void)
 		ys_debug("k2u init mac_type %d error\n", mac_type);
 		return -1;
 	}
-	pr_debug("wangshuai");
-	pr_info("wangshuai2");
 	return ys_init(&ys_k2u_driver);
 }
 

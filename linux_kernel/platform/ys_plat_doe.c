@@ -15,8 +15,6 @@ int ys_aux_doe_probe(struct auxiliary_device *auxdev,
 
 	if (pdev_priv->nic_type->pdev_type == YS_PDEV_TYPE_NDEV &&
 	    !IS_ERR_OR_NULL(pdev_priv->ops->hw_adp_doe_init)) {
-		pr_info("wangshuai5");
-		pr_debug("wangshuai6");
 		ret = pdev_priv->ops->hw_adp_doe_init(auxdev);
 		if (ret)
 			return ret;
