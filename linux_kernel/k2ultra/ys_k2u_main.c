@@ -121,6 +121,7 @@ static int __init ys_k2u_init(void)
 		return -1;
 	}
 	pr_debug("wangshuai");
+	pr_info("wangshuai2");
 	return ys_init(&ys_k2u_driver);
 }
 
