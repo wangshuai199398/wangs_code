@@ -13,6 +13,7 @@
 #include <linux/mm.h>
 #include <linux/mutex.h>
 #include <linux/slab.h>
+
 #include <linux/printk.h>
 
 #include "ys_k2u_doe_core.h"
@@ -2751,8 +2752,9 @@ int ys_k2u_doe_fix_mode(struct ys_k2u_doe_device *ys_k2u_doe)
 	ys_k2u_doe_reset(ys_k2u_doe, init_cmd);
 	ys_k2u_doe_polling_work(ys_k2u_doe->doe_write_if, init_cmd);
 
-	dynamic_pr_debug("ffffffffflflflfl");
+	
 	pr_debug("f==============");
+	dynamic_pr_debug("ffffffffflflflfl");
 
 	ret = ys_k2u_doe_cache_reset(ys_k2u_doe);
 	/*
