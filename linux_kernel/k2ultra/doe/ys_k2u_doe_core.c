@@ -2754,7 +2754,7 @@ int ys_k2u_doe_fix_mode(struct ys_k2u_doe_device *ys_k2u_doe)
 	pr_debug("f==============");
 	dynamic_pr_debug("ffffffffflflflfl");
 	#ifdef DEBUG
-	pr_debug("12345");
+	pr_err("12345");
 	#endif
 	ret = ys_k2u_doe_cache_reset(ys_k2u_doe);
 	/*
