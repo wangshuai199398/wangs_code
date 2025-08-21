@@ -1002,7 +1002,7 @@ static const struct file_operations ys_cdev_ops = {
 
 int ys_add_cdev(struct pci_dev *pdev, const char *name, const struct file_operations *ops)
 {
-	struct ysif_ops *yops = ysif_get_ops();
+	const struct ysif_ops *yops = ysif_get_ops();
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
 	struct list_head *cdev_list = &pdev_priv->cdev_list;
 	struct ys_cdev *ys_cdev, *entry;
