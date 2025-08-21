@@ -2,6 +2,7 @@
 
 #include "ys_k2u_np_priv.h"
 #include "../include/ys_doe.h"
+#include "ys_k2u_np_lag.h"
 
 enum {
 	YS_NP_DOE_PROTECT_OFF = 0,
