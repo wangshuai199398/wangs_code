@@ -34,8 +34,6 @@ struct ys_np_table {
 	dev_err(pdev_priv->dev, "%s: [NP]: " f, YS_HW_NAME, ##arg)
 #define ys_np_info(f, arg...) \
 	dev_info(pdev_priv->dev, "%s: [NP]: " f, YS_HW_NAME, ##arg)
-#define ys_np_debug(f, arg...) \
-	dev_debug(pdev_priv->dev, "%s: [NP]: " f, YS_HW_NAME, ##arg)
 
 int ys_k2u_np_doe_init(struct ys_np *np);
 int ys_k2u_np_doe_tbl_init(struct ys_np *np);
