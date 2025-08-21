@@ -373,7 +373,7 @@ static void ys_k2u_np_mbox_cmd_handler(struct ys_mbox *mbox, struct ys_mbox_msg 
 	cmd = (struct ys_k2u_np_mbox_cmd *)msg->data;
 	cmd_ack = (struct ys_k2u_np_mbox_cmd *)ack_msg.data;
 	cmd_ack->cmd_type = cmd->cmd_type; // is it neccessery ?
-	ys_np_debugg("mailbox cmd handler:%x, cmd type:%d", msg_id, cmd->cmd_type);
+	ys_np_debug("mailbox cmd handler:%x, cmd type:%d", msg_id, cmd->cmd_type);
 
 	switch (cmd->cmd_type) {
 	case YS_NP_REG_CFG_SET:
