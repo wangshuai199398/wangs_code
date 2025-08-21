@@ -797,7 +797,7 @@ int ys_k2u_doe_aux_probe(struct auxiliary_device *auxdev)
 	ys_k2u_doe->auxdev_ops = auxdev_ops;
 	adev->adev_extern_ops = auxdev_ops;
 	pdev_priv->doe_schedule.ys_doe_schedule = ys_k2u_doe_hw_resources_move;
-
+	pr_debug("wangshuai3");
 	/* register irq */
 	ys_k2u_doe_fix_mode(ys_k2u_doe);
 
