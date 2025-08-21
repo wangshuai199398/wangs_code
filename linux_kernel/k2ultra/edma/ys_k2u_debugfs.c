@@ -2,7 +2,8 @@
 
 #include "../../platform/ys_debugfs.h"
 #include "ys_k2u_debugfs.h"
-#include "ysif_linux.h"
+
+#include "../../platform/ysif_linux.h"
 
 int ys_k2u_debugfs_init(struct ys_pdev_priv *pdev_priv, struct dentry **root)
 {
