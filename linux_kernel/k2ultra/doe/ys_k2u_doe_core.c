@@ -790,7 +790,7 @@ int ys_k2u_doe_aux_probe(struct auxiliary_device *auxdev)
 	/* init adev ops */
 	ys_k2u_doe_init_adev_ops(auxdev_ops);
 
-	ys_dev_info("Install DOE successfully, version %08x\n",
+	ys_dev_debug("Install DOE successfully, version %08x\n",
 		    readl(ys_k2u_doe->doe_base + YS_K2U_DOE_VERSION));
 
 	/* Set doe aux ops to adev data */
@@ -920,7 +920,7 @@ int ys_k2u_doe_pdev_init(struct ys_pdev_priv *pdev_priv)
 	ys_k2u_doe_init_adev_ops(auxdev_ops);
 	ys_k2u_doe->auxdev_ops = auxdev_ops;
 
-	ys_dev_info("Install DOE successfully, version %08x\n",
+	ys_dev_debug("Install DOE successfully, version %08x\n",
 		    readl(ys_k2u_doe->doe_base + YS_K2U_DOE_VERSION));
 
 	pdev_priv->doe_schedule.ys_doe_schedule = ys_k2u_doe_hw_resources_move;

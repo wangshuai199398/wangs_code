@@ -725,7 +725,7 @@ static int ys_cuckoo_load_hw_entry_uncached(struct ys_cuckoo_table_uncached *tab
 				 base_info->hw.raddr + (index * base_info->value_size));
 	for (i = 0; i < base_info->hw.data_round; i++) {
 		data[i] = ys_cuckooo_ioread32_direct(entry_addr + (i * sizeof(u32)));
-		ys_info("read rule into var: addr %08lx, data round %d, data 0x%08x",
+		ys_debug("read rule into var: addr %08lx, data round %d, data 0x%08x",
 			entry_addr, i, data[i]);
 	}
 
@@ -754,7 +754,7 @@ static int ys_cuckoo_load_hw_raw_entry_uncached(struct ys_cuckoo_table_uncached 
 			base_info->hw.raddr + (index * base_info->value_size));
 	for (i = 0; i < base_info->hw.data_round; i++) {
 		data[i] = ys_cuckooo_ioread32_direct(entry_addr + (i * sizeof(u32)));
-		ys_info("read rule into var: addr %08lx, data round %d, data 0x%08x",
+		ys_debug("read rule into var: addr %08lx, data round %d, data 0x%08x",
 			entry_addr, i, data[i]);
 	}
 	table->ops->parse_rule_data(data, key, value);
@@ -776,7 +776,7 @@ static int ys_cuckoo_load_hw_entry_into_table_uncached(struct ys_cuckoo_table_un
 				 base_info->hw.raddr + (index * base_info->value_size));
 	for (i = 0; i < base_info->hw.data_round; i++) {
 		data[i] = ys_cuckooo_ioread32_direct(entry_addr + (i * sizeof(u32)));
-		ys_info("read rule shared: addr %08lx, data round %d, data 0x%08x",
+		ys_debug("read rule shared: addr %08lx, data round %d, data 0x%08x",
 			entry_addr, i, data[i]);
 	}
 
@@ -799,7 +799,7 @@ static int ys_cuckoo_load_hw_entry_into_table_shared(struct ys_cuckoo_table *tab
 	for (i = 0; i < table->hw.data_round; i++) {
 		data[i] = ys_cuckooo_ioread32(table,
 					      entry_addr + (i * sizeof(u32)));
-		ys_info("read rule shared: addr %08x, data round %d, data 0x%08x",
+		ys_debug("read rule shared: addr %08x, data round %d, data 0x%08x",
 			entry_addr, i, data[i]);
 	}
 

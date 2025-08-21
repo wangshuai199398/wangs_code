@@ -601,10 +601,10 @@ int ys_xmac_init(struct auxiliary_device *auxdev)
 	mac->irq_vector = ret;
 
 	ys_wr32(hw_addr, XMAC_INTER_JITTER_CTL(0), XMAC_INTER_JITTER_CTL_DEF);
-	ys_dev_info("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_JITTER_CTL(0), XMAC_INTER_JITTER_CTL_DEF);
+	ys_dev_debug("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_JITTER_CTL(0), XMAC_INTER_JITTER_CTL_DEF);
 
 	ys_wr32(hw_addr, XMAC_INTER_ENABLE_REG(0), XMAC_INTER_ENABLE_ALL);
-	ys_dev_info("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_ENABLE_REG(0), XMAC_INTER_ENABLE_ALL);
+	ys_dev_debug("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_ENABLE_REG(0), XMAC_INTER_ENABLE_ALL);
 
 	if (!pdev_priv->nic_type->is_vf) {
 		if (pdev_priv->pf_id < 4) {
@@ -612,37 +612,37 @@ int ys_xmac_init(struct auxiliary_device *auxdev)
 			case 0:
 				val = FIELD_PREP(XMAC_INTER_VECTOR_LAN02_MASK, mac->irq_vector);
 				ys_wr32(hw_addr, XMAC_INTER_VECTOR_HOST_LAN01(0), val);
-				ys_dev_info("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_VECTOR_HOST_LAN01(0), val);
+				ys_dev_debug("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_VECTOR_HOST_LAN01(0), val);
 				break;
 			case 1:
 				val = ys_rd32(hw_addr, XMAC_INTER_VECTOR_HOST_LAN01(0));
 				val |= FIELD_PREP(XMAC_INTER_VECTOR_LAN13_MASK, mac->irq_vector);
 				ys_wr32(hw_addr, XMAC_INTER_VECTOR_HOST_LAN01(0), val);
-				ys_dev_info("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_VECTOR_HOST_LAN01(0), val);
+				ys_dev_debug("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_VECTOR_HOST_LAN01(0), val);
 				break;
 			case 2:
 				val = FIELD_PREP(XMAC_INTER_VECTOR_LAN02_MASK, mac->irq_vector);
 				ys_wr32(hw_addr, XMAC_INTER_VECTOR_HOST_LAN23(0), val);
-				ys_dev_info("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_VECTOR_HOST_LAN23(0), val);
+				ys_dev_debug("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_VECTOR_HOST_LAN23(0), val);
 				break;
 			case 3:
 				val = ys_rd32(hw_addr, XMAC_INTER_VECTOR_HOST_LAN23(0));
 				val |= FIELD_PREP(XMAC_INTER_VECTOR_LAN13_MASK, mac->irq_vector);
 				ys_wr32(hw_addr, XMAC_INTER_VECTOR_HOST_LAN23(0), val);
-				ys_dev_info("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_VECTOR_HOST_LAN23(0), val);
+				ys_dev_debug("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_VECTOR_HOST_LAN23(0), val);
 				break;
 			default:
-				ys_dev_info("pf_id %u\n", pdev_priv->pf_id);
+				ys_dev_debug("pf_id %u\n", pdev_priv->pf_id);
 				break;
 			}
 
 			val = FIELD_PREP(XMAC_INTER_CHX_F_VALUE_HOST_MASK, pdev_priv->pf_id);
 			ys_wr32(hw_addr, XMAC_INTER_CHX_F_VALUE(0, pdev_priv->pf_id), val);
-			ys_dev_info("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_CHX_F_VALUE(0, pdev_priv->pf_id), val);
+			ys_dev_debug("wr32 hw_addr 0x%p reg 0x%x val 0x%x\n", hw_addr, XMAC_INTER_CHX_F_VALUE(0, pdev_priv->pf_id), val);
 		}
 	}
 
-	ys_dev_info("hw_addr 0x%p pf_id %u irq %u\n", hw_addr, pdev_priv->pf_id, mac->irq_vector);
+	ys_dev_debug("hw_addr 0x%p pf_id %u irq %u\n", hw_addr, pdev_priv->pf_id, mac->irq_vector);
 
 	return 0;
 }
