@@ -2749,9 +2749,11 @@ int ys_k2u_doe_fix_mode(struct ys_k2u_doe_device *ys_k2u_doe)
 	INIT_LIST_HEAD(&init_cmd->cache_list);
 	ys_k2u_doe_reset(ys_k2u_doe, init_cmd);
 	ys_k2u_doe_polling_work(ys_k2u_doe->doe_write_if, init_cmd);
-	dev_dbg(pdev_priv->dev, "fsffs");
+
 	dynamic_dev_dbg(pdev_priv->dev, "======");
+	dynamic_pr_debug("ffffffffflflflfl");
 	pr_debug("f==============");
+
 	ret = ys_k2u_doe_cache_reset(ys_k2u_doe);
 	/*
 	 * submit air/miu_param for table 239 (hash index resource) which
