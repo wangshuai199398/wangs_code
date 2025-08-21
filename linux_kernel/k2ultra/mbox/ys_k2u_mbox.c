@@ -297,7 +297,7 @@ static struct ys_mbox_irq_info ys_k2u_mbox_get_irq_status(struct ys_mbox *mbox)
 	}
 irq_data:
 	irq_info.msg_id = msg_id;
-	ys_dev_info("%s, type %s, func_id %d, irq_status %d\n", __func__,
+	ys_dev_debug("%s, type %s, func_id %d, irq_status %d\n", __func__,
 		    mb_role_stringify(ctx->type), ctx->func_id, irq_info.irq_status);
 	return irq_info;
 }

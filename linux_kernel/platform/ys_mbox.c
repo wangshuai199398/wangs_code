@@ -196,7 +196,7 @@ static int ys_mbox_send_logic(struct ys_mbox *mbox,
 	send_msg->checksum = ys_mbox_cal_checksum(send_msg);
 	ys_mbox_print(mbox, send_msg, "===mbox msg send===");
 	mbox->mbox_hw_send_msg(mbox, (void *)send_msg, channel);
-	ys_dev_info("%s, send mb channel %d opcode %02x expect %x seq %d msg trigger irq finish!\n",
+	ys_dev_debug("%s, send mb channel %d opcode %02x expect %x seq %d msg trigger irq finish!\n",
 		    __func__, channel, send_msg->opcode, expect_opcode, send_msg->seqno);
 
 	timeout = jiffies + msecs_to_jiffies(1000);

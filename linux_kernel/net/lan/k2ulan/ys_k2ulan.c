@@ -168,7 +168,7 @@ static int ys_k2ulan_alloc_l2uc_qset_bmp(struct ys_k2ulan *k2ulan,
 	steering = &k2ulan->lan_steering;
 	list_for_each_entry_safe(l2uc_qbmp, temp, &steering->l2uc_qbmp_list,
 				 uc_qbmp_node) {
-		ys_info("compare %p to %p", bitmap, l2uc_qbmp->bitmap);
+		ys_debug("compare %p to %p", bitmap, l2uc_qbmp->bitmap);
 		if (ys_k2ulan_compare_qset_bmp(l2uc_qbmp->bitmap, bitmap,
 					       YS_K2ULAN_QSET_BITMAP) == 0) {
 			if (new_qbmp_match)
@@ -975,7 +975,7 @@ static int ys_k2ulan_update_vlan_qset_bmp(struct ys_k2ulan_steering *steering,
 
 	list_for_each_entry_safe(vlan_qbmp, temp, &steering->vlan_qset_bmp_list,
 				 vlan_qbmp_node) {
-		ys_info("compare %p to %p", bitmap, vlan_qbmp->bitmap);
+		ys_debug("compare %p to %p", bitmap, vlan_qbmp->bitmap);
 		if (ys_k2ulan_compare_qset_bmp(vlan_qbmp->bitmap, bitmap,
 					       YS_K2ULAN_QSET_BITMAP) == 0) {
 			if (new_qbmp_match)
@@ -3705,7 +3705,7 @@ static void ys_mbox_k2ulan_cmd_handler(struct ys_mbox *mbox, struct ys_mbox_msg 
 	cmd_ack = (struct ys_k2ulan_cmd *)ack_msg.data;
 	cmd_ack->cmd_type = cmd->cmd_type; // is it neccessery ?
 	vf_id = ctx->func_id;
-	ys_dev_info("ys_mbox k2ulan cmd handler:%x, cmd type:%d", msg_id, cmd->cmd_type);
+	ys_dev_debug("ys_mbox k2ulan cmd handler:%x, cmd type:%d", msg_id, cmd->cmd_type);
 
 	switch (cmd->cmd_type) {
 	case YS_K2ULAN_CMD_VF_UC_ADD:
