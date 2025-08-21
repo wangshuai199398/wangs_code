@@ -220,7 +220,7 @@ static int ys_ndo_set_mac(struct net_device *ndev, void *addr)
 							     old_dev_addr,
 							     dev_addr);
 
-	ys_net_info("Set MAC address to %02x:%02x:%02x:%02x:%02x:%02x",
+	ys_net_debug("Set MAC address to %02x:%02x:%02x:%02x:%02x:%02x",
 		    dev_addr[0], dev_addr[1], dev_addr[2], dev_addr[3],
 		    dev_addr[4], dev_addr[5]);
 
