@@ -30,7 +30,7 @@ bool ys_pdev_supports_sriov(struct pci_dev *dev)
 
 static int ys_pdev_dmaconfig(struct ys_pdev_priv *pdev_priv)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct pci_dev *pdev = pdev_priv->pdev;
 	int ret;
 

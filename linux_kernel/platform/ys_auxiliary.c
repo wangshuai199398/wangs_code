@@ -23,7 +23,7 @@
 
 static int ys_aux_allocate_id(unsigned long *bitmap, int max_devices)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	int id = ops->yfind_first_zero_bit(bitmap, max_devices);
 
 	if (id >= max_devices)
@@ -261,7 +261,7 @@ void ys_aux_del_match_adev(struct pci_dev *pdev, int idx, const char *name)
 struct ys_adev *ys_aux_add_adev(struct pci_dev *pdev, int idx,
 				const char *name, void *arg)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_pdev_priv *pdev_priv = ops->pci_get_drvdata(pdev);
 	struct list_head *adev_list = &pdev_priv->adev_list;
 	struct auxiliary_device *auxdev;
@@ -497,7 +497,7 @@ void ys_aux_mbox_dev_uninit(struct pci_dev *pdev)
 
 static int ys_aux_doe_dev_init(struct pci_dev *pdev)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
 	struct ys_adev *adev;
 	int doe_enable = false;

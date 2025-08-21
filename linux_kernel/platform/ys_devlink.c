@@ -24,7 +24,7 @@ static const struct devlink_param ys_devlink_params[] = {
 
 static void ys_devlink_set_params_init_values(struct devlink *devlink)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_pdev_priv *pdev_priv;
 	union devlink_param_value value;
 	int mode = 0;
@@ -90,7 +90,7 @@ void ys_devlink_release(struct devlink *devlink)
 
 static int ys_devlink_params_register(struct devlink *devlink)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	int err = 0;
 
 	err = ops->devlink_params_register(devlink, ys_devlink_params,
@@ -109,7 +109,7 @@ static void ys_devlink_params_unregister(struct devlink *devlink)
 
 int ys_devlink_init(struct pci_dev *pdev)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_devlink_hw_ops *devlink_hw_ops;
 	struct ys_pdev_priv *pdev_priv;
 	struct devlink *devlink;

@@ -279,7 +279,7 @@ void ys_k2u_qset_stop(struct ys_k2u_qset *qset)
 
 int ys_k2u_pdev_qset_init(struct ys_pdev_priv *pdev_priv)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_qset_manager *qset_mgr;
 	struct ys_k2u_new_func *func;
 	int ret;

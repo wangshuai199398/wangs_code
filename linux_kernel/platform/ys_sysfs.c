@@ -246,7 +246,7 @@ int ys_sysfs_create_group(struct list_head *list,
 			  struct device_attribute *device_attrs,
 			  int attrs_num, const char *grp_name)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct attribute **grp_attrs = NULL;
 	struct ys_sysfs_group *grp = NULL;
 	int ret;
@@ -295,7 +295,7 @@ int ys_sysfs_create_info_group(struct list_head *list,
 			       struct ys_sysfs_info *sysfs_info,
 			       int attrs_num, const char *grp_name)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct attribute **grp_attrs = NULL;
 	struct ys_sysfs_group *grp = NULL;
 	int ret;

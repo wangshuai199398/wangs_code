@@ -52,7 +52,7 @@ static int ys_irq_alloc_vectors(struct ys_pdev_priv *pdev_priv)
 {
 	struct ys_irq_table *irq_table = &pdev_priv->irq_table;
 	int ret;
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	ret = ys_irq_get_max_required_vectors(pdev_priv);
 	if (ret <= 0) {
 		ys_dev_err("Get MSI or MSI-X max irq count error: %d", ret);
@@ -562,7 +562,7 @@ int ys_irq_unregister_ndev_irqs(struct pci_dev *pdev)
 
 int ys_irq_init(struct pci_dev *pdev)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_pdev_priv *pdev_priv = ops->pci_get_drvdata(pdev);
 	struct ys_irq_table *irq_table = &pdev_priv->irq_table;
 	struct ys_irq *irq;

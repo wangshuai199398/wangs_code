@@ -232,7 +232,7 @@ void ys_qset_release_id(struct pci_dev *pdev, int id)
 
 void ys_qset_pool_init(struct pci_dev *pdev)
 {
-	struct ysif_ops *ops = ysif_get_ops();
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_pdev_priv *pdev_priv = ops->pci_get_drvdata(pdev);
 
 	ops->idr_init(&pdev_priv->qset_pool.pool);
