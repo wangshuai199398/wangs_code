@@ -115,9 +115,9 @@ static int __init ys_k2u_init(void)
 {
 	if (mac_type == MAC_TYPE_UMAC || mac_type == MAC_TYPE_XMAC) {
 		k2u_pf_type.mac_type = (u8)mac_type;
-		ys_info("k2u init mac_type %d ok\n", mac_type);
+		ys_debug("k2u init mac_type %d ok\n", mac_type);
 	} else {
-		ys_info("k2u init mac_type %d error\n", mac_type);
+		ys_debug("k2u init mac_type %d error\n", mac_type);
 		return -1;
 	}
 	return ys_init(&ys_k2u_driver);

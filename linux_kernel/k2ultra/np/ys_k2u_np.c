@@ -597,7 +597,7 @@ int ys_k2u_np_aux_probe(struct auxiliary_device *auxdev)
 	pdev_priv->ops->hw_adp_np_set_cfg = ys_k2u_np_ops_set_cfg;
 	pdev_priv->ops->hw_adp_np_bond_set_cfg = ys_k2u_np_set_lag_cfg;
 	pdev_priv->ops->hw_adp_np_bond_linkstatus_set_cfg = ys_k2u_np_set_lag_linkstatus_cfg;
-	ys_np_info("np dev probe success.\n");
+	ys_np_debug("np dev probe success.\n");
 	return 0;
 
 fail:

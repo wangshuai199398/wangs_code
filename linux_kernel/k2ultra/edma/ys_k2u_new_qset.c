@@ -312,13 +312,13 @@ int ys_k2u_pdev_qset_init(struct ys_pdev_priv *pdev_priv)
 		qset_mgr->idr_start = qset_mgr->rep_idr_end + 1;
 		qset_mgr->idr_end = func->dma_qset_offset + func->dma_max_qsetnum - 1;
 
-		ys_dev_info("k2u: qset repidr start %d to end %d", qset_mgr->rep_idr_start,
+		ys_dev_debug("k2u: qset repidr start %d to end %d", qset_mgr->rep_idr_start,
 			    qset_mgr->rep_idr_end);
 	} else {
 		qset_mgr->idr_start = func->dma_qset_offset ?: YS_K2U_N_MAX_PF;
 		qset_mgr->idr_end = func->dma_qset_offset + func->dma_max_qsetnum - 1;
 	}
-	ys_dev_info("k2u: qset idr start %d to end %d", qset_mgr->idr_start, qset_mgr->idr_end);
+	ys_dev_debug("k2u: qset idr start %d to end %d", qset_mgr->idr_start, qset_mgr->idr_end);
 
 	ops->refcount_set(&qset_mgr->refcnt, 1);
 	qset_mgr->pdev_priv[pdev_priv->pf_id] = pdev_priv;
@@ -330,7 +330,7 @@ int ys_k2u_pdev_qset_init(struct ys_pdev_priv *pdev_priv)
 		return ret;
 	}
 
-	ys_dev_info("qset manage id start %d to end %d", qset_mgr->idr_start, qset_mgr->idr_end);
+	ys_dev_debug("qset manage id start %d to end %d", qset_mgr->idr_start, qset_mgr->idr_end);
 
 	return 0;
 }

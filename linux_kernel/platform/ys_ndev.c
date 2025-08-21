@@ -301,7 +301,7 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 
 	/* if hw set failed, no hw set func, or invalid MAC address */
 	if (!is_valid_ether_addr(ndev->dev_addr)) {
-		ys_dev_info("using random MAC");
+		ys_dev_debug("using random MAC");
 		ndev->addr_len = ETH_ALEN;
 		eth_hw_addr_random(ndev);
 	}

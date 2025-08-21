@@ -1612,13 +1612,13 @@ int ys_k2u_mbox_init(struct pci_dev *pdev)
 		if (reg & YS_K2U_MBOX_MASTER_SEL) {
 			pdev_priv->master = YS_PF_MASTER;
 			mbox->role = MB_MASTER;
-			ys_dev_info("............ I'm master\n");
+			ys_dev_debug("............ I'm master\n");
 			/* get lf to pf map table */
 			for (i = YS_K2U_MBOX_LF_START; i <= YS_K2U_MBOX_LF_END; ++i) {
 				reg = ys_rd32(mbox->addr, YS_K2U_MBOX_LFX_MEM_OFFSET(i));
 				pf_id = (u32)FIELD_GET(YS_K2U_MBOX_LFX_MEM_PF_ID, reg);
-				ys_dev_info("addr:%x", YS_K2U_MBOX_LFX_MEM_OFFSET(i));
-				ys_dev_info("master lf %d to pf %x, reg:%x", i, pf_id, reg);
+				ys_dev_debug("addr:%x", YS_K2U_MBOX_LFX_MEM_OFFSET(i));
+				ys_dev_debug("master lf %d to pf %x, reg:%x", i, pf_id, reg);
 				k2u_mbox->pf2lf_table[pf_id] = i;
 			}
 			/* config pf to pf-master interrupt vector */

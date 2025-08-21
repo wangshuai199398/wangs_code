@@ -202,9 +202,9 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 
 	ops->bitmap_set(g_ys_pdev_manager.pf_index, pdev_priv->index, 1);
 
-	ys_dev_info("Vendor: 0x%04x, Device: 0x%04x", pdev->vendor, pdev->device);
-	ys_dev_info("Sub vendor: 0x%04x, Sub device: 0x%04x", pdev->subsystem_vendor, pdev->subsystem_device);
-	ys_dev_info("PCI ID: %04x:%02x:%02x.%d, Class: 0x%06x", pci_domain_nr(pdev->bus), pdev->bus->number, PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn), pdev->class);
+	ys_dev_debug("Vendor: 0x%04x, Device: 0x%04x", pdev->vendor, pdev->device);
+	ys_dev_debug("Sub vendor: 0x%04x, Sub device: 0x%04x", pdev->subsystem_vendor, pdev->subsystem_device);
+	ys_dev_debug("PCI ID: %04x:%02x:%02x.%d, Class: 0x%06x", pci_domain_nr(pdev->bus), pdev->bus->number, PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn), pdev->class);
 
 	/* Enable the device */
 	ret = ops->pci_enable_device(pdev);

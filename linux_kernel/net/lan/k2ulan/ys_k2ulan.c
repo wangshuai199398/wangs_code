@@ -405,7 +405,7 @@ static int ys_k2ulan_add_l2uc_entry(struct ys_k2ulan *k2ulan, u8 *new_mac,
 			l2uc_key->ref_cnt = 1;
 			list_add(&l2uc_key->uc_key_node, &steering->l2uc_key_list);
 			steering->uc_used++;
-			ys_info("uc mac entry insert %d success!", steering->uc_used);
+			ys_debug("uc mac entry insert %d success!", steering->uc_used);
 		}
 	}
 
@@ -820,14 +820,14 @@ static int ys_k2ulan_update_l2(struct ys_pdev_priv *pdev_priv,
 	spin_lock_irqsave(&steering->lock, flags);
 	switch (type) {
 	case YS_K2ULAN_L2UC_FILTER:
-		ys_dev_info("uc addr :%.2x:%.2x:%.2x:%.2x:%.2x:%.2x, action : %s",
+		ys_dev_debug("uc addr :%.2x:%.2x:%.2x:%.2x:%.2x:%.2x, action : %s",
 			    data->uc.mac[0], data->uc.mac[1], data->uc.mac[2],
 			    data->uc.mac[3], data->uc.mac[4], data->uc.mac[5],
 			    action == YS_K2ULAN_FILTER_ADD ?
 			    "add" : (action == YS_K2ULAN_FILTER_DEL ? "del" : "update"));
-		ys_dev_info("before action current uc addr number : %d, as follows:",
+		ys_dev_debug("before action current uc addr number : %d, as follows:",
 			    steering->uc_used);
-		ys_dev_info("qi.qset: %d", qi->qset);
+		ys_dev_debug("qi.qset: %d", qi->qset);
 		switch (action) {
 		case YS_K2ULAN_FILTER_ADD:
 			ret = ys_k2ulan_add_l2uc_entry(k2ulan, data->uc.mac, qi);
@@ -837,7 +837,7 @@ static int ys_k2ulan_update_l2(struct ys_pdev_priv *pdev_priv,
 			break;
 		case YS_K2ULAN_FILTER_UPDATE:
 			if (memcmp(mac_empty, ndev_priv->old_mac, ETH_ALEN) != 0) {
-				ys_dev_info("pf %d old mac: %02x:%02x:%02x:%02x:%02x:%02x",
+				ys_dev_debug("pf %d old mac: %02x:%02x:%02x:%02x:%02x:%02x",
 					    pdev_priv->pf_id, ndev_priv->old_mac[0],
 					    ndev_priv->old_mac[1], ndev_priv->old_mac[2],
 					    ndev_priv->old_mac[3], ndev_priv->old_mac[4],
@@ -852,7 +852,7 @@ static int ys_k2ulan_update_l2(struct ys_pdev_priv *pdev_priv,
 				ys_dev_err("uc mac entry update failed!");
 			} else {
 				memcpy(ndev_priv->old_mac, data->uc.mac, ETH_ALEN);
-				ys_dev_info("pf %d update new mac: %02x:%02x:%02x:%02x:%02x:%02x",
+				ys_dev_debug("pf %d update new mac: %02x:%02x:%02x:%02x:%02x:%02x",
 					    pdev_priv->pf_id, ndev_priv->old_mac[0],
 					    ndev_priv->old_mac[1], ndev_priv->old_mac[2],
 					    ndev_priv->old_mac[3], ndev_priv->old_mac[4],
@@ -872,14 +872,14 @@ static int ys_k2ulan_update_l2(struct ys_pdev_priv *pdev_priv,
 			     steering->uc_used);
 		break;
 	case YS_K2ULAN_L2MC_IPV4_FILTER:
-		ys_dev_info("mc addr : %02x:%02x:%02x:%02x:%02x:%02x, action : %s",
+		ys_dev_debug("mc addr : %02x:%02x:%02x:%02x:%02x:%02x, action : %s",
 			    data->mc.mac[0], data->mc.mac[1], data->mc.mac[2],
 			    data->mc.mac[3], data->mc.mac[4], data->mc.mac[5],
 			    action == YS_K2ULAN_FILTER_ADD ?
 			    "add" : (action == YS_K2ULAN_FILTER_DEL ? "del" : "update"));
-		ys_dev_info("before action current mc addr number : %d, as follows:",
+		ys_dev_debug("before action current mc addr number : %d, as follows:",
 			    steering->mc_key_used);
-		ys_dev_info("qi.qset: %d", qi->qset);
+		ys_dev_debug("qi.qset: %d", qi->qset);
 		switch (action) {
 		case YS_K2ULAN_FILTER_ADD:
 			ret = ys_k2ulan_add_ipv4_l2mc_entry(k2ulan, data->mc.mac, qi);

@@ -33,6 +33,7 @@
         "compiler.h": "c",
         "cdev.h": "c",
         "ys_k2u_new_hw.h": "c",
-        "ios": "c"
+        "ios": "c",
+        "__locale": "c"
     }
 }

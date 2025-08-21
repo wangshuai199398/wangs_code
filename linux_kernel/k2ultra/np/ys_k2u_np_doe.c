@@ -50,7 +50,7 @@ int ys_k2u_np_doe_set_protect(struct ys_np *np, bool protect)
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(np->pdev);
 	struct ys_np_sw *np_sw = np->sw;
 
-	ys_np_info("Call doe set_protect_status, val = %u\n", val);
+	ys_np_debug("Call doe set_protect_status, val = %u\n", val);
 	ret = np_sw->doe_ops->set_protect_status(np_sw->bus_id, val);
 	if (ret) {
 		ys_np_err("Failed to call set_protect_status ret %d\n", ret);
@@ -299,7 +299,7 @@ static struct ys_np_table *ys_k2u_np_cnt_tbl_create(struct ys_np *np)
 		return NULL;
 	}
 	extra.location = location;
-	ys_np_info("Doe location %d, for mode %d.\n", extra.location, np_sw->mode);
+	ys_np_debug("Doe location %d, for mode %d.\n", extra.location, np_sw->mode);
 	/* Overwrite the size as it's on ram. */
 	if (extra.location == DOE_LOCATION_RAM)
 		tbl_size = 64;
@@ -403,7 +403,7 @@ int ys_k2u_np_doe_tbl_init(struct ys_np *np)
 		if (!(tbl_ops->mode_bitmap & BIT(np_sw->mode)))
 			continue;
 
-		ys_np_info("np doe table create: %s.", tbl_ops->name);
+		ys_np_debug("np doe table create: %s.", tbl_ops->name);
 		table = tbl_ops->create(np);
 		if (!table) {
 			ys_np_info("Failed to run %s create.", tbl_ops->name);
@@ -414,7 +414,7 @@ int ys_k2u_np_doe_tbl_init(struct ys_np *np)
 		list_add(&table->node, &np_sw->table_head);
 	}
 
-	ys_np_info("np doe table init success.");
+	ys_np_debug("np doe table init success.");
 	return 0;
 
 fail:
@@ -430,9 +430,9 @@ void ys_k2u_np_doe_tbl_fini(struct ys_np *np)
 	struct ys_np_sw *np_sw = np->sw;
 
 	list_for_each_entry_safe(table, tmp, &np_sw->table_head, node) {
-		ys_np_info("np doe table destroy: %s.", table->ops->name);
+		ys_np_debug("np doe table destroy: %s.", table->ops->name);
 		list_del(&table->node);
 		table->ops->destroy(np, table);
 	}
-	ys_np_info("np doe table fini done.");
+	ys_np_debug("np doe table fini done.");
 }

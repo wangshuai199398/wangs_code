@@ -578,7 +578,7 @@ int ys_irq_init(struct pci_dev *pdev)
 		goto irq_fail;
 	}
 
-	ys_dev_info("Alloc irq vectors count: %d, hw MSI-X Table Size: %d", irq_table->max, ops->pci_msix_vec_count(pdev));
+	ys_dev_debug("Alloc irq vectors count: %d, hw MSI-X Table Size: %d", irq_table->max, ops->pci_msix_vec_count(pdev));
 
 	irq_table->irqs = kcalloc(irq_table->max, sizeof(*irq), GFP_KERNEL);
 	if (!irq_table->irqs) {

@@ -141,7 +141,7 @@ static int ys_cuckoo_generate_seed(struct ys_cuckoo_table *table)
 					    seed[i]);
 			ys_cuckoo_iowrite32(table, table->hw.mux_seed_addr[i],
 					    mux_seed[i]);
-			ys_info("bucket %d seed 0x%x mux_seed 0x%x", i,
+			ys_debug("bucket %d seed 0x%x mux_seed 0x%x", i,
 				seed[i], mux_seed[i]);
 		}
 		memcpy(table->seed, seed, sizeof(u32) * table->bucket_count);
@@ -822,7 +822,7 @@ static int ys_cuckoo_load_seed(struct ys_cuckoo_table *table)
 	for (i = 0; i < table->bucket_count; i++) {
 		seed[i] = ys_cuckooo_ioread32(table, table->hw.seed_addr[i]);
 		mux_seed[i] = ys_cuckooo_ioread32(table, table->hw.mux_seed_addr[i]);
-		ys_info("load bucket %d: seed 0x%08x, mux_seed 0x%08x", i, seed[i], mux_seed[i]);
+		ys_debug("load bucket %d: seed 0x%08x, mux_seed 0x%08x", i, seed[i], mux_seed[i]);
 	}
 
 	/* sanity check seed value in hardware */
