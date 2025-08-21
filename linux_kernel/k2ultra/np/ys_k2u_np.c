@@ -6,6 +6,7 @@
 #include "../include/ys_doe.h"
 #include "../net/tc/ys_tc.h"
 #include "../platform/ys_debugfs.h"
+#include "ys_k2u_np_lag.h"
 
 static DEFINE_IDR(ys_k2u_np_dev_idr);
 static DEFINE_MUTEX(ys_k2u_np_dev_lock);
