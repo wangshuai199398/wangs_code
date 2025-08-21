@@ -13,6 +13,8 @@
 #include "ys_pdev.h"
 #include "ys_queue.h"
 
+#include "ysif_linux.h"
+
 void ys_queue_clear(struct pci_dev *pdev)
 {
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
@@ -230,10 +232,11 @@ void ys_qset_release_id(struct pci_dev *pdev, int id)
 
 void ys_qset_pool_init(struct pci_dev *pdev)
 {
-	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
+	struct ysif_ops *ops = ysif_get_ops();
+	struct ys_pdev_priv *pdev_priv = ops->pci_get_drvdata(pdev);
 
-	idr_init(&pdev_priv->qset_pool.pool);
-	spin_lock_init(&pdev_priv->qset_pool.lock);
+	ops->idr_init(&pdev_priv->qset_pool.pool);
+	ops->yspin_lock_init(&pdev_priv->qset_pool.lock);
 }
 
 void ys_qset_pool_uninit(struct pci_dev *pdev)

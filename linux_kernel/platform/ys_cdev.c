@@ -25,6 +25,8 @@
 #include "../net/ys_ndev_ops.h"
 #include "../net/lan/ys_lan.h"
 
+#include "ysif_linux.h"
+
 static int ys_umd_set(struct net_device *ndev, struct ys_cdev_priv *cdev_priv,
 		      bool enable)
 {
@@ -1000,6 +1002,7 @@ static const struct file_operations ys_cdev_ops = {
 
 int ys_add_cdev(struct pci_dev *pdev, const char *name, const struct file_operations *ops)
 {
+	struct ysif_ops *yops = ysif_get_ops();
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
 	struct list_head *cdev_list = &pdev_priv->cdev_list;
 	struct ys_cdev *ys_cdev, *entry;
@@ -1027,10 +1030,10 @@ int ys_add_cdev(struct pci_dev *pdev, const char *name, const struct file_operat
 	ys_cdev->mdev.mode = 0666; // allow non-root user to access
 	ys_cdev->mdev.parent = &pdev->dev;
 
-	mutex_init(&ys_cdev->cmd_mutex);
+	yops->ymutex_init(&ys_cdev->cmd_mutex);
 	ys_cdev->pdev = pdev;
 
-	ret = misc_register(&ys_cdev->mdev);
+	ret = yops->misc_register(&ys_cdev->mdev);
 	if (ret) {
 		ys_err("Failed to register misc device: %d\n", ret);
 		kfree(ys_cdev);

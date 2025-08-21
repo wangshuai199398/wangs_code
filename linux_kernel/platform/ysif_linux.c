@@ -8,6 +8,7 @@
 #include <linux/miscdevice.h>
 #include <net/devlink.h>
 #include <linux/rwlock.h>
+#include <linux/mutex.h>
 
 
 #include "ysif_linux.h"
@@ -63,21 +64,88 @@ static void *ys_ioremap(phys_addr_t offset, size_t size)
     return ioremap(offset, size);
 }
 
+unsigned long ys_find_first_zero_bit(const unsigned long *addr, unsigned long size)
+{
+    return find_first_zero_bit(addr, size);
+}
+
+
+void ys_mutex_init(struct mutex *mutex)
+{
+    mutex_init(mutex);
+}
+
+void ys_blocking_init_notifier_head(struct blocking_notifier_head *nh)
+{
+    BLOCKING_INIT_NOTIFIER_HEAD(nh);
+}
+
+void ys_atomic_init_notifier_head(struct atomic_notifier_head *nh)
+{
+    ATOMIC_INIT_NOTIFIER_HEAD(nh);
+}
+
+void ys_write_lock_irqsave(rwlock_t * rwlock, unsigned long flags)
+{
+    write_lock_irqsave(rwlock, flags);
+}
+
+void ys_write_unlock_irqrestore(rwlock_t * rwlock, unsigned long flags)
+{
+    write_unlock_irqrestore(rwlock, flags);
+}
+
+int ys_auxiliary_device_add(struct auxiliary_device *auxdev)
+{
+    return auxiliary_device_add(auxdev);
+}
+
 
 static const struct ysif_ops ysif_linux_ops = {
     .debugfs_create_dir = debugfs_create_dir,
+    .debugfs_create_file = debugfs_create_file,
     .debugfs_remove = debugfs_remove,
+
+    .sysfs_create_group = sysfs_create_group,
 
     .bitmap_zero = bitmap_zero,
     .bitmap_set = bitmap_set,
+    .yfind_first_zero_bit = ys_find_first_zero_bit,
+    .set_bit = set_bit,
+
+    .idr_init = idr_init,
+    .idr_find = idr_find,
+    .idr_alloc = idr_alloc,
+
+    .refcount_inc = refcount_inc,
+    .refcount_set = refcount_set,
 
     .INIT_LIST_HEAD = INIT_LIST_HEAD,
+    .list_add = list_add,
+    .list_add_rcu = list_add_rcu,
 
     .yspin_lock_init = ys_spin_lock_init,
+    .spin_lock = spin_lock,
+    .spin_unlock = spin_unlock,
+
     .yrwlock_init = ys_rwlock_init,
+    .ywrite_lock_irqsave = ys_write_lock_irqsave,
+    .ywrite_unlock_irqrestore = ys_write_unlock_irqrestore,
+
+    .ymutex_init = ys_mutex_init,
+
+    .YBLOCKING_INIT_NOTIFIER_HEAD = ys_blocking_init_notifier_head,
+    .blocking_notifier_chain_register = blocking_notifier_chain_register,
+
+    .YATOMIC_INIT_NOTIFIER_HEAD = ys_atomic_init_notifier_head,
+
+    .init_completion = init_completion,
 
     .yauxiliary_driver_register   = ys_auxiliary_driver_register,
     .auxiliary_driver_unregister = auxiliary_driver_unregister,
+    .auxiliary_device_init = auxiliary_device_init,
+    .yauxiliary_device_add = ys_auxiliary_device_add,
+    .auxiliary_device_uninit = auxiliary_device_uninit,
 
     .ypci_register_driver = ys_pci_register_driver,
 
@@ -85,13 +153,25 @@ static const struct ysif_ops ysif_linux_ops = {
 
     .devlink_alloc = devlink_alloc,
     .devlink_priv = devlink_priv,
+    .priv_to_devlink = priv_to_devlink,
+    .devlink_register = devlink_register,
+    .devlink_params_register = devlink_params_register,
+    .devlink_param_driverinit_value_set = devlink_param_driverinit_value_set,
 
     .pci_set_drvdata = pci_set_drvdata,
     .pci_enable_device = pci_enable_device,
     .pci_set_master = pci_set_master,
     .pci_request_regions = pci_request_regions,
+    .pci_get_drvdata = pci_get_drvdata,
+    .pci_msix_vec_count = pci_msix_vec_count,
+    .pci_alloc_irq_vectors = pci_alloc_irq_vectors,
+    .pci_irq_vector = pci_irq_vector,
 
     .yioremap = ys_ioremap,
+
+    .dma_set_mask = dma_set_mask,
+    .dma_set_coherent_mask = dma_set_coherent_mask,
+    .dma_set_max_seg_size = dma_set_max_seg_size,
 };
 
 void ysif_ops_init(void)

@@ -30,23 +30,24 @@ bool ys_pdev_supports_sriov(struct pci_dev *dev)
 
 static int ys_pdev_dmaconfig(struct ys_pdev_priv *pdev_priv)
 {
+	struct ysif_ops *ops = ysif_get_ops();
 	struct pci_dev *pdev = pdev_priv->pdev;
 	int ret;
 
-	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
+	ret = ops->dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
 	if (ret) {
 		ys_dev_err("Failed to set PCI DMA mask");
 		return ret;
 	}
 
-	ret = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(64));
+	ret = ops->dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(64));
 	if (ret) {
 		ys_dev_err("Failed to set PCI COHERENT DMA mask");
 		return ret;
 	}
 
 	/* Set max segment size */
-	dma_set_max_seg_size(&pdev->dev, DMA_BIT_MASK(32));
+	ops->dma_set_max_seg_size(&pdev->dev, DMA_BIT_MASK(32));
 
 	return 0;
 }
@@ -191,7 +192,7 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	 *      |
 	 *      |---VF1---INDEX3
 	 */
-	pdev_priv->index = find_first_zero_bit(g_ys_pdev_manager.pf_index, YS_PDEV_MAX);
+	pdev_priv->index = ops->yfind_first_zero_bit(g_ys_pdev_manager.pf_index, YS_PDEV_MAX);
 	/* pf_id init */
 	pdev_priv->pf_id = pdev_priv->index;
 	/* default mode is legacy */
@@ -313,7 +314,7 @@ int ys_pdev_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	}
 
 	pdev_list = &pdev_priv->pdev_manager->pdev_list;
-	list_add(&pdev_priv->list, pdev_list);
+	ops->list_add(&pdev_priv->list, pdev_list);
 
 	/* update VF info */
 	ret = ys_pdev_update_vfinfo(true, pdev);

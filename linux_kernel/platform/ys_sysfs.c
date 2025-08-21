@@ -11,6 +11,8 @@
 
 #include "ys_debug.h"
 
+#include "ysif_linux.h"
+
 static int cmd_parse(const char *str, const char *param, u32 *val)
 {
 	const char *start, *end;
@@ -244,6 +246,7 @@ int ys_sysfs_create_group(struct list_head *list,
 			  struct device_attribute *device_attrs,
 			  int attrs_num, const char *grp_name)
 {
+	struct ysif_ops *ops = ysif_get_ops();
 	struct attribute **grp_attrs = NULL;
 	struct ys_sysfs_group *grp = NULL;
 	int ret;
@@ -270,9 +273,9 @@ int ys_sysfs_create_group(struct list_head *list,
 	grp->kobj = kobj;
 	grp->attr_group.name = grp_name;
 	grp->attr_group.attrs = grp_attrs;
-	INIT_LIST_HEAD(&grp->list);
+	ops->INIT_LIST_HEAD(&grp->list);
 
-	ret = sysfs_create_group(grp->kobj, &grp->attr_group);
+	ret = ops->sysfs_create_group(grp->kobj, &grp->attr_group);
 	if (ret) {
 		ys_err("create sysfs group failed. ret: %d\n", ret);
 		goto err;
@@ -292,6 +295,7 @@ int ys_sysfs_create_info_group(struct list_head *list,
 			       struct ys_sysfs_info *sysfs_info,
 			       int attrs_num, const char *grp_name)
 {
+	struct ysif_ops *ops = ysif_get_ops();
 	struct attribute **grp_attrs = NULL;
 	struct ys_sysfs_group *grp = NULL;
 	int ret;
@@ -319,15 +323,15 @@ int ys_sysfs_create_info_group(struct list_head *list,
 	grp->kobj = kobj;
 	grp->attr_group.name = grp_name;
 	grp->attr_group.attrs = grp_attrs;
-	INIT_LIST_HEAD(&grp->list);
+	ops->INIT_LIST_HEAD(&grp->list);
 
-	ret = sysfs_create_group(grp->kobj, &grp->attr_group);
+	ret = ops->sysfs_create_group(grp->kobj, &grp->attr_group);
 	if (ret) {
 		ys_err("create sysfs group failed. ret: %d\n", ret);
 		goto err;
 	}
 
-	list_add(&grp->list, list);
+	ops->list_add(&grp->list, list);
 done:
 	return 0;
 err:

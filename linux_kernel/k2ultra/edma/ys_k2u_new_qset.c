@@ -8,6 +8,7 @@
 #include "ys_k2u_new_vfsf.h"
 #include "ys_k2u_new_qset.h"
 #include "ys_k2u_message.h"
+#include "ysif_linux.h"
 
 struct ys_k2u_qset_manager {
 	struct idr idr;
@@ -278,6 +279,7 @@ void ys_k2u_qset_stop(struct ys_k2u_qset *qset)
 
 int ys_k2u_pdev_qset_init(struct ys_pdev_priv *pdev_priv)
 {
+	struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_qset_manager *qset_mgr;
 	struct ys_k2u_new_func *func;
 	int ret;
@@ -287,10 +289,10 @@ int ys_k2u_pdev_qset_init(struct ys_pdev_priv *pdev_priv)
 		return 0;
 
 	card_id = pdev_priv->pdev->bus->number;
-	qset_mgr = idr_find(&ys_k2u_qset_manager_idr, card_id);
+	qset_mgr = ops->idr_find(&ys_k2u_qset_manager_idr, card_id);
 	if (qset_mgr) {
 		qset_mgr->pdev_priv[pdev_priv->pf_id] = pdev_priv;
-		refcount_inc(&qset_mgr->refcnt);
+		ops->refcount_inc(&qset_mgr->refcnt);
 		return 0;
 	}
 
@@ -298,9 +300,9 @@ int ys_k2u_pdev_qset_init(struct ys_pdev_priv *pdev_priv)
 	if (!qset_mgr)
 		return -ENOMEM;
 
-	spin_lock_init(&qset_mgr->idr_slock);
-	idr_init(&qset_mgr->idr);
-	idr_init(&qset_mgr->rep_idr);
+	ops->yspin_lock_init(&qset_mgr->idr_slock);
+	ops->idr_init(&qset_mgr->idr);
+	ops->idr_init(&qset_mgr->rep_idr);
 
 	func = ys_k2u_func_get_priv(pdev_priv);
 
@@ -318,10 +320,10 @@ int ys_k2u_pdev_qset_init(struct ys_pdev_priv *pdev_priv)
 	}
 	ys_dev_info("k2u: qset idr start %d to end %d", qset_mgr->idr_start, qset_mgr->idr_end);
 
-	refcount_set(&qset_mgr->refcnt, 1);
+	ops->refcount_set(&qset_mgr->refcnt, 1);
 	qset_mgr->pdev_priv[pdev_priv->pf_id] = pdev_priv;
 
-	ret = idr_alloc(&ys_k2u_qset_manager_idr, qset_mgr, card_id, card_id + 1, GFP_ATOMIC);
+	ret = ops->idr_alloc(&ys_k2u_qset_manager_idr, qset_mgr, card_id, card_id + 1, GFP_ATOMIC);
 	if (ret < 0) {
 		ys_dev_err("k2u: failed to allocate qset manager idr");
 		kfree(qset_mgr);

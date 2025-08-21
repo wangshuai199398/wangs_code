@@ -7,6 +7,8 @@
 #include "ys_debug.h"
 #include "../k2ultra/edma/ys_k2u_new_hw.h"
 
+#include "ysif_linux.h"
+
 static int ys_irq_get_max_required_vectors(struct ys_pdev_priv *pdev_priv)
 {
 	const struct ys_pdev_hw *nic_type = pdev_priv->nic_type;
@@ -50,14 +52,14 @@ static int ys_irq_alloc_vectors(struct ys_pdev_priv *pdev_priv)
 {
 	struct ys_irq_table *irq_table = &pdev_priv->irq_table;
 	int ret;
-
+	struct ysif_ops *ops = ysif_get_ops();
 	ret = ys_irq_get_max_required_vectors(pdev_priv);
 	if (ret <= 0) {
 		ys_dev_err("Get MSI or MSI-X max irq count error: %d", ret);
 		return ret;
 	}
 
-	ret = pci_alloc_irq_vectors(pdev_priv->pdev, 1, irq_table->max,
+	ret = ops->pci_alloc_irq_vectors(pdev_priv->pdev, 1, irq_table->max,
 				    pdev_priv->nic_type->irq_flag);
 	if (ret <= 0) {
 		ys_dev_err("Failed to allocate irqs");
@@ -510,8 +512,10 @@ int ys_irq_register_ndev_irqs(struct pci_dev *pdev)
 	if (!IS_ERR_OR_NULL(pdev_priv->ops->hw_adp_irq_pre_init))
 		pdev_priv->ops->hw_adp_irq_pre_init(pdev_priv->pdev);
 
-	if (IS_ERR_OR_NULL(pdev_priv->ops->hw_adp_get_init_irq_sub))
+	if (IS_ERR_OR_NULL(pdev_priv->ops->hw_adp_get_init_irq_sub)) {
+		pr_err("hw_adp_get_init_irq_sub is NULL");
 		return 0;
+	}
 
 	for (i = 0; i < irq_table->max; i++) {
 		memset(&sub, 0, sizeof(sub));
@@ -528,7 +532,7 @@ int ys_irq_register_ndev_irqs(struct pci_dev *pdev)
 		}
 	}
 
-	ys_debug("init irq count %d", init_count);
+	ys_err("init irq count %d", init_count);
 
 	return 0;
 }
@@ -558,14 +562,15 @@ int ys_irq_unregister_ndev_irqs(struct pci_dev *pdev)
 
 int ys_irq_init(struct pci_dev *pdev)
 {
-	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
+	struct ysif_ops *ops = ysif_get_ops();
+	struct ys_pdev_priv *pdev_priv = ops->pci_get_drvdata(pdev);
 	struct ys_irq_table *irq_table = &pdev_priv->irq_table;
 	struct ys_irq *irq;
 	int ret;
 	int i;
 
-	mutex_init(&irq_table->lock);
-	BLOCKING_INIT_NOTIFIER_HEAD(&irq_table->nh);
+	ops->ymutex_init(&irq_table->lock);
+	ops->YBLOCKING_INIT_NOTIFIER_HEAD(&irq_table->nh);
 
 	ret = ys_irq_alloc_vectors(pdev_priv);
 	if (ret <= 0) {
@@ -573,8 +578,7 @@ int ys_irq_init(struct pci_dev *pdev)
 		goto irq_fail;
 	}
 
-	ys_dev_info("Alloc irq vectors count: %d, hw MSI-X Table Size: %d",
-		    irq_table->max, pci_msix_vec_count(pdev));
+	ys_dev_info("Alloc irq vectors count: %d, hw MSI-X Table Size: %d", irq_table->max, ops->pci_msix_vec_count(pdev));
 
 	irq_table->irqs = kcalloc(irq_table->max, sizeof(*irq), GFP_KERNEL);
 	if (!irq_table->irqs) {
@@ -587,13 +591,13 @@ int ys_irq_init(struct pci_dev *pdev)
 		irq = &irq_table->irqs[i];
 		irq->state = YS_IRQ_STATE_UNREGISTERED;
 		irq->index = i;
-		irq->irqn = pci_irq_vector(pdev_priv->pdev, i);
+		irq->irqn = ops->pci_irq_vector(pdev_priv->pdev, i);
 		irq->pdev = pdev_priv->pdev;
-		ATOMIC_INIT_NOTIFIER_HEAD(&irq->nh);
-		bitmap_zero(irq->bh_data, YS_MAX_IRQ);
+		ops->YATOMIC_INIT_NOTIFIER_HEAD(&irq->nh);
+		ops->bitmap_zero(irq->bh_data, YS_MAX_IRQ);
 	}
 
-	ret = blocking_notifier_chain_register(&irq_table->nh, &irqs_change_nb);
+	ret = ops->blocking_notifier_chain_register(&irq_table->nh, &irqs_change_nb);
 	if (ret < 0)
 		goto irq_fail;
 

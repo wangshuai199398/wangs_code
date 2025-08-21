@@ -24,11 +24,12 @@ static const struct devlink_param ys_devlink_params[] = {
 
 static void ys_devlink_set_params_init_values(struct devlink *devlink)
 {
+	struct ysif_ops *ops = ysif_get_ops();
 	struct ys_pdev_priv *pdev_priv;
 	union devlink_param_value value;
 	int mode = 0;
 
-	pdev_priv = devlink_priv(devlink);
+	pdev_priv = ops->devlink_priv(devlink);
 	mode = ys_devlink_get_switch_mode_init_value(devlink);
 	switch (mode) {
 	case MODE_DPU_HOST:
@@ -46,7 +47,7 @@ static void ys_devlink_set_params_init_values(struct devlink *devlink)
 		break;
 	}
 	pdev_priv->devlink_info.switch_mode = mode;
-	devlink_param_driverinit_value_set(devlink, YS_DEVLINK_PARAM_ID_SWITCH_MODE, value);
+	ops->devlink_param_driverinit_value_set(devlink, YS_DEVLINK_PARAM_ID_SWITCH_MODE, value);
 }
 
 static int ys_devlink_eswitch_mode_get(struct devlink *devlink, u16 *mode)
@@ -89,9 +90,10 @@ void ys_devlink_release(struct devlink *devlink)
 
 static int ys_devlink_params_register(struct devlink *devlink)
 {
+	struct ysif_ops *ops = ysif_get_ops();
 	int err = 0;
 
-	err = devlink_params_register(devlink, ys_devlink_params,
+	err = ops->devlink_params_register(devlink, ys_devlink_params,
 				      ARRAY_SIZE(ys_devlink_params));
 	if (err)
 		return err;
@@ -107,13 +109,14 @@ static void ys_devlink_params_unregister(struct devlink *devlink)
 
 int ys_devlink_init(struct pci_dev *pdev)
 {
+	struct ysif_ops *ops = ysif_get_ops();
 	struct ys_devlink_hw_ops *devlink_hw_ops;
 	struct ys_pdev_priv *pdev_priv;
 	struct devlink *devlink;
 	int err = 0;
 
-	pdev_priv = pci_get_drvdata(pdev);
-	devlink = priv_to_devlink(pdev_priv);
+	pdev_priv = ops->pci_get_drvdata(pdev);
+	devlink = ops->priv_to_devlink(pdev_priv);
 
 	if (pdev_priv->dpu_mode == MODE_LEGACY)
 		return 0;
@@ -129,7 +132,7 @@ int ys_devlink_init(struct pci_dev *pdev)
 
 	pdev_priv->devlink_info.devlink_registered = 0;
 
-	devlink_register(devlink);
+	ops->devlink_register(devlink);
 	err = ys_devlink_params_register(devlink);
 	if (err)
 		return err;

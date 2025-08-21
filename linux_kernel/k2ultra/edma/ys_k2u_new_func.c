@@ -6,6 +6,7 @@
 #include "ys_k2u_new_vfsf.h"
 #include "ys_k2u_debugfs.h"
 #include "ys_k2u_message.h"
+#include "ysif_linux.h"
 
 static void *func_debugfs_start(struct seq_file *seq, loff_t *pos)
 {
@@ -460,6 +461,7 @@ int ys_k2u_pdev_get_init_qnum(struct pci_dev *pdev)
 
 int ys_k2u_pdev_func_init(struct ys_pdev_priv *pdev_priv)
 {
+	struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_new_func *func;
 	void __iomem *hw_addr;
 	size_t size;
@@ -610,7 +612,7 @@ int ys_k2u_pdev_func_init(struct ys_pdev_priv *pdev_priv)
 
 	if (func->debugfs_root) {
 		snprintf(name, sizeof(name), "info");
-		func->debugfs_info_file = debugfs_create_file(name, 0400, func->debugfs_root, func,
+		func->debugfs_info_file = ops->debugfs_create_file(name, 0400, func->debugfs_root, func,
 							      &func_debugfs_fops);
 		if (IS_ERR(func->debugfs_info_file))
 			ys_dev_err("func_info debugfs file create failed");
