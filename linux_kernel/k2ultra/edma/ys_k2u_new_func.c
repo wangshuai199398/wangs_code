@@ -6,7 +6,7 @@
 #include "ys_k2u_new_vfsf.h"
 #include "ys_k2u_debugfs.h"
 #include "ys_k2u_message.h"
-#include "ysif_linux.h"
+#include "../../platform/ysif_linux.h"
 
 static void *func_debugfs_start(struct seq_file *seq, loff_t *pos)
 {
