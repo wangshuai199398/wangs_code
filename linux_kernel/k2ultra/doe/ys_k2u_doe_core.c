@@ -2750,6 +2750,7 @@ int ys_k2u_doe_fix_mode(struct ys_k2u_doe_device *ys_k2u_doe)
 	ys_k2u_doe_reset(ys_k2u_doe, init_cmd);
 	ys_k2u_doe_polling_work(ys_k2u_doe->doe_write_if, init_cmd);
 	dev_dbg(pdev_priv->dev, "fsffs");
+	dynamic_dev_dbg(pdev_priv->dev, "======");
 	pr_debug("f==============");
 	ret = ys_k2u_doe_cache_reset(ys_k2u_doe);
 	/*
