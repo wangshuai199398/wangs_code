@@ -48,7 +48,7 @@ struct ysif_ops {
 
     void (*YATOMIC_INIT_NOTIFIER_HEAD)(struct atomic_notifier_head *nh);
 
-    void (*init_completion)(struct completion *x);
+    void (*yinit_completion)(struct completion *x);
 
     int (*yauxiliary_driver_register)(struct auxiliary_driver *drv);
     void (*auxiliary_driver_unregister)(struct auxiliary_driver *drv);

@@ -294,7 +294,7 @@ struct ys_adev *ys_aux_add_adev(struct pci_dev *pdev, int idx,
 	adev->adev_index = adev_index;
 	adev->state_statistics.flag = ET_FLAG_UNREGISTER;
 
-	ops->init_completion(&adev->comp);
+	ops->yinit_completion(&adev->comp);
 	ys_aux_set_dev_info(adev);
 
 	if (strcmp(auxdev->name, AUX_NAME_DOE) == 0)

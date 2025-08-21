@@ -145,7 +145,7 @@ static const struct ysif_ops ysif_linux_ops = {
 
     .YATOMIC_INIT_NOTIFIER_HEAD = ys_atomic_init_notifier_head,
 
-    .init_completion = ys_init_completion,
+    .yinit_completion = ys_init_completion,
 
     .yauxiliary_driver_register   = ys_auxiliary_driver_register,
     .auxiliary_driver_unregister = auxiliary_driver_unregister,
