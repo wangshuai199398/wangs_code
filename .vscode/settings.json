@@ -34,6 +34,7 @@
         "cdev.h": "c",
         "ys_k2u_new_hw.h": "c",
         "ios": "c",
-        "__locale": "c"
+        "__locale": "c",
+        "errno.h": "c"
     }
 }
