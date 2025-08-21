@@ -103,7 +103,7 @@ int ys_auxiliary_device_add(struct auxiliary_device *auxdev)
 
 static void ys_init_completion(struct completion *comp)
 {
-    return init_completion(comp);
+    init_completion(comp);
 }
 
 
