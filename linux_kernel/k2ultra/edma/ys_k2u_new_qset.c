@@ -8,7 +8,7 @@
 #include "ys_k2u_new_vfsf.h"
 #include "ys_k2u_new_qset.h"
 #include "ys_k2u_message.h"
-#include "ysif_linux.h"
+#include "../../platform/ysif_linux.h"
 
 struct ys_k2u_qset_manager {
 	struct idr idr;
