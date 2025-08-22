@@ -10,7 +10,7 @@
 #include "ys_k2u_new_func.h"
 #include "ys_k2u_new_ndev.h"
 
-#include "ysif_linux.h"
+#include "../../platform/ysif_linux.h"
 
 /* function declare */
 static int ys_k2u_txcq_handler(struct napi_struct *napi, int napi_budget);
