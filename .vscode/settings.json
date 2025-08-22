@@ -36,6 +36,7 @@
         "ios": "c",
         "__locale": "c",
         "errno.h": "c",
-        "queue": "c"
+        "queue": "c",
+        "variant": "c"
     }
 }
