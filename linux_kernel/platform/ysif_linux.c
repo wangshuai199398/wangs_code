@@ -10,7 +10,7 @@
 #include <linux/rwlock.h>
 #include <linux/mutex.h>
 #include <linux/completion.h>
-#include <etherdevice.h>
+#include <linux/etherdevice.h>
 
 
 #include "ysif_linux.h"
