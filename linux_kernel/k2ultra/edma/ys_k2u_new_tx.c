@@ -10,6 +10,8 @@
 #include "ys_k2u_new_func.h"
 #include "ys_k2u_new_ndev.h"
 
+#include "ysif_linux.h"
+
 /* function declare */
 static int ys_k2u_txcq_handler(struct napi_struct *napi, int napi_budget);
 
@@ -250,6 +252,7 @@ static void ys_k2u_destroy_txcq(struct ys_k2u_txq *txq)
 
 int ys_k2u_create_txq(struct ys_k2u_ndev *k2u_ndev, u16 idx, u32 depth)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_ndev_priv *ndev_priv = netdev_priv(k2u_ndev->ndev);
 	struct ys_k2u_txq *txq;
 	size_t size;
@@ -272,7 +275,7 @@ int ys_k2u_create_txq(struct ys_k2u_ndev *k2u_ndev, u16 idx, u32 depth)
 	/* txd & txi */
 	ys_ringb_init(&txq->txdrb, depth);
 	size = sizeof(struct ys_k2u_txd) * depth;
-	txq->txd = dma_alloc_coherent(&ndev_priv->pdev->dev, size,
+	txq->txd = ops->dma_alloc_coherent(&ndev_priv->pdev->dev, size,
 				      &txq->txd_dma_addr, GFP_KERNEL);
 	if (!txq->txd) {
 		ret = -ENOMEM;

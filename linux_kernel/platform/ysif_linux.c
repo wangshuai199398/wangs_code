@@ -106,6 +106,11 @@ static void ys_init_completion(struct completion *comp)
     init_completion(comp);
 }
 
+static struct net_device *ys_alloc_etherdev_mq(int sizeof_priv, unsigned int count)
+{
+    return alloc_etherdev_mq(sizeof_priv, count);
+}
+
 
 static const struct ysif_ops ysif_linux_ops = {
     .debugfs_create_dir = debugfs_create_dir,
@@ -178,6 +183,12 @@ static const struct ysif_ops ysif_linux_ops = {
     .dma_set_mask = dma_set_mask,
     .dma_set_coherent_mask = dma_set_coherent_mask,
     .dma_set_max_seg_size = dma_set_max_seg_size,
+    .dma_alloc_coherent = dma_alloc_coherent,
+
+    .yalloc_etherdev_mq = ys_alloc_etherdev_mq,
+
+    .netif_set_real_num_tx_queues = netif_set_real_num_tx_queues,
+    .netif_set_real_num_rx_queues = netif_set_real_num_rx_queues,
 };
 
 void ysif_ops_init(void)

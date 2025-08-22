@@ -20,6 +20,8 @@
 #include "ys_irq.h"
 #include "ys_sysfs.h"
 
+#include "ysif_linux.h"
+
 int ys_ndev_check_permission(struct ys_ndev_priv *ndev_priv, int bitmap)
 {
 	if ((ndev_priv->adev_type & bitmap) == 0)
@@ -166,6 +168,7 @@ static int ys_ndev_create_sysfs_group(struct net_device *ndev)
 static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 					 struct ys_adev *adev)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_ndev_priv *ndev_priv = NULL;
 	struct net_device *ndev;
 	int ret = 0;
@@ -183,7 +186,7 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 		return NULL;
 	}
 
-	ndev = alloc_etherdev_mq(sizeof(*ndev_priv), adev->qi.ndev_qnum);
+	ndev = ops->yalloc_etherdev_mq(sizeof(*ndev_priv), adev->qi.ndev_qnum);
 	if (IS_ERR_OR_NULL(ndev)) {
 		ys_dev_err("Failed to allocate memory");
 		return NULL;
@@ -220,12 +223,12 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 	ndev_priv = netdev_priv(ndev);
 	memset(ndev_priv, 0, sizeof(*ndev_priv));
 
-	spin_lock_init(&ndev_priv->statistics_lock);
-	mutex_init(&ndev_priv->state_lock);
-	mutex_init(&ndev_priv->open_lock);
-	spin_lock_init(&ndev_priv->mac_tbl_lock);
-	INIT_LIST_HEAD(&ndev_priv->cvlan_list);
-	INIT_LIST_HEAD(&ndev_priv->svlan_list);
+	ops->yspin_lock_init(&ndev_priv->statistics_lock);
+	ops->ymutex_init(&ndev_priv->state_lock);
+	ops->ymutex_init(&ndev_priv->open_lock);
+	ops->yspin_lock_init(&ndev_priv->mac_tbl_lock);
+	ops->INIT_LIST_HEAD(&ndev_priv->cvlan_list);
+	ops->INIT_LIST_HEAD(&ndev_priv->svlan_list);
 
 	ndev_priv->ndev = ndev;
 	ndev_priv->pdev = pdev_priv->pdev;

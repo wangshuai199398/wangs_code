@@ -35,6 +35,7 @@
         "ys_k2u_new_hw.h": "c",
         "ios": "c",
         "__locale": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "queue": "c"
     }
 }

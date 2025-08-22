@@ -12,6 +12,7 @@
 #include "ys_k2u_message.h"
 
 #include "../tc/ys_k2u_tc_core.h"
+#include "ysif_linux.h"
 
 /* debug */
 static void *ndev_debugfs_start(struct seq_file *seq, loff_t *pos)
@@ -204,6 +205,7 @@ k2u_ndev_get_name(struct ys_pdev_priv *pdev_priv, struct ys_adev *adev, char *na
 
 int ys_k2u_ndev_init(struct net_device *ndev)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	int ret = 0;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
@@ -311,14 +313,14 @@ int ys_k2u_ndev_init(struct net_device *ndev)
 	if (func->debugfs_root) {
 		k2u_ndev_get_name(pdev_priv, adev, name, sizeof(name));
 
-		k2u_ndev->debugfs_dir = debugfs_create_dir(name, func->debugfs_root);
+		k2u_ndev->debugfs_dir = ops->debugfs_create_dir(name, func->debugfs_root);
 		if (!k2u_ndev->debugfs_dir) {
 			ys_net_err("k2u_ndev debugfs create dir failed");
 			ret = -ENOMEM;
 			goto debugfs_failed;
 		}
 
-		entry = debugfs_create_file("info", 0400, k2u_ndev->debugfs_dir, k2u_ndev,
+		entry = ops->debugfs_create_file("info", 0400, k2u_ndev->debugfs_dir, k2u_ndev,
 					    &ndev_debugfs_fops);
 		if (!entry) {
 			ys_net_err("k2u_ndev info debugfs create file failed");
@@ -349,8 +351,8 @@ int ys_k2u_ndev_init(struct net_device *ndev)
 	k2u_ndev->txq_depth = YS_K2U_N_NDEV_DEFAULT_DEPTH;
 	k2u_ndev->rxq_depth = YS_K2U_N_NDEV_DEFAULT_DEPTH;
 
-	netif_set_real_num_tx_queues(ndev, k2u_ndev->real_qnum);
-	netif_set_real_num_rx_queues(ndev, k2u_ndev->real_qnum);
+	ops->netif_set_real_num_tx_queues(ndev, k2u_ndev->real_qnum);
+	ops->netif_set_real_num_rx_queues(ndev, k2u_ndev->real_qnum);
 
 	ndev->gso_max_size = YS_K2U_N_TSO_MAXSIZE;
 	ndev->gso_max_segs = min_t(u16, YS_K2U_N_TSO_MAXSEGS, (k2u_ndev->txq_depth >> 2));

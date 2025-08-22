@@ -93,6 +93,7 @@ struct ys_adev {
 	u32 adev_index;
 	struct list_head list;
 	u32 adev_type;
+	// net_device
 	void *adev_priv;
 	void *adev_extern_ops;
 	/*

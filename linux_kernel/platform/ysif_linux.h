@@ -81,6 +81,13 @@ struct ysif_ops {
     int (*dma_set_mask)(struct device *dev, u64 mask);
     int (*dma_set_coherent_mask)(struct device *dev, u64 mask);
     int (*dma_set_max_seg_size)(struct device *dev, unsigned int size);
+    void *(*dma_alloc_coherent)(struct device *dev, size_t size, dma_addr_t *dma_handle, gfp_t gfp);
+
+
+    struct net_device *(*yalloc_etherdev_mq)(int sizeof_priv, unsigned int count);
+    int (*netif_set_real_num_tx_queues)(struct net_device *dev, unsigned int txq);
+    int (*netif_set_real_num_rx_queues)(struct net_device *dev, unsigned int rxq);
+    
 };
 
 const struct ysif_ops *ysif_get_ops(void);
