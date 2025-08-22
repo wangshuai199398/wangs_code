@@ -12,7 +12,7 @@
 #include "ys_k2u_message.h"
 
 #include "../tc/ys_k2u_tc_core.h"
-#include "ysif_linux.h"
+#include "../../platform/ysif_linux.h"
 
 /* debug */
 static void *ndev_debugfs_start(struct seq_file *seq, loff_t *pos)
