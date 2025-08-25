@@ -1013,11 +1013,10 @@ static void ys_del_udp_tunnel(struct net_device *ndev,
 
 static int ys_ndo_set_vf_spoofchk(struct net_device *ndev, int vf, bool setting)
 {
-	pr_err("ys_ndo_set_vf_spoofchk\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 	int ret;
-
+	pr_err("ys_ndo_set_vf_spoofchk\n");
 	if (!ys_pdev_supports_sriov(pdev_priv->pdev))
 		return -EPERM;
 
