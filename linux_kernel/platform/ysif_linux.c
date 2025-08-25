@@ -136,7 +136,7 @@ static void ys_netif_napi_add(struct net_device *dev, struct napi_struct *napi, 
 
 dma_addr_t ys_dma_map_page(struct device *dev, struct page *page, size_t offset, size_t size, enum dma_data_direction dir)
 {
-    dma_map_page(dev, page, offset, size, dir);
+    return dma_map_page(dev, page, offset, size, dir);
 }
 
 static const struct ysif_ops ysif_linux_ops = {
