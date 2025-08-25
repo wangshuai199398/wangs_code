@@ -4,6 +4,8 @@
 #include "ys_k2u_new_func.h"
 #include "ys_k2u_new_ndev.h"
 
+#include "../../platform/ysif_linux.h"
+
 struct ys_k2u_rxcb {
 	u16 lro_valid:1;
 	u16 lro_id;
@@ -275,6 +277,7 @@ DEFINE_SEQ_ATTRIBUTE(rxcd_debugfs);
 
 static int ys_k2u_rxcq_int(struct notifier_block *nb, unsigned long action, void *data)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_rxcq *rxcq = container_of(nb, struct ys_k2u_rxcq, irq_nb);
 
 	rxcq->stats_sw.num_interrupt++;
@@ -282,10 +285,10 @@ static int ys_k2u_rxcq_int(struct notifier_block *nb, unsigned long action, void
 	if (unlikely(!(rxcq->rxq->active)))
 		return NOTIFY_DONE;
 
-	if (likely(napi_schedule_prep(rxcq->napi))) {
+	if (likely(ops->napi_schedule_prep(rxcq->napi))) {
 		rxcq->stats_sw.num_schedule++;
 		ys_k2u_rxcq_irq_disable(rxcq);
-		__napi_schedule_irqoff(rxcq->napi);
+		ops->__napi_schedule_irqoff(rxcq->napi);
 	}
 
 	return NOTIFY_DONE;
@@ -293,6 +296,7 @@ static int ys_k2u_rxcq_int(struct notifier_block *nb, unsigned long action, void
 
 static int ys_k2u_create_rxcq(struct ys_k2u_rxq *rxq)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_ndev *k2u_ndev = rxq->k2u_ndev;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(k2u_ndev->ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
@@ -310,7 +314,7 @@ static int ys_k2u_create_rxcq(struct ys_k2u_rxq *rxq)
 	rxcq->hw_addr = rxq->hw_addr;
 
 	size = sizeof(struct ys_k2u_rxcd) * rxq->qdepth;
-	rxcq->rxcd = dma_alloc_coherent(rxq->dev, size, &rxcq->rxcd_dma_addr, GFP_KERNEL);
+	rxcq->rxcd = ops->dma_alloc_coherent(rxq->dev, size, &rxcq->rxcd_dma_addr, GFP_KERNEL);
 	if (!rxcq->rxcd) {
 		ys_net_err("rxcq %d rxcdma dma alloc failed", rxq->qid.l_id);
 		ret = -ENOMEM;
@@ -320,9 +324,9 @@ static int ys_k2u_create_rxcq(struct ys_k2u_rxq *rxq)
 	rxcq->rxq = rxq;
 
 	/* dma */
-	rxcq->rxc_head_dma_addr = dma_map_single(rxq->dev, &rxcq->rxcdrb.head,
+	rxcq->rxc_head_dma_addr = ops->ydma_map_single(rxq->dev, &rxcq->rxcdrb.head,
 						 sizeof(rxcq->rxcdrb.head), DMA_FROM_DEVICE);
-	if (dma_mapping_error(rxq->dev, rxcq->rxc_head_dma_addr)) {
+	if (ops->dma_mapping_error(rxq->dev, rxcq->rxc_head_dma_addr)) {
 		ys_net_err("rxcq %d dma map failed", rxq->qid.l_id);
 		ret = -ENOMEM;
 		goto rxc_head_dma_failed;
@@ -332,9 +336,19 @@ static int ys_k2u_create_rxcq(struct ys_k2u_rxq *rxq)
 	ys_k2u_rxcq_irq_disable(rxcq);
 
 	rxcq->irq_nb.notifier_call = ys_k2u_rxcq_int;
-	ret = YS_REGISTER_NOTIFIER_IRQ(&pdev_priv->irq_table.nh, YS_IRQ_NB_REGISTER_ANY,
-				       0, pdev_priv->pdev, YS_IRQ_TYPE_QUEUE,
-				       ndev_priv->ndev, &rxcq->irq_nb, NULL);
+
+	/* YS_REGISTER_NOTIFIER_IRQ */
+	ret = ({
+		int ret;
+		do {
+			struct ys_irq_nb irq_nb = YS_IRQ_NB_INIT(0, pdev_priv->pdev, YS_IRQ_TYPE_QUEUE, ndev_priv->ndev, NULL, NULL);
+			irq_nb.sub.bh_type = YS_IRQ_BH_NOTIFIER;
+			irq_nb.sub.bh.nb = &rxcq->irq_nb;
+			ret = ops->blocking_notifier_call_chain(&pdev_priv->irq_table.nh, YS_IRQ_NB_REGISTER_ANY, &irq_nb);
+		} while (0);
+		ret;
+	});
+	
 	if (ret < 0) {
 		ys_net_err("rxcq %d register irq failed", rxq->qid.l_id);
 		goto config_failed;
@@ -352,11 +366,11 @@ static int ys_k2u_create_rxcq(struct ys_k2u_rxq *rxq)
 	return 0;
 
 config_failed:
-	dma_unmap_single(rxq->dev, rxcq->rxc_head_dma_addr,
+	ops->ydma_unmap_single(rxq->dev, rxcq->rxc_head_dma_addr,
 			 sizeof(rxcq->rxcdrb.head), DMA_FROM_DEVICE);
 rxc_head_dma_failed:
 	size = sizeof(struct ys_k2u_rxcd) * rxq->qdepth;
-	dma_free_coherent(rxq->dev, size, rxcq->rxcd, rxcq->rxcd_dma_addr);
+	ops->dma_free_coherent(rxq->dev, size, rxcq->rxcd, rxcq->rxcd_dma_addr);
 rxcd_dma_failed:
 	kfree(rxcq);
 	return ret;
@@ -364,6 +378,7 @@ rxcd_dma_failed:
 
 static void ys_k2u_destroy_rxcq(struct ys_k2u_rxq *rxq)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_rxcq *rxcq = rxq->rxcq;
 	struct ys_k2u_ndev *k2u_ndev = rxq->k2u_ndev;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(k2u_ndev->ndev);
@@ -373,17 +388,27 @@ static void ys_k2u_destroy_rxcq(struct ys_k2u_rxq *rxq)
 
 	k2u_ndev->qps[rxq->qid.l_id].rxcq = NULL;
 
-	YS_UNREGISTER_IRQ(&irq_table->nh, rxcq->irq_vector, pdev_priv->pdev, &rxcq->irq_nb);
+	/* YS_UNREGISTER_IRQ */
+	({
+		int ret;
+		do {
+			struct ys_irq_nb irq_nb = YS_IRQ_NB_INIT(rxcq->irq_vector, pdev_priv->pdev, 0, NULL, NULL, NULL);
+			irq_nb.sub.bh.nb = &rxcq->irq_nb;
+			ret = blocking_notifier_call_chain(&irq_table->nh, YS_IRQ_NB_UNREGISTER, &irq_nb);
+		} while (0);
+		ret;
+	});
 
-	dma_unmap_single(rxq->dev, rxcq->rxc_head_dma_addr,
+	ops->ydma_unmap_single(rxq->dev, rxcq->rxc_head_dma_addr,
 			 sizeof(rxcq->rxcdrb.head), DMA_FROM_DEVICE);
 
 	size = sizeof(struct ys_k2u_rxcd) * rxq->qdepth;
-	dma_free_coherent(rxq->dev, size, rxcq->rxcd, rxcq->rxcd_dma_addr);
+	ops->dma_free_coherent(rxq->dev, size, rxcq->rxcd, rxcq->rxcd_dma_addr);
 }
 
 int ys_k2u_create_rxq(struct ys_k2u_ndev *k2u_ndev, u16 idx, u32 depth)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_ndev_priv *ndev_priv = netdev_priv(k2u_ndev->ndev);
 	struct ys_k2u_rxq *rxq;
 	size_t size;
@@ -405,7 +430,7 @@ int ys_k2u_create_rxq(struct ys_k2u_ndev *k2u_ndev, u16 idx, u32 depth)
 	ys_ringb_init(&rxq->rxdrb, depth);
 
 	size = sizeof(struct ys_k2u_rxd) * depth;
-	rxq->rxd = dma_alloc_coherent(&ndev_priv->pdev->dev, size, &rxq->rxd_dma_addr, GFP_KERNEL);
+	rxq->rxd = ops->dma_alloc_coherent(&ndev_priv->pdev->dev, size, &rxq->rxd_dma_addr, GFP_KERNEL);
 	if (!rxq->rxd) {
 		ys_net_err("rxq %d rxd dma alloc failed", idx);
 		ret = -ENOMEM;
@@ -457,19 +482,19 @@ int ys_k2u_create_rxq(struct ys_k2u_ndev *k2u_ndev, u16 idx, u32 depth)
 
 	if (k2u_ndev->debugfs_dir) {
 		snprintf(name, sizeof(name), "rxq_%d_info", rxq->qid.l_id);
-		rxq->debugfs_info_file = debugfs_create_file(name, 0400, k2u_ndev->debugfs_dir, rxq,
+		rxq->debugfs_info_file = ops->debugfs_create_file(name, 0400, k2u_ndev->debugfs_dir, rxq,
 							     &rxq_debugfs_fops);
 		if (IS_ERR(rxq->debugfs_info_file))
 			ys_net_err("rxq %d create debugfs info file failed", idx);
 
 		snprintf(name, sizeof(name), "rxq_%d_rxd", rxq->qid.l_id);
-		rxq->debugfs_rxd_file = debugfs_create_file(name, 0400, k2u_ndev->debugfs_dir, rxq,
+		rxq->debugfs_rxd_file = ops->debugfs_create_file(name, 0400, k2u_ndev->debugfs_dir, rxq,
 							    &rxd_debugfs_fops);
 		if (IS_ERR(rxq->debugfs_rxd_file))
 			ys_net_err("rxq %d create debugfs rxd file failed", idx);
 
 		snprintf(name, sizeof(name), "rxq_%d_rxcd", rxq->qid.l_id);
-		rxq->debugfs_rxcd_file = debugfs_create_file(name, 0400, k2u_ndev->debugfs_dir, rxq,
+		rxq->debugfs_rxcd_file = ops->debugfs_create_file(name, 0400, k2u_ndev->debugfs_dir, rxq,
 							     &rxcd_debugfs_fops);
 		if (IS_ERR(rxq->debugfs_rxcd_file))
 			ys_net_err("rxq %d create debugfs rxcd file failed", idx);
@@ -490,18 +515,19 @@ rxd_dma_failed:
 
 void ys_k2u_destroy_rxq(struct ys_k2u_rxq *rxq)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	u64 size;
 
 	rxq->k2u_ndev->qps[rxq->qid.l_id].rxq = NULL;
 
-	debugfs_remove(rxq->debugfs_rxcd_file);
-	debugfs_remove(rxq->debugfs_rxd_file);
-	debugfs_remove(rxq->debugfs_info_file);
+	ops->debugfs_remove(rxq->debugfs_rxcd_file);
+	ops->debugfs_remove(rxq->debugfs_rxd_file);
+	ops->debugfs_remove(rxq->debugfs_info_file);
 
 	ys_k2u_destroy_rxcq(rxq);
 
 	size = sizeof(struct ys_k2u_rxd) * rxq->qdepth;
-	dma_free_coherent(rxq->dev, size, rxq->rxd, rxq->rxd_dma_addr);
+	ops->dma_free_coherent(rxq->dev, size, rxq->rxd, rxq->rxd_dma_addr);
 
 	kfree(rxq);
 }
@@ -512,6 +538,7 @@ int ys_k2u_activate_rxq(struct ys_k2u_rxq *rxq)
 	struct ys_k2u_ndev *k2u_ndev = rxq->k2u_ndev;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(k2u_ndev->ndev);
 	struct napi_struct *napi = &ndev_priv->rx_napi_list[rxq->qid.l_id].napi;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	ys_ringb_init(&rxq->rxdrb, rxq->qdepth);
 	ys_ringb_init(&rxq->rxcq->rxcdrb, rxq->qdepth);
@@ -534,7 +561,7 @@ int ys_k2u_activate_rxq(struct ys_k2u_rxq *rxq)
 	ys_k2u_rxcq_irq_enable(rxcq);
 
 	ndev_priv->rx_napi_list[rxq->qid.l_id].priv_data = rxcq;
-	netif_napi_add(ndev_priv->ndev, napi, ys_k2u_rxcq_handler);
+	ops->netif_napi_add(ndev_priv->ndev, napi, ys_k2u_rxcq_handler);
 	napi_enable(napi);
 	/* txcq */
 	rxcq->napi = napi;

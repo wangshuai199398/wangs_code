@@ -160,6 +160,7 @@ DEFINE_SEQ_ATTRIBUTE(txd_debugfs);
 
 static int ys_k2u_txcq_int(struct notifier_block *nb, unsigned long action, void *data)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_txcq *txcq = container_of(nb, struct ys_k2u_txcq, irq_nb);
 
 	txcq->stats_sw.num_interrupt++;
@@ -167,10 +168,10 @@ static int ys_k2u_txcq_int(struct notifier_block *nb, unsigned long action, void
 	if (unlikely(!(txcq->txq->active)))
 		return NOTIFY_DONE;
 
-	if (likely(napi_schedule_prep(txcq->napi))) {
+	if (likely(ops->napi_schedule_prep(txcq->napi))) {
 		txcq->stats_sw.num_schedule++;
 		ys_k2u_txcq_irq_disable(txcq);
-		__napi_schedule_irqoff(txcq->napi);
+		ops->__napi_schedule_irqoff(txcq->napi);
 	}
 
 	return NOTIFY_DONE;
@@ -178,6 +179,7 @@ static int ys_k2u_txcq_int(struct notifier_block *nb, unsigned long action, void
 
 static int ys_k2u_create_txcq(struct ys_k2u_txq *txq)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_ndev *k2u_ndev = txq->k2u_ndev;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(k2u_ndev->ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
@@ -195,9 +197,9 @@ static int ys_k2u_create_txcq(struct ys_k2u_txq *txq)
 	txcq->hw_addr = txq->hw_addr;
 
 	/* dma */
-	txcq->txc_head_dma_addr = dma_map_single(txq->dev, &txcq->txcdrb.head,
+	txcq->txc_head_dma_addr = ops->ydma_map_single(txq->dev, &txcq->txcdrb.head,
 						 sizeof(txcq->txcdrb.head), DMA_FROM_DEVICE);
-	if (dma_mapping_error(txq->dev, txcq->txc_head_dma_addr)) {
+	if (ops->dma_mapping_error(txq->dev, txcq->txc_head_dma_addr)) {
 		ys_net_err("txcq %d dma map failed", txq->qid.l_id);
 		ret = -ENOMEM;
 		goto txcq_failed;
@@ -210,10 +212,18 @@ static int ys_k2u_create_txcq(struct ys_k2u_txq *txq)
 	txcq->irq_nb.notifier_call = ys_k2u_txcq_int;
 
 	ys_k2u_txcq_irq_disable(txcq);
+	/* YS_REGISTER_NOTIFIER_IRQ */
+	ret = ({
+		int ret;
+		do {
+			struct ys_irq_nb irq_nb = YS_IRQ_NB_INIT(0, pdev_priv->pdev, YS_IRQ_TYPE_QUEUE, ndev_priv->ndev, NULL, NULL);
+			irq_nb.sub.bh_type = YS_IRQ_BH_NOTIFIER;
+			irq_nb.sub.bh.nb = &txcq->irq_nb;
+			ret = ops->blocking_notifier_call_chain(&pdev_priv->irq_table.nh, YS_IRQ_NB_REGISTER_ANY, &irq_nb);/* -> irqs_change_nb */
+		} while (0);
+		ret;
+	});
 
-	ret = YS_REGISTER_NOTIFIER_IRQ(&pdev_priv->irq_table.nh, YS_IRQ_NB_REGISTER_ANY,
-				       0, pdev_priv->pdev, YS_IRQ_TYPE_QUEUE,
-				       ndev_priv->ndev, &txcq->irq_nb, NULL);
 	if (ret < 0) {
 		ys_net_err("txcq %d register irq failed", txq->qid.l_id);
 		goto config_failed;
@@ -226,7 +236,7 @@ static int ys_k2u_create_txcq(struct ys_k2u_txq *txq)
 	return 0;
 
 config_failed:
-	dma_unmap_single(txq->dev, txcq->txc_head_dma_addr,
+	ops->ydma_unmap_single(txq->dev, txcq->txc_head_dma_addr,
 			 sizeof(txcq->txcdrb.head), DMA_FROM_DEVICE);
 txcq_failed:
 	kfree(txcq);
@@ -235,6 +245,7 @@ txcq_failed:
 
 static void ys_k2u_destroy_txcq(struct ys_k2u_txq *txq)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_txcq *txcq = txq->txcq;
 	struct ys_k2u_ndev *k2u_ndev = txq->k2u_ndev;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(k2u_ndev->ndev);
@@ -243,9 +254,18 @@ static void ys_k2u_destroy_txcq(struct ys_k2u_txq *txq)
 
 	k2u_ndev->qps[txq->qid.l_id].txcq = NULL;
 
-	YS_UNREGISTER_IRQ(&irq_table->nh, txcq->irq_vector, pdev_priv->pdev, &txcq->irq_nb);
+	/* YS_UNREGISTER_IRQ */
+	({
+		int ret;
+		do {
+			struct ys_irq_nb irq_nb = YS_IRQ_NB_INIT(txcq->irq_vector,pdev_priv->pdev, 0, NULL, NULL, NULL);
+			irq_nb.sub.bh.nb = &txcq->irq_nb;
+			ret = blocking_notifier_call_chain(&irq_table->nh, YS_IRQ_NB_UNREGISTER, &irq_nb);
+		} while (0);
+		ret;
+	});
 
-	dma_unmap_single(&pdev_priv->pdev->dev, txcq->txc_head_dma_addr,
+	ops->ydma_unmap_single(&pdev_priv->pdev->dev, txcq->txc_head_dma_addr,
 			 sizeof(txcq->txcdrb.head), DMA_FROM_DEVICE);
 	kfree(txcq);
 }
@@ -328,13 +348,13 @@ int ys_k2u_create_txq(struct ys_k2u_ndev *k2u_ndev, u16 idx, u32 depth)
 
 	if (k2u_ndev->debugfs_dir) {
 		snprintf(name, sizeof(name), "txq_%d_info", txq->qid.l_id);
-		txq->debugfs_info_file = debugfs_create_file(name, 0400, k2u_ndev->debugfs_dir, txq,
+		txq->debugfs_info_file = ops->debugfs_create_file(name, 0400, k2u_ndev->debugfs_dir, txq,
 							     &txq_debugfs_fops);
 		if (IS_ERR(txq->debugfs_info_file))
 			ys_net_err("txq %d create debugfs info file failed", idx);
 
 		snprintf(name, sizeof(name), "txq_%d_txd", txq->qid.l_id);
-		txq->debugfs_txd_file = debugfs_create_file(name, 0400, k2u_ndev->debugfs_dir, txq,
+		txq->debugfs_txd_file = ops->debugfs_create_file(name, 0400, k2u_ndev->debugfs_dir, txq,
 							    &txd_debugfs_fops);
 		if (IS_ERR(txq->debugfs_txd_file))
 			ys_net_err("txq %d create debugfs txd file failed", idx);
@@ -347,7 +367,7 @@ int ys_k2u_create_txq(struct ys_k2u_ndev *k2u_ndev, u16 idx, u32 depth)
 txcq_failed:
 property_failed:
 	size = sizeof(struct ys_k2u_txd) * depth;
-	dma_free_coherent(&ndev_priv->pdev->dev, size, txq->txd, txq->txd_dma_addr);
+	ops->dma_free_coherent(&ndev_priv->pdev->dev, size, txq->txd, txq->txd_dma_addr);
 txq_failed:
 	kfree(txq);
 	return ret;
@@ -355,19 +375,20 @@ txq_failed:
 
 void ys_k2u_destroy_txq(struct ys_k2u_txq *txq)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_k2u_ndev *k2u_ndev = txq->k2u_ndev;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(k2u_ndev->ndev);
 	size_t size;
 
 	k2u_ndev->qps[txq->qid.l_id].txq = NULL;
 
-	debugfs_remove(txq->debugfs_info_file);
-	debugfs_remove(txq->debugfs_txd_file);
+	ops->debugfs_remove(txq->debugfs_info_file);
+	ops->debugfs_remove(txq->debugfs_txd_file);
 
 	ys_k2u_destroy_txcq(txq);
 
 	size = sizeof(struct ys_k2u_txd) * txq->qdepth;
-	dma_free_coherent(&ndev_priv->pdev->dev, size, txq->txd, txq->txd_dma_addr);
+	ops->dma_free_coherent(&ndev_priv->pdev->dev, size, txq->txd, txq->txd_dma_addr);
 
 	kfree(txq);
 }

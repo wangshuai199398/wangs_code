@@ -155,8 +155,11 @@ static int ys_ndev_create_sysfs_group(struct net_device *ndev)
 	int attrs_num;
 	int ret;
 
-	if (IS_ERR_OR_NULL(pdev_priv->ops->ndev_adp_detect_sysfs_attrs))
+	if (IS_ERR_OR_NULL(pdev_priv->ops->ndev_adp_detect_sysfs_attrs)) {
+		pr_err("ndev_adp_detect_sysfs_attrs is NULL\n");
 		return 0;
+	}
+		
 
 	attrs_num = pdev_priv->ops->ndev_adp_detect_sysfs_attrs(&device_attrs);
 	ret = ys_sysfs_create_group(list, SYSFS_NDEV, 0, &ndev->dev.kobj,
@@ -306,7 +309,7 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 	if (!is_valid_ether_addr(ndev->dev_addr)) {
 		ys_dev_debug("using random MAC");
 		ndev->addr_len = ETH_ALEN;
-		eth_hw_addr_random(ndev);
+		ops->eth_hw_addr_random(ndev);
 	}
 
 	if (!IS_ERR_OR_NULL(ndev_priv->ys_ndev_hw->ys_init_hw_features))
@@ -329,7 +332,7 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 	ndev->netdev_ops = &ys_ndev_ops;
 	ndev->ethtool_ops = &ys_ethtool_ops;
 	ndev->udp_tunnel_nic_info = &ys_udp_tunnels;
-	netif_carrier_off(ndev);
+	ops->netif_carrier_off(ndev);
 
 	if (!IS_ERR_OR_NULL(ndev_priv->ys_eth_hw->enable_mac))
 		ndev_priv->ys_eth_hw->enable_mac(ndev);
@@ -339,11 +342,11 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 	      pdev_priv->ops->ndev_has_mac_link_status(ndev))) &&
 	    pdev_priv->nic_type->mac_type &&
 	    !ndev_priv->mac_intr_en) {
-		timer_setup(&ndev_priv->link_timer, ys_link_timer_callback, 0);
-		mod_timer(&ndev_priv->link_timer, jiffies + HZ);
+		ops->ytimer_setup(&ndev_priv->link_timer, ys_link_timer_callback, 0);
+		ops->mod_timer(&ndev_priv->link_timer, jiffies + HZ);
 	}
 
-	ret = register_netdev(ndev);
+	ret = ops->register_netdev(ndev);
 	if (ret) {
 		ys_dev_err("register_netdev fail");
 		goto fail;
@@ -352,13 +355,13 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 	adev->ifindex = ndev->ifindex;
 
 	/* in case of unknown state of netdevice */
-	netif_carrier_off(ndev);
+	ops->netif_carrier_off(ndev);
 	ys_queue_update_info(ndev, false, 0);
 
 	/* create ndev sysfs */
 	ys_ndev_create_sysfs_group(ndev);
 
-	ys_net_info("register_netdev success %s", ndev->name);
+	ys_net_err("[] register_netdev success %s", ndev->name);
 
 	return ndev;
 

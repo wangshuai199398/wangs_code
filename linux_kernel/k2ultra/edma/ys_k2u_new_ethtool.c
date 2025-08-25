@@ -9,16 +9,19 @@
 #include "../mbox/ys_k2u_mbox.h"
 #include "ys_k2u_rss_redirect.h"
 
+#include "../../platform/ysif_linux.h"
+
 int ys_k2u_et_set_channels(struct net_device *ndev, struct ethtool_channels *ch)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	int ret = 0;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_k2u_ndev *k2u_ndev = ndev_priv->adp_priv;
 
 	ys_k2u_ndev_destroy_queues(k2u_ndev);
 
-	netif_set_real_num_tx_queues(ndev, ch->combined_count);
-	netif_set_real_num_rx_queues(ndev, ch->combined_count);
+	ops->netif_set_real_num_tx_queues(ndev, ch->combined_count);
+	ops->netif_set_real_num_rx_queues(ndev, ch->combined_count);
 	ret = ys_k2u_ndev_create_queues(k2u_ndev);
 	if (!ret)
 		ys_k2u_rss_redirect_table_init(ndev, (u16)ndev->real_num_rx_queues);

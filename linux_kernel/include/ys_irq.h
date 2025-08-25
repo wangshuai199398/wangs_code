@@ -129,21 +129,6 @@ struct ys_irq_nb {
 	ret; \
 })
 
-#define YS_REGISTER_WORK_IRQ(_nh, _mode, _index, _pdev, _irq_type, _ndev, \
-			     _handler, _func, _devname) ({ \
-	int ret; \
-	do { \
-		struct ys_irq_nb irq_nb = \
-			YS_IRQ_NB_INIT((_index), (_pdev), (_irq_type), \
-				       (_ndev), (_handler), (_devname)); \
-		irq_nb.sub.bh_type = YS_IRQ_BH_WORK; \
-		irq_nb.sub.bh.work_handler = (_func); \
-		ret = blocking_notifier_call_chain((_nh), (_mode), \
-							&irq_nb); \
-	} while (0); \
-	ret; \
-})
-
 #define YS_REGISTER_NOTIFIER_IRQ(_nh, _mode, _index, _pdev, _irq_type, _ndev, \
 			     _bh_nb, _devname) ({ \
 	int ret; \

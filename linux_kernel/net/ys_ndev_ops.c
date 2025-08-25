@@ -22,6 +22,8 @@
 
 #include "tc/ys_tc.h"
 
+#include "../platform/ysif_linux.h"
+
 static ptp_switch ptp_on, ptp_off;
 static int ys_uc_addr_unsync(struct net_device *ndev, const u8 *addr);
 static int ys_mc_addr_unsync(struct net_device *ndev, const u8 *addr);
@@ -55,7 +57,7 @@ static int ys_ndo_start(struct net_device *ndev)
 	struct ys_ndev_priv *ndev_priv;
 	struct ys_pdev_priv *pdev_priv;
 	int ret;
-
+	const struct ysif_ops *ops = ysif_get_ops();
 	ndev_priv = netdev_priv(ndev);
 	pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 
@@ -66,16 +68,16 @@ static int ys_ndo_start(struct net_device *ndev)
 	}
 
 	ndev_priv->rx_enabled = true;
-	netif_tx_start_all_queues(ndev);
-	netif_device_attach(ndev);
-	netif_tx_schedule_all(ndev);
+	ops->netif_tx_start_all_queues(ndev);
+	ops->netif_device_attach(ndev);
+	ops->netif_tx_schedule_all(ndev);
 	if ((IS_ERR_OR_NULL(pdev_priv->ops->ndev_has_mac_link_status) ||
 	     (!IS_ERR_OR_NULL(pdev_priv->ops->ndev_has_mac_link_status) &&
 	      pdev_priv->ops->ndev_has_mac_link_status(ndev))) &&
 	    ndev_priv->ys_eth_hw->et_check_link)
 		ndev_priv->ys_eth_hw->et_check_link(ndev_priv->ndev);
 	else
-		netif_carrier_on(ndev);
+		ops->netif_carrier_on(ndev);
 	return 0;
 }
 
@@ -83,14 +85,14 @@ static int ys_ndo_stop(struct net_device *ndev)
 {
 	struct ys_ndev_priv *ndev_priv;
 	struct ys_pdev_priv *pdev_priv;
-
+	const struct ysif_ops *ops = ysif_get_ops();
 	ndev_priv = netdev_priv(ndev);
 	pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 
 	if (!ndev_priv->rx_enabled)
 		return 0;
 
-	netif_tx_disable(ndev);
+	ops->netif_tx_disable(ndev);
 
 	if (!IS_ERR_OR_NULL(pdev_priv->ops->hw_adp_stop))
 		pdev_priv->ops->hw_adp_stop(ndev);
@@ -106,7 +108,7 @@ static int ys_ndo_open(struct net_device *ndev)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	int ret = 0;
-
+	ys_err("ys_ndo_open\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -131,6 +133,7 @@ static int ys_ndo_open(struct net_device *ndev)
 
 static int ys_ndo_close(struct net_device *ndev)
 {
+	ys_err("ys_ndo_close");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	int ret = 0;
 
@@ -220,7 +223,7 @@ static int ys_ndo_set_mac(struct net_device *ndev, void *addr)
 							     old_dev_addr,
 							     dev_addr);
 
-	ys_net_debug("Set MAC address to %02x:%02x:%02x:%02x:%02x:%02x",
+	ys_net_err("Set MAC address to %02x:%02x:%02x:%02x:%02x:%02x",
 		    dev_addr[0], dev_addr[1], dev_addr[2], dev_addr[3],
 		    dev_addr[4], dev_addr[5]);
 
@@ -377,6 +380,7 @@ static int ys_ndo_ioctl(struct net_device *ndev, struct ifreq *ifr, int cmd)
 	default:
 		return -EOPNOTSUPP;
 	}
+	pr_err("ys_ndo_ioctl\n");
 }
 
 static int ys_ndo_change_hw_mtu(struct net_device *ndev, int new_mtu)
@@ -421,6 +425,7 @@ static int ys_ndo_change_mtu(struct net_device *ndev, int new_mtu)
 		ret = ys_ndo_change_hw_mtu(ndev, new_mtu);
 		mutex_unlock(&ndev_priv->state_lock);
 	}
+	ys_err("ys_ndo_change_mtu\n");
 	return ret;
 }
 
@@ -436,13 +441,14 @@ static void ys_ndo_get_stats64(struct net_device *ndev,
 	ys_ndo_update_stats(ndev);
 	netdev_stats_to_stats64(stats, &ndev->stats);
 	spin_unlock_bh(&ndev_priv->statistics_lock);
+	pr_err("ys_ndo_get_stats64\n");
 }
 
 static void ys_ndo_change_rx_flags(struct net_device *ndev, int flags)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	int ret = 0;
-
+	pr_err("ys_ndo_change_rx_flags\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
 		return;
 
@@ -461,7 +467,7 @@ static int ys_ndo_set_features(struct net_device *ndev,
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	int ret = 0;
-
+	pr_err("ys_ndo_set_features\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
 		return ret;
 
@@ -480,6 +486,7 @@ static int ys_ndo_set_features(struct net_device *ndev,
 static netdev_features_t ys_ndo_fix_features(struct net_device *ndev,
 					     netdev_features_t features)
 {
+	pr_err("ys_ndo_fix_features\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
@@ -537,6 +544,7 @@ static int ys_mc_addr_unsync(struct net_device *ndev, const u8 *addr)
 
 static void ys_ndo_set_rx_mode(struct net_device *ndev)
 {
+	pr_err("ys_ndo_set_rx_mode\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv;
 
@@ -559,7 +567,7 @@ static int ys_ndo_set_vf_mac(struct net_device *ndev, int vf, u8 *mac)
 	s32 retval = 0;
 	u8 *old_dev_addr;
 	bool spoofchk_enable = false;
-
+	pr_err("ys_ndo_set_vf_mac\n");
 	if (!ys_pdev_supports_sriov(pdev_priv->pdev))
 		return -EPERM;
 
@@ -607,6 +615,7 @@ static int ys_ndo_set_vf_mac(struct net_device *ndev, int vf, u8 *mac)
 static int ys_ndo_set_vf_vlan(struct net_device *ndev, int vf, u16 vlan, u8 qos,
 			      __be16 proto)
 {
+	pr_err("ys_ndo_set_vf_vlan\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 
@@ -635,6 +644,7 @@ static int ys_ndo_set_vf_vlan(struct net_device *ndev, int vf, u16 vlan, u8 qos,
 static int ys_ndo_set_vf_rate(struct net_device *ndev, int vf, int min_tx_rate,
 			      int max_tx_rate)
 {
+	pr_err("ys_ndo_set_vf_rate\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 
@@ -662,6 +672,7 @@ static int ys_ndo_set_vf_rate(struct net_device *ndev, int vf, int min_tx_rate,
 static int ys_ndo_get_vf_config(struct net_device *ndev, int vf,
 				struct ifla_vf_info *ivf)
 {
+	pr_err("ys_ndo_get_vf_config\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 
@@ -695,6 +706,7 @@ static int ys_ndo_get_vf_config(struct net_device *ndev, int vf,
 static int ys_ndo_set_vf_link_state(struct net_device *ndev,
 				    int vf, int link_state)
 {
+	pr_err("ys_ndo_set_vf_link_state\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 
@@ -716,6 +728,7 @@ static int ys_ndo_set_vf_link_state(struct net_device *ndev,
 static int ys_ndo_vlan_rx_add_vid(struct net_device *ndev,
 				  __be16 proto, u16 vlan_id)
 {
+	pr_err("ys_ndo_vlan_rx_add_vid\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
@@ -730,6 +743,7 @@ static int ys_ndo_vlan_rx_add_vid(struct net_device *ndev,
 static int ys_ndo_vlan_rx_kill_vid(struct net_device *ndev,
 				   __be16 proto, u16 vlan_id)
 {
+	pr_err("ys_ndo_vlan_rx_kill_vid\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
@@ -756,7 +770,7 @@ static int ys_ndo_set_vf_trust(struct net_device *ndev, int vf, bool setting)
 		return 0;
 
 	vf_info->trusted = setting;
-	ys_net_info("VF %d is %strusted\n", vf, setting ? "" : "not ");
+	ys_net_err("VF %d is %strusted\n", vf, setting ? "" : "not ");
 
 	return 0;
 }
@@ -880,7 +894,7 @@ static int ys_ndo_get_phys_port_name(struct net_device *ndev, char *buf, size_t 
 
 	if (ret <= 0)
 		return -EOPNOTSUPP;
-
+	pr_err("ys_ndo_get_phys_port_name: buf: %s", buf);
 	return 0;
 }
 
@@ -946,6 +960,7 @@ static int ys_ndo_get_phys_port_id(struct net_device *ndev,
 			port_id >>= 8;
 		}
 	}
+	pr_err("ys_ndo_get_phys_port_id: port_id: %u", port_id);
 	return 0;
 }
 
@@ -974,6 +989,7 @@ static int ys_ndo_get_port_parent_id(struct net_device *ndev,
 		ppid->id[i] =  phys_port_id & 0xff;
 		phys_port_id >>= 8;
 	}
+	pr_err("ys_ndo_get_phys_port_id: ppid->id[0]: %u", ppid->id[0]);
 
 	return 0;
 }
@@ -986,7 +1002,7 @@ static void ys_add_udp_tunnel(struct net_device *ndev,
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH))
 		return;
 
-	ys_net_debug("ys add udp tunnel");
+	ys_net_err("ys add udp tunnel");
 	if (!IS_ERR_OR_NULL(ndev_priv->ys_ndev_hw->ys_set_port_udp_tunnel))
 		ndev_priv->ys_ndev_hw->ys_set_port_udp_tunnel(ndev, true);
 }
@@ -999,13 +1015,14 @@ static void ys_del_udp_tunnel(struct net_device *ndev,
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH))
 		return;
 
-	ys_net_debug("ys del udp tunnel");
+	ys_net_err("ys del udp tunnel");
 	if (!IS_ERR_OR_NULL(ndev_priv->ys_ndev_hw->ys_set_port_udp_tunnel))
 		ndev_priv->ys_ndev_hw->ys_set_port_udp_tunnel(ndev, false);
 }
 
 static int ys_ndo_set_vf_spoofchk(struct net_device *ndev, int vf, bool setting)
 {
+	pr_err("ys_ndo_set_vf_spoofchk\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 	int ret;
@@ -1053,6 +1070,7 @@ static u16 ys_ndo_select_queue(struct net_device *dev, struct sk_buff *skb,
 			       struct net_device *sb_dev,
 			       select_queue_fallback_t fallback)
 {
+	pr_err("ys_ndo_select_queue\n");
 	return ys_ndo_select_queue_nocb(dev, skb, sb_dev);
 }
 
@@ -1096,7 +1114,7 @@ static int ys_udp_tnl_set_port(struct net_device *ndev,
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH))
 		return -EPERM;
 
-	ys_net_debug("ys udp tnl set port");
+	ys_net_err("ys udp tnl set port");
 	if (!IS_ERR_OR_NULL(ndev_priv->ys_ndev_hw->ys_set_port_udp_tunnel))
 		ndev_priv->ys_ndev_hw->ys_set_port_udp_tunnel(ndev, true);
 
@@ -1112,7 +1130,7 @@ static int ys_udp_tnl_unset_port(struct net_device *ndev,
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH))
 		return -EPERM;
 
-	ys_net_debug("ys udp tnl unset port");
+	ys_net_err("ys udp tnl unset port");
 	if (!IS_ERR_OR_NULL(ndev_priv->ys_ndev_hw->ys_set_port_udp_tunnel))
 		ndev_priv->ys_ndev_hw->ys_set_port_udp_tunnel(ndev, false);
 

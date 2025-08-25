@@ -26,7 +26,7 @@ static void ys_get_drvinfo(struct net_device *ndev,
 	u8 major_ver;
 	u8 minor_ver;
 	u8 debug_ver;
-
+	pr_err("ys_get_drvinfo\n");
 	ndev_priv = netdev_priv(ndev);
 	pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 
@@ -71,7 +71,7 @@ static int ys_get_module_eeprom(struct net_device *ndev,
 	u8 origin_dev_addr;
 	u8 mod_data[MODINFO_MAX_SIZE];
 	int ret;
-
+	pr_err("ys_get_module_eeprom\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -128,7 +128,7 @@ static int ys_get_module_info(struct net_device *ndev,
 	u8 *i2c_data;
 	u8 mod_data[MODINFO_MAX_SIZE];
 	int ret;
-
+	pr_err("ys_get_module_info\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -206,7 +206,7 @@ static void ys_get_ethtool_stats(struct net_device *ndev,
 	struct ys_pdev_priv *pdev_priv;
 	struct ys_adev *adev, *temp;
 	int len = 0;
-
+	pr_err("ys_get_ethtool_stats\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return;
 
@@ -234,7 +234,7 @@ static void ys_get_strings(struct net_device *ndev, u32 stringset, u8 *data)
 	struct ys_pdev_priv *pdev_priv;
 	struct ys_adev *adev, *temp;
 	int len = 0;
-
+	pr_err("ys_get_strings\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return;
 
@@ -277,7 +277,7 @@ static int ys_get_sset_count(struct net_device *ndev, int sset)
 	struct ys_pdev_priv *pdev_priv;
 	struct ys_adev *adev, *temp;
 	int len = 0;
-
+	pr_err("ys_get_sset_count\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -324,7 +324,7 @@ static void ys_self_test(struct net_device *ndev, struct ethtool_test *eth_test,
 	struct ys_napi *rx_napi;
 	u32 carrier_ok = 0;
 	u16 i = 0;
-
+	pr_err("ys_self_test\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return;
 
@@ -405,7 +405,7 @@ static int ys_get_link_ksettings(struct net_device *ndev,
 	u32 transceiver_type;
 	u8 autoneg_enable;
 	struct ys_ethtool_ksetting cmd;
-
+	pr_err("ys_get_link_ksettings\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -464,7 +464,7 @@ static int ys_set_link_ksettings(struct net_device *ndev,
 	u32 duplex;
 	u32 ret = 0;
 	bool autoneg_enable;
-
+	pr_err("ys_set_link_ksettings\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -514,7 +514,7 @@ static int ys_set_link_ksettings(struct net_device *ndev,
 static u32 ys_get_priv_flags(struct net_device *ndev)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_priv_flags\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -526,7 +526,7 @@ static u32 ys_get_priv_flags(struct net_device *ndev)
 static int ys_set_priv_flags(struct net_device *ndev, u32 flag)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_set_priv_flags\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -541,7 +541,7 @@ static int ys_get_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec,
 			   struct netlink_ext_ack *ack)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_coalesce\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 	if (ndev_priv->ys_eth_hw->et_get_coalesce)
@@ -554,7 +554,7 @@ static int ys_set_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec,
 			   struct netlink_ext_ack *ack)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_set_coalesce\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 	if (ec->rx_coalesce_usecs > MAX_COALESCE_US || ec->tx_coalesce_usecs > MAX_COALESCE_US)
@@ -570,7 +570,7 @@ static int ys_get_ts_info(struct net_device *ndev, struct ethtool_ts_info *eti)
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv;
 	struct ys_ptp *ptp;
-
+	pr_err("ys_get_ts_info\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -600,7 +600,7 @@ static int ys_get_ts_info(struct net_device *ndev, struct ethtool_ts_info *eti)
 static int ys_get_fecparam(struct net_device *ndev, struct ethtool_fecparam *fp)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_fecparam\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 	if (ndev_priv->ys_eth_hw->et_get_fec_mode)
@@ -618,7 +618,7 @@ static int ys_set_fecparam(struct net_device *ndev, struct ethtool_fecparam *fp)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	u32 fec = fp->fec;
-
+	pr_err("ys_set_fecparam\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 	if (ndev_priv->ys_eth_hw->et_set_fec_mode)
@@ -631,7 +631,7 @@ static void ys_get_eth_mac_stats(struct net_device *ndev,
 				 struct ethtool_eth_mac_stats *mac_stats)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_eth_mac_stats\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return;
 
@@ -706,7 +706,7 @@ static int ys_get_rxnfc_eth(struct net_device *ndev,
 {
 	int ret = 0;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_rxnfc_eth\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 	switch (info->cmd) {
@@ -745,7 +745,7 @@ static int ys_set_rxnfc_eth(struct net_device *ndev,
 {
 	int ret = 0;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_set_rxnfc_eth\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 	switch (rxnfc->cmd) {
@@ -777,7 +777,7 @@ static int ys_set_rxnfc_eth(struct net_device *ndev,
 static u32 ys_get_rxfh_indir_size_eth(struct net_device *ndev)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_rxfh_indir_size_eth\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -790,7 +790,7 @@ static u32 ys_get_rxfh_indir_size_eth(struct net_device *ndev)
 static u32 ys_get_rxfh_key_size_eth(struct net_device *ndev)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_rxfh_key_size_eth\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -803,7 +803,7 @@ static u32 ys_get_rxfh_key_size_eth(struct net_device *ndev)
 static int ys_get_rxfh_eth_old(struct net_device *ndev, u32 *indir, u8 *key, u8 *hfunc)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_rxfh_eth_old\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -818,7 +818,7 @@ static int ys_set_rxfh_eth_old(struct net_device *ndev, const u32 *indir,
 			       const u8 *key, const u8 hfunc)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_set_rxfh_eth_old\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -832,7 +832,7 @@ static int ys_set_rxfh_eth_old(struct net_device *ndev, const u32 *indir,
 static int ys_get_eeprom_len(struct net_device *ndev)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_eeprom_len\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 	if (ndev_priv->ys_eth_hw && ndev_priv->ys_eth_hw->et_get_eeprom_len)
@@ -851,7 +851,7 @@ static int ys_get_eeprom(struct net_device *ndev,
 	struct ys_i2c *i2c;
 	u8 *i2c_data;
 	int i;
-
+	pr_err("ys_get_eeprom\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -887,7 +887,7 @@ static int ys_set_eeprom(struct net_device *ndev,
 	size_t len = eeep->len;
 	struct ys_i2c *i2c;
 	int i;
-
+	pr_err("ys_set_eeprom\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -916,7 +916,7 @@ static int ys_set_phys_id_eth(struct net_device *ndev,
 			      enum ethtool_phys_id_state state)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_set_phys_id_eth\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -932,7 +932,7 @@ static void ys_get_ringparam_eth(struct net_device *ndev,
 				 struct netlink_ext_ack *ext_ack)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_ringparam_eth\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return;
 
@@ -948,7 +948,7 @@ static int ys_set_ringparam_eth(struct net_device *ndev,
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	int ret = -EOPNOTSUPP;
 	u8 rx_enabled = ndev_priv->rx_enabled;
-
+	pr_err("ys_set_ringparam_eth\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -980,7 +980,7 @@ static int ys_get_regs_len_eth(struct net_device __always_unused *ndev)
 
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
-
+	pr_err("ys_get_regs_len_eth\n");
 	if (ndev_priv->ys_eth_hw && ndev_priv->ys_eth_hw->ys_get_regs_len)
 		return ndev_priv->ys_eth_hw->ys_get_regs_len(ndev);
 
@@ -992,7 +992,7 @@ static void ys_get_regs_eth(struct net_device *ndev,
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	u32 *regs_buff = p;
-
+	pr_err("ys_get_regs_eth\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return;
 
@@ -1004,7 +1004,7 @@ static void ys_get_channels_eth(struct net_device *ndev,
 				struct ethtool_channels *ch)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_channels_eth\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return;
 	ch->max_combined = ndev->num_rx_queues;
@@ -1015,7 +1015,7 @@ static void ys_get_pauseparam(struct net_device *ndev,
 			      struct ethtool_pauseparam *pause)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_get_pauseparam\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return;
 	if (ndev_priv->ys_eth_hw->ys_get_pauseparam) {
@@ -1032,7 +1032,7 @@ static int ys_set_pauseparam(struct net_device *ndev,
 {
 	int rc = -EOPNOTSUPP;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_set_pauseparam\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return rc;
 	if (ndev_priv->ys_eth_hw->ys_set_pauseparam)
@@ -1072,7 +1072,7 @@ static int ys_set_channels_eth(struct net_device *ndev,
 	int ret = -EOPNOTSUPP;
 	u8 rx_enabled = ndev_priv->rx_enabled;
 	u16 id;
-
+	pr_err("ys_set_channels_eth\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 

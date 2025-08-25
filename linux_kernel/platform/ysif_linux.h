@@ -45,10 +45,15 @@ struct ysif_ops {
 
     void (*YBLOCKING_INIT_NOTIFIER_HEAD)(struct blocking_notifier_head *nh);
     int (*blocking_notifier_chain_register)(struct blocking_notifier_head *nh, struct notifier_block *n);
+    int (*blocking_notifier_call_chain)(struct blocking_notifier_head *nh, unsigned long val, void *v);
 
     void (*YATOMIC_INIT_NOTIFIER_HEAD)(struct atomic_notifier_head *nh);
 
     void (*yinit_completion)(struct completion *x);
+
+
+    void (*ytimer_setup)(struct timer_list *timer, void (*func)(struct timer_list *), unsigned int flags);
+    int (*mod_timer)(struct timer_list *timer, unsigned long expires);
 
     int (*yauxiliary_driver_register)(struct auxiliary_driver *drv);
     void (*auxiliary_driver_unregister)(struct auxiliary_driver *drv);
@@ -82,11 +87,30 @@ struct ysif_ops {
     int (*dma_set_coherent_mask)(struct device *dev, u64 mask);
     int (*dma_set_max_seg_size)(struct device *dev, unsigned int size);
     void *(*dma_alloc_coherent)(struct device *dev, size_t size, dma_addr_t *dma_handle, gfp_t gfp);
+    struct dma_addr_t (*ydma_map_single)(struct device *dev, void *ptr, size_t size, enum dma_data_direction dir);
+    int (*dma_mapping_error)(struct device *dev, dma_addr_t dma_addr);
+    void (*ydma_unmap_single)(struct device *dev, dma_addr_t addr, size_t size, enum dma_data_direction dir);
+    void (*dma_free_coherent)(struct device *dev, size_t size, void *cpu_addr, dma_addr_t dma_handle);
 
 
     struct net_device *(*yalloc_etherdev_mq)(int sizeof_priv, unsigned int count);
     int (*netif_set_real_num_tx_queues)(struct net_device *dev, unsigned int txq);
     int (*netif_set_real_num_rx_queues)(struct net_device *dev, unsigned int rxq);
+    void (*netif_carrier_off)(struct net_device *dev);
+    void (*netif_device_attach)(struct net_device *dev);
+    void (*netif_tx_schedule_all)(struct net_device *dev);
+    void (*netif_carrier_on)(struct net_device *dev);
+    void (*netif_carrier_off)(struct net_device *dev);
+    void (*netif_tx_disable)(struct net_device *dev);
+    void (*netif_napi_add)(struct net_device *dev, struct napi_struct *napi, int (*poll)(struct napi_struct *, int));
+
+    bool (*napi_schedule_prep)(struct napi_struct *n);
+    void (*__napi_schedule_irqoff)(struct napi_struct *n);
+
+    void (*eth_hw_addr_random)(struct net_device *dev);
+
+    int (*register_netdev)(struct net_device *dev);
+    void (*netif_tx_start_all_queues)(struct net_device *dev);
     
 };
 

@@ -11,6 +11,7 @@
 #include <linux/mutex.h>
 #include <linux/completion.h>
 #include <linux/etherdevice.h>
+#include <linux/dma-mapping.h>
 
 
 #include "ysif_linux.h"
@@ -112,6 +113,20 @@ static struct net_device *ys_alloc_etherdev_mq(int sizeof_priv, unsigned int cou
     return alloc_etherdev_mq(sizeof_priv, count);
 }
 
+static dma_addr_t ys_dma_map_single(struct device *dev, void *ptr, size_t size, enum dma_data_direction dir)
+{
+    return dma_map_single(dev, ptr, size, dir);
+}
+
+void ys_dma_unmap_single(struct device *dev, dma_addr_t addr, size_t size, enum dma_data_direction dir)
+{
+    dma_unmap_single(dev, addr, size, dir);
+}
+
+void ys_timer_setup(struct timer_list *timer, void (*func)(struct timer_list *), unsigned int flags)
+{
+    timer_setup(timer, func, flags);
+}
 
 static const struct ysif_ops ysif_linux_ops = {
     .debugfs_create_dir = debugfs_create_dir,
@@ -148,10 +163,14 @@ static const struct ysif_ops ysif_linux_ops = {
 
     .YBLOCKING_INIT_NOTIFIER_HEAD = ys_blocking_init_notifier_head,
     .blocking_notifier_chain_register = blocking_notifier_chain_register,
+    .blocking_notifier_call_chain = blocking_notifier_call_chain,
 
     .YATOMIC_INIT_NOTIFIER_HEAD = ys_atomic_init_notifier_head,
 
     .yinit_completion = ys_init_completion,
+
+    .ytimer_setup = ys_timer_setup,
+    .mod_timer = mod_timer,
 
     .yauxiliary_driver_register   = ys_auxiliary_driver_register,
     .auxiliary_driver_unregister = auxiliary_driver_unregister,
@@ -185,11 +204,30 @@ static const struct ysif_ops ysif_linux_ops = {
     .dma_set_coherent_mask = dma_set_coherent_mask,
     .dma_set_max_seg_size = dma_set_max_seg_size,
     .dma_alloc_coherent = dma_alloc_coherent,
+    .ydma_map_single = ys_dma_map_single,
+    .dma_mapping_error = dma_mapping_error,
+    .ydma_unmap_single = ys_dma_unmap_single,
+    .dma_free_coherent = dma_free_coherent,
 
     .yalloc_etherdev_mq = ys_alloc_etherdev_mq,
 
     .netif_set_real_num_tx_queues = netif_set_real_num_tx_queues,
     .netif_set_real_num_rx_queues = netif_set_real_num_rx_queues,
+    .netif_carrier_off = netif_carrier_off,
+    .netif_device_attach = netif_device_attach,
+    .netif_tx_schedule_all = netif_tx_schedule_all,
+    .netif_carrier_off = netif_carrier_off,
+    .netif_carrier_on = netif_carrier_on,
+    .netif_tx_disable = netif_tx_disable,
+    .netif_napi_add = netif_napi_add,
+
+    .napi_schedule_prep = napi_schedule_prep,
+    .__napi_schedule_irqoff = __napi_schedule_irqoff,
+
+    .eth_hw_addr_random = eth_hw_addr_random,
+
+    .register_netdev = register_netdev,
+    .netif_tx_start_all_queues = netif_tx_start_all_queues,
 };
 
 void ysif_ops_init(void)
