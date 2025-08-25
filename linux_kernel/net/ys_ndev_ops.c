@@ -133,10 +133,9 @@ static int ys_ndo_open(struct net_device *ndev)
 
 static int ys_ndo_close(struct net_device *ndev)
 {
-	ys_err("ys_ndo_close");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	int ret = 0;
-
+	ys_err("ys_ndo_close");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -486,9 +485,8 @@ static int ys_ndo_set_features(struct net_device *ndev,
 static netdev_features_t ys_ndo_fix_features(struct net_device *ndev,
 					     netdev_features_t features)
 {
-	pr_err("ys_ndo_fix_features\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_ndo_fix_features\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
 		return features;
 
@@ -544,10 +542,9 @@ static int ys_mc_addr_unsync(struct net_device *ndev, const u8 *addr)
 
 static void ys_ndo_set_rx_mode(struct net_device *ndev)
 {
-	pr_err("ys_ndo_set_rx_mode\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv;
-
+	pr_err("ys_ndo_set_rx_mode\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
 		return;
 
@@ -615,10 +612,9 @@ static int ys_ndo_set_vf_mac(struct net_device *ndev, int vf, u8 *mac)
 static int ys_ndo_set_vf_vlan(struct net_device *ndev, int vf, u16 vlan, u8 qos,
 			      __be16 proto)
 {
-	pr_err("ys_ndo_set_vf_vlan\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
-
+	pr_err("ys_ndo_set_vf_vlan\n");
 	if (!ys_pdev_supports_sriov(pdev_priv->pdev))
 		return -EPERM;
 
@@ -644,10 +640,9 @@ static int ys_ndo_set_vf_vlan(struct net_device *ndev, int vf, u16 vlan, u8 qos,
 static int ys_ndo_set_vf_rate(struct net_device *ndev, int vf, int min_tx_rate,
 			      int max_tx_rate)
 {
-	pr_err("ys_ndo_set_vf_rate\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
-
+	pr_err("ys_ndo_set_vf_rate\n");
 	if (!ys_pdev_supports_sriov(pdev_priv->pdev))
 		return -EPERM;
 
@@ -672,10 +667,9 @@ static int ys_ndo_set_vf_rate(struct net_device *ndev, int vf, int min_tx_rate,
 static int ys_ndo_get_vf_config(struct net_device *ndev, int vf,
 				struct ifla_vf_info *ivf)
 {
-	pr_err("ys_ndo_get_vf_config\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
-
+	pr_err("ys_ndo_get_vf_config\n");
 	if (!ys_pdev_supports_sriov(pdev_priv->pdev))
 		return -EPERM;
 
@@ -706,10 +700,9 @@ static int ys_ndo_get_vf_config(struct net_device *ndev, int vf,
 static int ys_ndo_set_vf_link_state(struct net_device *ndev,
 				    int vf, int link_state)
 {
-	pr_err("ys_ndo_set_vf_link_state\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
-
+	pr_err("ys_ndo_set_vf_link_state\n");
 	if (!ys_pdev_supports_sriov(pdev_priv->pdev))
 		return -EPERM;
 
@@ -728,9 +721,8 @@ static int ys_ndo_set_vf_link_state(struct net_device *ndev,
 static int ys_ndo_vlan_rx_add_vid(struct net_device *ndev,
 				  __be16 proto, u16 vlan_id)
 {
-	pr_err("ys_ndo_vlan_rx_add_vid\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_ndo_vlan_rx_add_vid\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
 		return -EPERM;
 
@@ -743,9 +735,8 @@ static int ys_ndo_vlan_rx_add_vid(struct net_device *ndev,
 static int ys_ndo_vlan_rx_kill_vid(struct net_device *ndev,
 				   __be16 proto, u16 vlan_id)
 {
-	pr_err("ys_ndo_vlan_rx_kill_vid\n");
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-
+	pr_err("ys_ndo_vlan_rx_kill_vid\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
 		return -EPERM;
 
