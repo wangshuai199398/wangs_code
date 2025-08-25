@@ -101,7 +101,7 @@ struct ysif_ops {
     void (*netif_carrier_on)(struct net_device *dev);
     void (*netif_carrier_off)(struct net_device *dev);
     void (*netif_tx_disable)(struct net_device *dev);
-    void (*netif_napi_add)(struct net_device *dev, struct napi_struct *napi, int (*poll)(struct napi_struct *, int));
+    void (*ynetif_napi_add)(struct net_device *dev, struct napi_struct *napi, int (*poll)(struct napi_struct *, int));
 
     bool (*napi_schedule_prep)(struct napi_struct *n);
     void (*__napi_schedule_irqoff)(struct napi_struct *n);

@@ -561,7 +561,7 @@ int ys_k2u_activate_rxq(struct ys_k2u_rxq *rxq)
 	ys_k2u_rxcq_irq_enable(rxcq);
 
 	ndev_priv->rx_napi_list[rxq->qid.l_id].priv_data = rxcq;
-	ops->netif_napi_add(ndev_priv->ndev, napi, ys_k2u_rxcq_handler);
+	ops->ynetif_napi_add(ndev_priv->ndev, napi, ys_k2u_rxcq_handler);
 	napi_enable(napi);
 	/* txcq */
 	rxcq->napi = napi;

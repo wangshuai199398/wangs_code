@@ -128,6 +128,11 @@ void ys_timer_setup(struct timer_list *timer, void (*func)(struct timer_list *),
     timer_setup(timer, func, flags);
 }
 
+static void ys_netif_napi_add(struct net_device *dev, struct napi_struct *napi, int (*poll)(struct napi_struct *, int))
+{
+    netif_napi_add(dev, napi, poll);
+}
+
 static const struct ysif_ops ysif_linux_ops = {
     .debugfs_create_dir = debugfs_create_dir,
     .debugfs_create_file = debugfs_create_file,
@@ -218,7 +223,7 @@ static const struct ysif_ops ysif_linux_ops = {
     .netif_carrier_off = netif_carrier_off,
     .netif_carrier_on = netif_carrier_on,
     .netif_tx_disable = netif_tx_disable,
-    .netif_napi_add = netif_napi_add,
+    .ynetif_napi_add = ys_netif_napi_add,
 
     .napi_schedule_prep = napi_schedule_prep,
     .__napi_schedule_irqoff = __napi_schedule_irqoff,
