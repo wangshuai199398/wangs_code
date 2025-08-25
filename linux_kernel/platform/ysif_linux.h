@@ -117,7 +117,7 @@ struct ysif_ops {
 
     bool (*napi_schedule_prep)(struct napi_struct *n);
     void (*__napi_schedule_irqoff)(struct napi_struct *n);
-    void (*napi_schedule)(struct napi_struct *n);
+    bool (*napi_schedule)(struct napi_struct *n);
     void (*napi_enable)(struct napi_struct *n);
     void (*napi_disable)(struct napi_struct *n);
     struct sk_buff *(*napi_alloc_skb)(struct napi_struct *napi, unsigned int length);
