@@ -324,8 +324,8 @@ static int ys_k2u_create_rxcq(struct ys_k2u_rxq *rxq)
 	rxcq->rxq = rxq;
 
 	/* dma */
-	rxcq->rxc_head_dma_addr = ops->ydma_map_single(rxq->dev, &rxcq->rxcdrb.head,
-						 sizeof(rxcq->rxcdrb.head), DMA_FROM_DEVICE);
+	rxcq->rxc_head_dma_addr = ops->ydma_map_single(rxq->dev, &rxcq->rxcdrb.head, sizeof(rxcq->rxcdrb.head), DMA_FROM_DEVICE);
+
 	if (ops->dma_mapping_error(rxq->dev, rxcq->rxc_head_dma_addr)) {
 		ys_net_err("rxcq %d dma map failed", rxq->qid.l_id);
 		ret = -ENOMEM;
