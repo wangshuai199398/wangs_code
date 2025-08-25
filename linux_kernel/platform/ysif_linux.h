@@ -95,7 +95,6 @@ struct ysif_ops {
     void (*ydma_unmap_single)(struct device *dev, dma_addr_t addr, size_t size, enum dma_data_direction dir);
     void (*dma_free_coherent)(struct device *dev, size_t size, void *cpu_addr, dma_addr_t dma_handle);
     dma_addr_t (*ydma_map_page)(struct device *dev, struct page *page, size_t offset, size_t size, enum dma_data_direction dir);
-    void (*ydma_unmap_len)(struct ys_k2u_txi *txi, u32 len);
 
 
     struct net_device *(*yalloc_etherdev_mq)(int sizeof_priv, unsigned int count);
