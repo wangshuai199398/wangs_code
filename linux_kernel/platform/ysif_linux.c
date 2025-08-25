@@ -141,7 +141,7 @@ dma_addr_t ys_dma_map_page(struct device *dev, struct page *page, size_t offset,
 
 void ys_dma_upmap_page(struct device *dev, struct page *page, size_t size, enum dma_data_direction dir)
 {
-    return dma_unmap_page(dev, page, size, dir);
+    dma_unmap_page(dev, page, size, dir);
 }
 
 static const struct ysif_ops ysif_linux_ops = {
