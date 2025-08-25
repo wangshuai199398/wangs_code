@@ -562,7 +562,7 @@ int ys_k2u_activate_rxq(struct ys_k2u_rxq *rxq)
 
 	ndev_priv->rx_napi_list[rxq->qid.l_id].priv_data = rxcq;
 	ops->ynetif_napi_add(ndev_priv->ndev, napi, ys_k2u_rxcq_handler);
-	napi_enable(napi);
+	ops->napi_enable(napi);
 	/* txcq */
 	rxcq->napi = napi;
 
@@ -653,6 +653,7 @@ static int ys_k2u_rxq_fill_rxd(struct ys_k2u_rxq *rxq)
 	struct ys_k2u_rxd *rxd;
 	struct ys_k2u_rxi *rxi;
 	int count = 0;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	if (ys_ringb_left(&rxq->rxdrb) < 16)
 		return 0;
@@ -664,16 +665,16 @@ static int ys_k2u_rxq_fill_rxd(struct ys_k2u_rxq *rxq)
 		if (rxi->page)
 			goto next;
 
-		rxi->page = dev_alloc_pages(rxq->fragorder);
+		rxi->page = ops->dev_alloc_pages(rxq->fragorder);
 		if (unlikely(!rxi->page)) {
 			rxq->stats_sw.err_alloc_page++;
 			ret = -ENOMEM;
 			break;
 		}
 
-		rxi->dma_addr = dma_map_page(rxq->dev, rxi->page, 0, rxq->qfragsize,
+		rxi->dma_addr = ops->ydma_map_page(rxq->dev, rxi->page, 0, rxq->qfragsize,
 					     DMA_FROM_DEVICE);
-		if (unlikely(dma_mapping_error(rxq->dev, rxi->dma_addr))) {
+		if (unlikely(ops->dma_mapping_error(rxq->dev, rxi->dma_addr))) {
 			__free_pages(rxi->page, rxq->fragorder);
 			rxi->page = NULL;
 			rxq->stats_sw.err_map_page++;
@@ -871,6 +872,7 @@ static int ys_k2u_rxcq_handler(struct napi_struct *napi, int napi_budget)
 	u16 rxcd_head_end = 0;
 	u32 rss_redir_qcount = 4 * ndev->real_num_rx_queues;
 	u32 rss_redir_idx = 0;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	rxcq->stats_sw.num_handler++;
 	if (unlikely(!(rxcq->rxq->active) || !(ndev->flags & IFF_UP)))
@@ -898,7 +900,7 @@ static int ys_k2u_rxcq_handler(struct napi_struct *napi, int napi_budget)
 		if (rxcd->fd && !skb) {
 			rxcd_head_start = ys_ringb_head_orig(&rxcq->rxcdrb);
 
-			skb = napi_alloc_skb(napi, YS_K2U_N_RX_MINDATA);
+			skb = ops->napi_alloc_skb(napi, YS_K2U_N_RX_MINDATA);
 			if (unlikely(!skb)) {
 				rxcq->stats_sw.err_alloc_skb++;
 				break;
@@ -912,9 +914,9 @@ static int ys_k2u_rxcq_handler(struct napi_struct *napi, int napi_budget)
 
 				vlan_id = le16_to_cpu(ys_k2u_rxcd_get_vlanid(rxcd));
 				if (rxcd->vlan_protocol_type)
-					__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021AD), vlan_id);
+					ops->__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021AD), vlan_id);
 				else
-					__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), vlan_id);
+					ops->__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), vlan_id);
 			}
 
 			/* notice : it need lan configure hash elements */
@@ -922,7 +924,7 @@ static int ys_k2u_rxcq_handler(struct napi_struct *napi, int napi_budget)
 			 *        according to lan configuration(ethtool ?)
 			 */
 			if (rxcd->hash_result && (ndev->features & NETIF_F_RXHASH))
-				skb_set_hash(skb, be16_to_cpu(rxcd->hash_result), PKT_HASH_TYPE_L4);
+				ops->skb_set_hash(skb, be16_to_cpu(rxcd->hash_result), PKT_HASH_TYPE_L4);
 
 			if (rxcd->vlan_tag_remove && rxcd->fd)
 				rxcq->stats_sw.num_vlan_remove++;
@@ -938,8 +940,7 @@ static int ys_k2u_rxcq_handler(struct napi_struct *napi, int napi_budget)
 			memcpy(__skb_put(skb, headlen), page_address(rxi->page), headlen);
 
 			if (rcvsize - headlen) {
-				skb_add_rx_frag(skb, 0, rxi->page, headlen,
-						rcvsize - headlen, rxq->qfragsize);
+				ops->skb_add_rx_frag(skb, 0, rxi->page, headlen, rcvsize - headlen, rxq->qfragsize);
 				rxi->page = NULL;
 				dma_unmap_page(rxq->dev, rxi->dma_addr, rxq->qfragsize,
 					       DMA_FROM_DEVICE);
@@ -951,8 +952,7 @@ static int ys_k2u_rxcq_handler(struct napi_struct *napi, int napi_budget)
 				ys_k2u_fixup_csum(skb);
 			}
 		} else if (likely(skb) && !rxcd->fd) {
-			skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, rxi->page, 0,
-					rcvsize, rxq->qfragsize);
+			ops->skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, rxi->page, 0, rcvsize, rxq->qfragsize);
 			rxi->page = NULL;
 			dma_unmap_page(rxq->dev, rxi->dma_addr, rxq->qfragsize, DMA_FROM_DEVICE);
 		} else {
@@ -985,7 +985,7 @@ static int ys_k2u_rxcq_handler(struct napi_struct *napi, int napi_budget)
 		if (unlikely(!skb))
 			continue;
 
-		skb_record_rx_queue(skb, rxq->qid.l_id);
+		ops->skb_record_rx_queue(skb, rxq->qid.l_id);
 
 		rxcq->stats_base.packets++;
 		rxcq->stats_base.bytes += skb->len;
@@ -998,18 +998,18 @@ static int ys_k2u_rxcq_handler(struct napi_struct *napi, int napi_budget)
 			rxcq->stats_rss_redir.num_rss_redir_idx[rss_redir_idx]++;
 		}
 		skb->protocol = eth_type_trans(skb, ndev_priv->ndev);
-		napi_gro_receive(napi, skb);
+		ops->napi_gro_receive(napi, skb);
 	}
 
 	/* fill rxd */
 	ys_k2u_rxq_fill_rxd(rxq);
 
 	if (done == napi_budget) {
-		napi_schedule(napi);
+		ops->napi_schedule(napi);
 		return done;
 	}
 out:
-	if (napi_complete_done(napi, done))
+	if (ops->napi_complete_done(napi, done))
 		ys_k2u_rxcq_irq_enable(rxcq);
 
 	return done;

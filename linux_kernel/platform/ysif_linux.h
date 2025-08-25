@@ -71,6 +71,9 @@ struct ysif_ops {
     void (*devlink_register)(struct devlink *devlink);
     int (*devlink_params_register)(struct devlink *devlink, const struct devlink_param *params, size_t params_count);
     int (*devlink_param_driverinit_value_set)(struct devlink *devlink, u32 param_id, union devlink_param_value init_val);
+    struct page *(*dev_alloc_pages)(unsigned int order);
+    void (*dev_consume_skb_any)(struct sk_buff *skb);
+    void (*dev_kfree_skb_any)(struct sk_buff *skb);
 
     void (*pci_set_drvdata)(struct pci_dev *pdev, void *data);
     int (*pci_enable_device)(struct pci_dev *dev);
@@ -91,6 +94,8 @@ struct ysif_ops {
     int (*dma_mapping_error)(struct device *dev, dma_addr_t dma_addr);
     void (*ydma_unmap_single)(struct device *dev, dma_addr_t addr, size_t size, enum dma_data_direction dir);
     void (*dma_free_coherent)(struct device *dev, size_t size, void *cpu_addr, dma_addr_t dma_handle);
+    dma_addr_t (*ydma_map_page)(struct device *dev, struct page *page, size_t offset, size_t size, enum dma_data_direction dir);
+    void (*ydma_unmap_len)(struct ys_k2u_txi *txi, u32 len);
 
 
     struct net_device *(*yalloc_etherdev_mq)(int sizeof_priv, unsigned int count);
@@ -102,14 +107,37 @@ struct ysif_ops {
     void (*netif_carrier_off)(struct net_device *dev);
     void (*netif_tx_disable)(struct net_device *dev);
     void (*ynetif_napi_add)(struct net_device *dev, struct napi_struct *napi, int (*poll)(struct napi_struct *, int));
+    void (*netif_tx_start_all_queues)(struct net_device *dev);
+    void (*netif_napi_del)(struct napi_struct *napi);
+    bool (*netif_tx_queue_stopped)(const struct netdev_queue *dev_queue);
+    void (*netif_tx_wake_queue)(struct netdev_queue *dev_queue);
+    void (*netif_tx_stop_queue)(struct netdev_queue *dev_queue);
+
+    struct netdev_queue *(*netdev_get_tx_queue)(const struct net_device *dev, unsigned int index);
+    bool (*netdev_xmit_more)(void);
 
     bool (*napi_schedule_prep)(struct napi_struct *n);
     void (*__napi_schedule_irqoff)(struct napi_struct *n);
+    void (*napi_schedule)(struct napi_struct *n);
+    void (*napi_enable)(struct napi_struct *n);
+    void (*napi_disable) (struct qlcnic_adapter *);
+    struct sk_buff *(*napi_alloc_skb)(struct napi_struct *napi, unsigned int length);
+    gro_result_t (*napi_gro_receive)(struct napi_struct *napi, struct sk_buff *skb);
+    bool (*napi_complete_done)(struct napi_struct *n, int work_done);
+    
 
     void (*eth_hw_addr_random)(struct net_device *dev);
 
     int (*register_netdev)(struct net_device *dev);
-    void (*netif_tx_start_all_queues)(struct net_device *dev);
+    
+    void (*__vlan_hwaccel_put_tag)(struct sk_buff *skb, __be16 vlan_proto, u16 vlan_tci);
+
+    void (*skb_set_hash)(struct sk_buff *skb, __u32 hash, enum pkt_hash_types type);
+    void (*skb_add_rx_frag)(struct sk_buff *skb, int i, struct page *page, int off, int size, unsigned int truesize);
+    void (*skb_record_rx_queue)(struct sk_buff *skb, u16 rx_queue);
+    bool (*skb_is_gso)(const struct sk_buff *skb);
+    void (*skb_tx_timestamp)(struct sk_buff *skb);
+    
     
 };
 

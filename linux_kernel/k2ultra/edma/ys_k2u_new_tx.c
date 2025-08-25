@@ -399,6 +399,7 @@ int ys_k2u_activate_txq(struct ys_k2u_txq *txq)
 	struct ys_k2u_ndev *k2u_ndev = txq->k2u_ndev;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(k2u_ndev->ndev);
 	struct napi_struct *napi = &ndev_priv->tx_napi_list[txq->qid.l_id].napi;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	ys_ringb_init(&txq->txdrb, txq->qdepth);
 	ys_ringb_init(&txcq->txcdrb, txq->qdepth);
@@ -418,9 +419,9 @@ int ys_k2u_activate_txq(struct ys_k2u_txq *txq)
 	ys_wr32(txcq->hw_addr, YS_K2U_RE_TXCQ_CPLLEN, txcq->qcpllen);
 
 	/* napi */
-	netif_napi_add(ndev_priv->ndev, napi, ys_k2u_txcq_handler);
-	napi_enable(napi);
-	txq->tx_queue = netdev_get_tx_queue(k2u_ndev->ndev, txq->qid.l_id);
+	ops->ynetif_napi_add(ndev_priv->ndev, napi, ys_k2u_txcq_handler);
+	ops->napi_enable(napi);
+	txq->tx_queue = ops->netdev_get_tx_queue(k2u_ndev->ndev, txq->qid.l_id);
 	ndev_priv->tx_napi_list[txq->qid.l_id].priv_data = txcq;
 
 	/* txq */
@@ -448,6 +449,7 @@ void ys_k2u_deactivate_txq(struct ys_k2u_txq *txq)
 	int i;
 	u32 txq_head, txq_tail;
 	struct ys_ndev_priv *ndev_priv = netdev_priv(txq->k2u_ndev->ndev);
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	txq->active = 0;
 	for (i = 0; i < 10; i++) {
@@ -469,8 +471,8 @@ void ys_k2u_deactivate_txq(struct ys_k2u_txq *txq)
 
 	ys_k2u_txcq_irq_disable(txq->txcq);
 
-	napi_disable(txq->txcq->napi);
-	netif_napi_del(txq->txcq->napi);
+	ops->napi_disable(txq->txcq->napi);
+	ops->netif_napi_del(txq->txcq->napi);
 }
 
 void ys_k2u_clean_txq(struct ys_k2u_txq *txq)
@@ -480,19 +482,19 @@ void ys_k2u_clean_txq(struct ys_k2u_txq *txq)
 	u32 count = 0;
 	u16 head = ys_ringb_head_orig(&txq->txdrb);
 	u16 tail = ys_ringb_tail_orig(&txq->txdrb);
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	/* clean txi */
 	while (!ys_ringb_empty(&txq->txdrb)) {
 		txi = txq->txi + ys_ringb_tail(&txq->txdrb);
 
 		if (txi->addr) {
-			dma_unmap_single(txq->dev, dma_unmap_addr(txi, addr),
-					 dma_unmap_len(txi, len), DMA_TO_DEVICE);
+			ops->ydma_unmap_single(txq->dev, dma_unmap_addr(txi, addr), dma_unmap_len(txi, len), DMA_TO_DEVICE);
 			txi->addr = 0;
 			txi->len = 0;
 		}
 		if (txi->skb) {
-			dev_kfree_skb_any(txi->skb);
+			ops->dev_kfree_skb_any(txi->skb);
 			txi->skb = NULL;
 		}
 
@@ -500,8 +502,7 @@ void ys_k2u_clean_txq(struct ys_k2u_txq *txq)
 		ys_ringb_pop(&txq->txcq->txcdrb);
 
 		if (count++ > txq->qdepth) {
-			ys_net_err("txq %d(head %d tail %d)clean txi error, count %d > qdepth %d\n",
-				   txq->qid.l_id, head, tail, count, txq->qdepth);
+			ys_net_err("txq %d(head %d tail %d)clean txi error, count %d > qdepth %d\n", txq->qid.l_id, head, tail, count, txq->qdepth);
 			break;
 		}
 	}
@@ -572,6 +573,7 @@ static int ys_k2u_txcq_handler(struct napi_struct *napi, int napi_budget)
 	struct ys_k2u_txq *txq = txcq->txq;
 	int done = 0;
 	struct ys_k2u_txi *txi;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	txcq->stats_sw.num_handler++;
 	if (ys_ringb_used(&txcq->txcdrb) > ys_ringb_size(&txcq->txcdrb)) {
@@ -591,7 +593,7 @@ static int ys_k2u_txcq_handler(struct napi_struct *napi, int napi_budget)
 		}
 		if (txi->skb) {
 			txcq->stats_sw.num_freeskb++;
-			dev_consume_skb_any(txi->skb);
+			ops->dev_consume_skb_any(txi->skb);
 			txi->skb = NULL;
 		}
 
@@ -601,18 +603,17 @@ static int ys_k2u_txcq_handler(struct napi_struct *napi, int napi_budget)
 	}
 
 	/* wake queue if it is stopped */
-	if (netif_tx_queue_stopped(txq->tx_queue) &&
-	    !ys_k2u_txq_is_full(txq)) {
+	if (ops->netif_tx_queue_stopped(txq->tx_queue) && !ys_k2u_txq_is_full(txq)) {
 		txq->stats_sw.num_qwakeup++;
-		netif_tx_wake_queue(txq->tx_queue);
+		ops->netif_tx_wake_queue(txq->tx_queue);
 	}
 
 	if (done == napi_budget) {
-		napi_schedule(napi);
+		ops->napi_schedule(napi);
 		return done;
 	}
 out:
-	if (napi_complete_done(napi, done))
+	if (ops->napi_complete_done(napi, done))
 		ys_k2u_txcq_irq_enable(txq->txcq);
 
 	return done;
@@ -686,6 +687,7 @@ netdev_tx_t ys_k2u_new_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	u16 txd_head_start;
 	u16 txd_head_end;
 	bool mangleid;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	/* 1. check */
 	if (unlikely(!(ndev->flags & IFF_UP)))
@@ -697,9 +699,9 @@ netdev_tx_t ys_k2u_new_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 
 	/* 2. check */
 	if (unlikely(ys_k2u_txq_is_full(txq))) {
-		if (!netif_tx_queue_stopped(txq->tx_queue)) {
+		if (!ops->netif_tx_queue_stopped(txq->tx_queue)) {
 			txq->stats_sw.num_qstop++;
-			netif_tx_stop_queue(txq->tx_queue);
+			ops->netif_tx_stop_queue(txq->tx_queue);
 		}
 		goto tx_busy;
 	}
@@ -777,8 +779,7 @@ netdev_tx_t ys_k2u_new_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 		if (skb->ip_summed == CHECKSUM_PARTIAL) {
 			if (skb->encapsulation) {
 				txd->outer_l3_csum_en = 1;
-				if (skb_is_gso(skb) && (skb_shinfo(skb)->gso_type &
-				    (SKB_GSO_UDP_TUNNEL_CSUM | SKB_GSO_GRE_CSUM)))
+				if (ops->skb_is_gso(skb) && (skb_shinfo(skb)->gso_type & (SKB_GSO_UDP_TUNNEL_CSUM | SKB_GSO_GRE_CSUM)))
 					txd->outer_l4_csum_en = 1;
 				txd->inner_l3_csum_en = 1;
 				txd->inner_l4_csum_en = 1;
@@ -825,10 +826,10 @@ netdev_tx_t ys_k2u_new_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	/* 7. other */
 	txq->stats_base.packets++;
 	txq->stats_base.bytes += skb->len;
-	skb_tx_timestamp(skb);
+	ops->skb_tx_timestamp(skb);
 
 	/* 8. doorbell */
-	xmit_more = netdev_xmit_more();
+	xmit_more = ops->netdev_xmit_more();
 	if (!xmit_more)
 		ys_k2u_txq_doorbell(txq);
 

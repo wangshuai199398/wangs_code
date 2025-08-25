@@ -12,6 +12,7 @@
 #include <linux/completion.h>
 #include <linux/etherdevice.h>
 #include <linux/dma-mapping.h>
+#include <linux/if_vlan.h>
 
 
 #include "ysif_linux.h"
@@ -133,6 +134,11 @@ static void ys_netif_napi_add(struct net_device *dev, struct napi_struct *napi, 
     netif_napi_add(dev, napi, poll);
 }
 
+dma_addr_t ys_dma_map_page(struct device *dev, struct page *page, size_t offset, size_t size, enum dma_data_direction dir)
+{
+    dma_map_page(dev, page, offset, size, dir);
+}
+
 static const struct ysif_ops ysif_linux_ops = {
     .debugfs_create_dir = debugfs_create_dir,
     .debugfs_create_file = debugfs_create_file,
@@ -193,6 +199,9 @@ static const struct ysif_ops ysif_linux_ops = {
     .devlink_register = devlink_register,
     .devlink_params_register = devlink_params_register,
     .devlink_param_driverinit_value_set = devlink_param_driverinit_value_set,
+    .dev_alloc_pages = dev_alloc_pages,
+    .dev_consume_skb_any = dev_consume_skb_any,
+    .dev_kfree_skb_any = dev_kfree_skb_any,
 
     .pci_set_drvdata = pci_set_drvdata,
     .pci_enable_device = pci_enable_device,
@@ -213,6 +222,7 @@ static const struct ysif_ops ysif_linux_ops = {
     .dma_mapping_error = dma_mapping_error,
     .ydma_unmap_single = ys_dma_unmap_single,
     .dma_free_coherent = dma_free_coherent,
+    .ydma_map_page = ys_dma_map_page,
 
     .yalloc_etherdev_mq = ys_alloc_etherdev_mq,
 
@@ -224,14 +234,36 @@ static const struct ysif_ops ysif_linux_ops = {
     .netif_carrier_on = netif_carrier_on,
     .netif_tx_disable = netif_tx_disable,
     .ynetif_napi_add = ys_netif_napi_add,
+    .netif_napi_del = netif_napi_del,
+    .netif_tx_wake_queue = netif_tx_wake_queue,
+    .netdev_xmit_more = netdev_xmit_more,
 
+    
+    .napi_schedule = napi_schedule,
     .napi_schedule_prep = napi_schedule_prep,
     .__napi_schedule_irqoff = __napi_schedule_irqoff,
+    .napi_enable = napi_enable,
+    .napi_disable = napi_disable,
+    .napi_alloc_skb = napi_alloc_skb,
+    .napi_gro_receive = napi_gro_receive,
+    .napi_complete_done = napi_complete_done,
+    .netif_tx_queue_stopped = netif_tx_queue_stopped,
+    .netif_tx_stop_queue = netif_tx_stop_queue,
 
     .eth_hw_addr_random = eth_hw_addr_random,
 
     .register_netdev = register_netdev,
     .netif_tx_start_all_queues = netif_tx_start_all_queues,
+
+    .netdev_get_tx_queue = netdev_get_tx_queue,
+
+    .__vlan_hwaccel_put_tag = __vlan_hwaccel_put_tag,
+
+    .skb_set_hash = skb_set_hash,
+    .skb_add_rx_frag = skb_add_rx_frag,
+    .skb_record_rx_queue = skb_record_rx_queue,
+    .skb_is_gso = skb_is_gso,
+    .skb_tx_timestamp = skb_tx_timestamp,
 };
 
 void ysif_ops_init(void)
