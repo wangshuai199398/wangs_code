@@ -38,9 +38,74 @@ out:
     return ret;
 }
 
-const struct ysif_ops *ysif_get_ops(void)
+static const struct ysif_ops *ysif_get_ops(void)
 {
     return READ_ONCE(g_ys_ops);
+}
+
+static struct dentry *ys_debugfs_create_dir(const char *name, struct dentry *parent)
+{
+    return debugfs_create_dir(name, parent);
+}
+
+static struct dentry *ys_debugfs_create_file(const char *name, umode_t mode, struct dentry *parent, void *data, const struct file_operations *fops)
+{
+    return debugfs_create_file(name, mode, parent, data, fops);
+}
+
+static void ys_debugfs_remove(struct dentry *dentry)
+{
+    debugfs_remove(dentry);
+}
+
+int ys_sysfs_create_group(struct kobject *kobj, const struct attribute_group *grp)
+{
+    return sysfs_create_group(kobj, grp);
+}
+
+void ys_bitmap_zero(unsigned long *dst, unsigned int nbits)
+{
+    bitmap_zero(dst, nbits);
+}
+
+void ys_bitmap_set(unsigned long *map, unsigned int start, unsigned int nbits)
+{
+    bitmap_set(map, start, nbits);
+}
+
+void ys_set_bit(long int a, volatile unsigned long *addr)
+{
+    set_bit(a, addr);
+}
+
+void ys_idr_init(struct idr *idr)
+{
+    return idr_init(idr);
+}
+
+void *ys_idr_find(const struct idr *i, unsigned long id)
+{
+    return idr_find(i, id);
+}
+
+int ys_idr_alloc(struct idr *idr, void *ptr, int start, int end, gfp_t gfp)
+{
+    return ys_idr_alloc(idr, ptr, start, end, gfp);
+}
+
+void *ys_idr_remove(struct idr *i, unsigned long id)
+{
+    return idr_remove(i, id);
+}
+
+void ys_refcount_inc(refcount_t *r)
+{
+    refcount_inc(r);
+}
+
+void ys_refcount_set(refcount_t *r, unsigned int n)
+{
+    refcount_set(r, n);
 }
 
 static int ys_auxiliary_driver_register(struct auxiliary_driver *drv)
@@ -145,24 +210,24 @@ void ys_dma_upmap_page(struct device *dev, dma_addr_t addr, size_t size, enum dm
 }
 
 static const struct ysif_ops ysif_linux_ops = {
-    .debugfs_create_dir = debugfs_create_dir,
-    .debugfs_create_file = debugfs_create_file,
-    .debugfs_remove = debugfs_remove,
+    .debugfs_create_dir = ys_debugfs_create_dir,
+    .debugfs_create_file = ys_debugfs_create_file,
+    .debugfs_remove = ys_debugfs_remove,
 
-    .sysfs_create_group = sysfs_create_group,
+    .sysfs_create_group = ys_sysfs_create_group,
 
-    .bitmap_zero = bitmap_zero,
-    .bitmap_set = bitmap_set,
+    .bitmap_zero = ys_bitmap_zero,
+    .bitmap_set = ys_bitmap_set,
     .yfind_first_zero_bit = ys_find_first_zero_bit,
-    .set_bit = set_bit,
+    .set_bit = ys_set_bit,
 
-    .idr_init = idr_init,
-    .idr_find = idr_find,
-    .idr_alloc = idr_alloc,
-    .idr_remove = idr_remove,
+    .idr_init = ys_idr_init,
+    .idr_find = ys_idr_find,
+    .idr_alloc = ys_idr_alloc,
+    .idr_remove = ys_idr_remove,
 
-    .refcount_inc = refcount_inc,
-    .refcount_set = refcount_set,
+    .refcount_inc = ys_refcount_inc,
+    .refcount_set = ys_refcount_set,
 
     .INIT_LIST_HEAD = INIT_LIST_HEAD,
     .list_add = list_add,
