@@ -58,7 +58,7 @@ static void ys_debugfs_remove(struct dentry *dentry)
     debugfs_remove(dentry);
 }
 
-int ys_sysfs_create_group(struct kobject *kobj, const struct attribute_group *grp)
+int ysw_sysfs_create_group(struct kobject *kobj, const struct attribute_group *grp)
 {
     return sysfs_create_group(kobj, grp);
 }
@@ -214,7 +214,7 @@ static const struct ysif_ops ysif_linux_ops = {
     .debugfs_create_file = ys_debugfs_create_file,
     .debugfs_remove = ys_debugfs_remove,
 
-    .sysfs_create_group = ys_sysfs_create_group,
+    .sysfs_create_group = ysw_sysfs_create_group,
 
     .bitmap_zero = ys_bitmap_zero,
     .bitmap_set = ys_bitmap_set,
