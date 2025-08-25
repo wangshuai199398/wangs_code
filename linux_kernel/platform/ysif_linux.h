@@ -120,7 +120,7 @@ struct ysif_ops {
     void (*__napi_schedule_irqoff)(struct napi_struct *n);
     void (*napi_schedule)(struct napi_struct *n);
     void (*napi_enable)(struct napi_struct *n);
-    void (*napi_disable) (struct qlcnic_adapter *);
+    void (*napi_disable)(struct napi_struct *n);
     struct sk_buff *(*napi_alloc_skb)(struct napi_struct *napi, unsigned int length);
     gro_result_t (*napi_gro_receive)(struct napi_struct *napi, struct sk_buff *skb);
     bool (*napi_complete_done)(struct napi_struct *n, int work_done);
