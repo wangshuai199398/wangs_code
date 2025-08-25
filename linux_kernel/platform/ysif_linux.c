@@ -38,7 +38,7 @@ out:
     return ret;
 }
 
-static const struct ysif_ops *ysif_get_ops(void)
+const struct ysif_ops *ysif_get_ops(void)
 {
     return READ_ONCE(g_ys_ops);
 }
