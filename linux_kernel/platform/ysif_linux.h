@@ -96,7 +96,6 @@ struct ysif_ops {
     struct net_device *(*yalloc_etherdev_mq)(int sizeof_priv, unsigned int count);
     int (*netif_set_real_num_tx_queues)(struct net_device *dev, unsigned int txq);
     int (*netif_set_real_num_rx_queues)(struct net_device *dev, unsigned int rxq);
-    void (*netif_carrier_off)(struct net_device *dev);
     void (*netif_device_attach)(struct net_device *dev);
     void (*netif_tx_schedule_all)(struct net_device *dev);
     void (*netif_carrier_on)(struct net_device *dev);
