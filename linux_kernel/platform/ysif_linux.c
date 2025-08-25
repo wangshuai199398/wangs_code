@@ -213,7 +213,6 @@ static const struct ysif_ops ysif_linux_ops = {
 
     .netif_set_real_num_tx_queues = netif_set_real_num_tx_queues,
     .netif_set_real_num_rx_queues = netif_set_real_num_rx_queues,
-    .netif_carrier_off = netif_carrier_off,
     .netif_device_attach = netif_device_attach,
     .netif_tx_schedule_all = netif_tx_schedule_all,
     .netif_carrier_off = netif_carrier_off,
