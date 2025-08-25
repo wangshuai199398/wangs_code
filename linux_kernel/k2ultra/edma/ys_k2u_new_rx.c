@@ -399,8 +399,7 @@ static void ys_k2u_destroy_rxcq(struct ys_k2u_rxq *rxq)
 		ret;
 	});
 
-	ops->ydma_unmap_single(rxq->dev, rxcq->rxc_head_dma_addr,
-			 sizeof(rxcq->rxcdrb.head), DMA_FROM_DEVICE);
+	ops->ydma_unmap_single(rxq->dev, rxcq->rxc_head_dma_addr, sizeof(rxcq->rxcdrb.head), DMA_FROM_DEVICE);
 
 	size = sizeof(struct ys_k2u_rxcd) * rxq->qdepth;
 	ops->dma_free_coherent(rxq->dev, size, rxcq->rxcd, rxcq->rxcd_dma_addr);
@@ -601,6 +600,7 @@ void ys_k2u_deactivate_rxq(struct ys_k2u_rxq *rxq)
 
 void ys_k2u_clean_rxq(struct ys_k2u_rxq *rxq)
 {
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_ndev_priv *ndev_priv = netdev_priv(rxq->k2u_ndev->ndev);
 	struct ys_k2u_rxi *rxi;
 	int count = 0;
@@ -622,13 +622,13 @@ void ys_k2u_clean_rxq(struct ys_k2u_rxq *rxq)
 		rxi = rxq->rxi + ys_ringb_tail(&rxq->rxdrb);
 
 		if (rxi->page) {
-			dma_unmap_page(rxq->dev, rxi->dma_addr, rxq->qfragsize, DMA_FROM_DEVICE);
+			ops->ydma_unmap_page(rxq->dev, rxi->dma_addr, rxq->qfragsize, DMA_FROM_DEVICE);
 			__free_pages(rxi->page, rxq->fragorder);
 			rxi->page = NULL;
 		}
 
 		if (rxi->skb) {
-			dev_kfree_skb_any(rxi->skb);
+			ops->dev_kfree_skb_any(rxi->skb);
 			rxi->skb = NULL;
 		}
 

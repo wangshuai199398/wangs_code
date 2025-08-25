@@ -139,6 +139,11 @@ dma_addr_t ys_dma_map_page(struct device *dev, struct page *page, size_t offset,
     return dma_map_page(dev, page, offset, size, dir);
 }
 
+void ys_dma_upmap_page(struct device *dev, struct page *page, size_t size, enum dma_data_direction dir)
+{
+    return dma_unmap_page(dev, page, size, dir);
+}
+
 static const struct ysif_ops ysif_linux_ops = {
     .debugfs_create_dir = debugfs_create_dir,
     .debugfs_create_file = debugfs_create_file,
@@ -154,6 +159,7 @@ static const struct ysif_ops ysif_linux_ops = {
     .idr_init = idr_init,
     .idr_find = idr_find,
     .idr_alloc = idr_alloc,
+    .idr_remove = idr_remove,
 
     .refcount_inc = refcount_inc,
     .refcount_set = refcount_set,
@@ -223,6 +229,7 @@ static const struct ysif_ops ysif_linux_ops = {
     .ydma_unmap_single = ys_dma_unmap_single,
     .dma_free_coherent = dma_free_coherent,
     .ydma_map_page = ys_dma_map_page,
+    .ydma_unmap_page = ys_dma_upmap_page,
 
     .yalloc_etherdev_mq = ys_alloc_etherdev_mq,
 
@@ -264,6 +271,8 @@ static const struct ysif_ops ysif_linux_ops = {
     .skb_record_rx_queue = skb_record_rx_queue,
     .skb_is_gso = skb_is_gso,
     .skb_tx_timestamp = skb_tx_timestamp,
+
+    .copy_from_user = copy_from_user,
 };
 
 void ysif_ops_init(void)

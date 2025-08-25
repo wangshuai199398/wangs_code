@@ -116,9 +116,10 @@ static int ys_ioctl_umd_cfg(struct ys_cdev_priv *cdev_priv, unsigned long arg)
 	int ret;
 	void *pt_addr;
 	dma_addr_t pt_dma_addr;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	/* copy data from user space */
-	if (copy_from_user(&cfg, (void __user *)arg, sizeof(cfg)))
+	if (ops->copy_from_user(&cfg, (void __user *)arg, sizeof(cfg)))
 		return -EFAULT;
 
 	pdev_priv = pci_get_drvdata(cdev_priv->pdev);
@@ -131,7 +132,7 @@ static int ys_ioctl_umd_cfg(struct ys_cdev_priv *cdev_priv, unsigned long arg)
 		cfg.sum_vf = pdev_priv->sum_vf;
 
 	/* check iommu passthrough arg */
-	pt_addr = dma_alloc_coherent(&pdev_priv->pdev->dev, 512,
+	pt_addr = ops->dma_alloc_coherent(&pdev_priv->pdev->dev, 512,
 				     &pt_dma_addr, GFP_KERNEL);
 	if (!pt_addr)
 		return -ENOMEM;
@@ -140,7 +141,7 @@ static int ys_ioctl_umd_cfg(struct ys_cdev_priv *cdev_priv, unsigned long arg)
 		cfg.is_pt = true;
 	else
 		cfg.is_pt = false;
-	dma_free_coherent(&pdev_priv->pdev->dev, 512, pt_addr, pt_dma_addr);
+	ops->dma_free_coherent(&pdev_priv->pdev->dev, 512, pt_addr, pt_dma_addr);
 
 	if ((!cfg.is_virtual || pdev_priv->nic_type->is_vf) && !cfg.is_rep) {
 		if (pdev_priv->dpu_mode == MODE_SMART_NIC &&

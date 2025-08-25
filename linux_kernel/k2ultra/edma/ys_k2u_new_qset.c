@@ -29,25 +29,26 @@ static int k2u_qsetid_alloc(struct ys_pdev_priv *pdev_priv, enum ys_k2u_ndev_typ
 	int card_id;
 	struct ys_k2u_qset_manager *qset_mgr;
 	int ret;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	if (type == YS_K2U_NDEV_UPLINK)
 		return pdev_priv->pf_id;
 
 	card_id = pdev_priv->pdev->bus->number;
-	qset_mgr = idr_find(&ys_k2u_qset_manager_idr, card_id);
+	qset_mgr = ops->idr_find(&ys_k2u_qset_manager_idr, card_id);
 	if (!qset_mgr) {
 		ys_dev_err("k2u: qset manager not found");
 		return -ENODEV;
 	}
 
-	spin_lock(&qset_mgr->idr_slock);
+	ops->spin_lock(&qset_mgr->idr_slock);
 	if (pdev_priv->dpu_mode == MODE_SMART_NIC && type == YS_K2U_NDEV_REP)
-		ret = idr_alloc(&qset_mgr->rep_idr, qset_mgr, qset_mgr->rep_idr_start,
+		ret = ops->idr_alloc(&qset_mgr->rep_idr, qset_mgr, qset_mgr->rep_idr_start,
 				qset_mgr->rep_idr_end, GFP_ATOMIC);
 	else
-		ret = idr_alloc(&qset_mgr->idr, qset_mgr, qset_mgr->idr_start,
+		ret = ops->idr_alloc(&qset_mgr->idr, qset_mgr, qset_mgr->idr_start,
 				qset_mgr->idr_end, GFP_ATOMIC);
-	spin_unlock(&qset_mgr->idr_slock);
+	ops->spin_unlock(&qset_mgr->idr_slock);
 	if (ret < 0) {
 		ys_dev_err("k2u: failed to allocate qset id");
 		return ret;
@@ -60,20 +61,21 @@ static void k2u_qsetid_free(struct ys_pdev_priv *pdev_priv, u16 qset_id)
 {
 	int card_id;
 	struct ys_k2u_qset_manager *qset_mgr;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	card_id = pdev_priv->pdev->bus->number;
-	qset_mgr = idr_find(&ys_k2u_qset_manager_idr, card_id);
+	qset_mgr = ops->idr_find(&ys_k2u_qset_manager_idr, card_id);
 	if (!qset_mgr) {
 		ys_dev_err("k2u: qset manager not found");
 		return;
 	}
 
-	spin_lock(&qset_mgr->idr_slock);
-	if (idr_find(&qset_mgr->idr, qset_id))
-		idr_remove(&qset_mgr->idr, qset_id);
-	else if (idr_find(&qset_mgr->rep_idr, qset_id))
-		idr_remove(&qset_mgr->rep_idr, qset_id);
-	spin_unlock(&qset_mgr->idr_slock);
+	ops->spin_lock(&qset_mgr->idr_slock);
+	if (ops->idr_find(&qset_mgr->idr, qset_id))
+		ops->idr_remove(&qset_mgr->idr, qset_id);
+	else if (ops->idr_find(&qset_mgr->rep_idr, qset_id))
+		ops->idr_remove(&qset_mgr->rep_idr, qset_id);
+	ops->spin_unlock(&qset_mgr->idr_slock);
 }
 
 int ys_k2u_qsetid_alloc(struct ys_pdev_priv *pdev_priv, enum ys_k2u_ndev_type type,
@@ -339,12 +341,13 @@ void ys_k2u_pdev_qset_uninit(struct ys_pdev_priv *pdev_priv)
 {
 	int card_id;
 	struct ys_k2u_qset_manager *qset_mgr;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	if (pdev_priv->nic_type->is_vf)
 		return;
 
 	card_id = pdev_priv->pdev->bus->number;
-	qset_mgr = idr_find(&ys_k2u_qset_manager_idr, card_id);
+	qset_mgr = ops->idr_find(&ys_k2u_qset_manager_idr, card_id);
 	if (!qset_mgr)
 		return;
 
@@ -352,7 +355,7 @@ void ys_k2u_pdev_qset_uninit(struct ys_pdev_priv *pdev_priv)
 		return;
 
 	if (refcount_dec_and_test(&qset_mgr->refcnt)) {
-		idr_remove(&ys_k2u_qset_manager_idr, card_id);
+		ops->idr_remove(&ys_k2u_qset_manager_idr, card_id);
 		kfree(qset_mgr);
 	}
 }

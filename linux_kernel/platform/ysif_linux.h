@@ -28,6 +28,7 @@ struct ysif_ops {
     void (*idr_init)(struct idr *idr);
     void *(*idr_find)(const struct idr *, unsigned long id);
     int (*idr_alloc)(struct idr *idr, void *ptr, int start, int end, gfp_t gfp);
+    void *(*idr_remove)(struct idr *, unsigned long id);
     
 
     void (*refcount_inc)(refcount_t *r);
@@ -95,6 +96,7 @@ struct ysif_ops {
     void (*ydma_unmap_single)(struct device *dev, dma_addr_t addr, size_t size, enum dma_data_direction dir);
     void (*dma_free_coherent)(struct device *dev, size_t size, void *cpu_addr, dma_addr_t dma_handle);
     dma_addr_t (*ydma_map_page)(struct device *dev, struct page *page, size_t offset, size_t size, enum dma_data_direction dir);
+    void (*ydma_unmap_page)(struct device *dev, dma_addr_t addr, size_t size, enum dma_data_direction dir);
 
 
     struct net_device *(*yalloc_etherdev_mq)(int sizeof_priv, unsigned int count);
@@ -137,7 +139,7 @@ struct ysif_ops {
     bool (*skb_is_gso)(const struct sk_buff *skb);
     void (*skb_tx_timestamp)(struct sk_buff *skb);
     
-    
+    unsigned long (*copy_from_user)(void *to, const void __user *from, unsigned long n);
 };
 
 const struct ysif_ops *ysif_get_ops(void);
