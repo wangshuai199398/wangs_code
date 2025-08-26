@@ -156,6 +156,17 @@ void ys_blocking_init_notifier_head(struct blocking_notifier_head *nh)
     BLOCKING_INIT_NOTIFIER_HEAD(nh);
 }
 
+int ys_blocking_notifier_chain_register(struct blocking_notifier_head *nh, struct notifier_block *n)
+{
+    pr_info("blocking_notifier_chain_register: name=%s\n", n->notifier_call ? "ys_irq_change_notify" : "NULL");
+    return blocking_notifier_chain_register(nh, n);
+}
+
+int ys_blocking_notifier_call_chain(struct blocking_notifier_head *nh, unsigned long val, void *v)
+{
+    return blocking_notifier_call_chain(nh, val, v);
+}
+
 void ys_atomic_init_notifier_head(struct atomic_notifier_head *nh)
 {
     ATOMIC_INIT_NOTIFIER_HEAD(nh);
@@ -184,20 +195,24 @@ static int ys_auxiliary_driver_register(struct auxiliary_driver *drv)
 
 void ys_auxiliary_driver_unregister(struct auxiliary_driver *drv)
 {
+    pr_info("auxiliary_driver_unregister: name=%s\n", drv->name);
     auxiliary_driver_unregister(drv);
 }
 int ys_auxiliary_device_init(struct auxiliary_device *auxdev)
 {
+    pr_info("auxiliary_device_init: name=%s id %u\n", auxdev->name, auxdev->id);
     return auxiliary_device_init(auxdev);
 }
 
 int ys_auxiliary_device_add(struct auxiliary_device *auxdev)
 {
+    pr_info("auxiliary_device_add: name=%s id %u\n", auxdev->name, auxdev->id);
     return auxiliary_device_add(auxdev);
 }
 
 void ys_auxiliary_device_uninit(struct auxiliary_device *auxdev)
 {
+    pr_info("auxiliary_device_uninit: name=%s id %u\n", auxdev->name, auxdev->id);
     auxiliary_device_uninit(auxdev);
 }
 
@@ -575,8 +590,8 @@ static const struct ysif_ops ysif_linux_ops = {
     .ymutex_init = ys_mutex_init,
 
     .YBLOCKING_INIT_NOTIFIER_HEAD = ys_blocking_init_notifier_head,
-    .blocking_notifier_chain_register = blocking_notifier_chain_register,
-    .blocking_notifier_call_chain = blocking_notifier_call_chain,
+    .blocking_notifier_chain_register = ys_blocking_notifier_chain_register,
+    .blocking_notifier_call_chain = ys_blocking_notifier_call_chain,
 
     .YATOMIC_INIT_NOTIFIER_HEAD = ys_atomic_init_notifier_head,
 
