@@ -88,6 +88,8 @@ struct ysif_ops {
     int (*pci_alloc_irq_vectors)(struct pci_dev *dev, unsigned int min_vecs, unsigned int max_vecs, unsigned int flags);
     int (*pci_irq_vector)(struct pci_dev *dev, unsigned int nr);
 
+    int (*request_irq)(unsigned int irq, irq_handler_t handler, unsigned long flags, const char *name, void *dev);
+
     void *(*yioremap)(phys_addr_t offset, size_t size);
 
     int (*dma_set_mask)(struct device *dev, u64 mask);

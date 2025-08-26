@@ -151,8 +151,7 @@ static int ys_irq_request(struct ys_pdev_priv *pdev_priv, int index,
 	irq = &irq_table->irqs[index];
 	if (irq->state != YS_IRQ_STATE_UNREGISTERED) {
 		mutex_unlock(&irq_table->lock);
-		ys_dev_err("Irq %d(%d) has already been registered",
-			   index, irq->state);
+		ys_dev_err("Irq %d(%d) has already been registered", index, irq->state);
 		return -EINVAL;
 	}
 
@@ -161,8 +160,7 @@ static int ys_irq_request(struct ys_pdev_priv *pdev_priv, int index,
 		if (IS_ERR_OR_NULL(irq->sub.bh.work_handler)) {
 			memset(&irq->sub, 0, sizeof(struct ys_irq_sub));
 			mutex_unlock(&irq_table->lock);
-			ys_dev_err("Irq %d(%d) misubssing work_handler",
-				   index, irq->sub.bh_type);
+			ys_dev_err("Irq %d(%d) misubssing work_handler", index, irq->sub.bh_type);
 			return -EINVAL;
 		}
 		INIT_WORK(&irq->work, irq->sub.bh.work_handler);
@@ -172,8 +170,7 @@ static int ys_irq_request(struct ys_pdev_priv *pdev_priv, int index,
 		if (ret < 0) {
 			memset(&irq->sub, 0, sizeof(struct ys_irq_sub));
 			mutex_unlock(&irq_table->lock);
-			ys_dev_err("Irq %d(%d) nb register failed",
-				   index, irq->sub.bh_type);
+			ys_dev_err("Irq %d(%d) nb register failed", index, irq->sub.bh_type);
 			return -EINVAL;
 		}
 		irq->refcnt = 1;
@@ -190,16 +187,11 @@ static int ys_irq_request(struct ys_pdev_priv *pdev_priv, int index,
 	}
 
 	if (irq->sub.devname) {
-		ret = request_irq(irq->irqn, irq->sub.handler, 0, irq->sub.devname, irq);
+		ret = ops->request_irq(irq->irqn, irq->sub.handler, 0, irq->sub.devname, irq);
 	} else {
-		irq->sub.devname = kcalloc(YS_MAX_IRQ_NAME,
-					   sizeof(char), GFP_KERNEL);
-		snprintf(irq->sub.devname, YS_MAX_IRQ_NAME,
-			 "%s[%d](%s)",
-			 pdev_priv->nic_type->func_name, index,
-			 pci_name(pdev_priv->pdev));
-		ret = request_irq(irq->irqn, irq->sub.handler, 0,
-				  irq->sub.devname, irq);
+		irq->sub.devname = kcalloc(YS_MAX_IRQ_NAME, sizeof(char), GFP_KERNEL);
+		snprintf(irq->sub.devname, YS_MAX_IRQ_NAME, "%s[%d](%s)", pdev_priv->nic_type->func_name, index, pci_name(pdev_priv->pdev));
+		ret = ops->request_irq(irq->irqn, irq->sub.handler, 0, irq->sub.devname, irq);
 	}
 
 	if (ret < 0) {
@@ -221,7 +213,7 @@ static int ys_irq_request(struct ys_pdev_priv *pdev_priv, int index,
 
 	mutex_unlock(&irq_table->lock);
 
-	ys_debug("Request irq %d vector %d", index, irq->irqn);
+	ys_info("Request irq %d vector %d", index, irq->irqn);
 
 	return 0;
 }

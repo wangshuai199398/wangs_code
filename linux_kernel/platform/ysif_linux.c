@@ -334,6 +334,12 @@ int ys_pci_irq_vector(struct pci_dev *dev, unsigned int nr)
     return pci_irq_vector(dev, nr);
 }
 
+int request_irq(unsigned int irq, irq_handler_t handler, unsigned long flags, const char *name, void *dev)
+{
+    pr_info("request_irq: irq=%u, name=%s handler ys_irq_notifier_handler \n", irq, name);
+    return request_irq(irq, handler, flags, name, dev);
+}
+
 static void *ys_ioremap(phys_addr_t offset, size_t size)
 {
     return ioremap(offset, size);
@@ -638,6 +644,8 @@ static const struct ysif_ops ysif_linux_ops = {
     .pci_msi_vec_count = ys_pci_msi_vec_count,
     .pci_alloc_irq_vectors = ys_pci_alloc_irq_vectors,
     .pci_irq_vector = ys_pci_irq_vector,
+
+    .request_irq = ys_request_irq,
 
     .yioremap = ys_ioremap,
 
