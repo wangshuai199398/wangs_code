@@ -95,7 +95,7 @@ void *ys_idr_find(const struct idr *i, unsigned long id)
 
 int ys_idr_alloc(struct idr *idr, void *ptr, int start, int end, gfp_t gfp)
 {
-    return ys_idr_alloc(idr, ptr, start, end, gfp);
+    return idr_alloc(idr, ptr, start, end, gfp);
 }
 
 void *ys_idr_remove(struct idr *i, unsigned long id)
