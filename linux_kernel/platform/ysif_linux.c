@@ -45,6 +45,7 @@ const struct ysif_ops *ysif_get_ops(void)
 
 static struct dentry *ys_debugfs_create_dir(const char *name, struct dentry *parent)
 {
+    pr_info("debugfs_create_dir: name=%s\n", name);
     return debugfs_create_dir(name, parent);
 }
 
@@ -175,6 +176,7 @@ int ys_mod_timer(struct timer_list *timer, unsigned long expires)
 
 static int ys_auxiliary_driver_register(struct auxiliary_driver *drv)
 {
+    pr_info("auxiliary_driver_register: name=%s\n", drv->name);
     return auxiliary_driver_register(drv);
 }
 
@@ -199,6 +201,7 @@ void ys_auxiliary_device_uninit(struct auxiliary_device *auxdev)
 
 int ys_misc_register(struct miscdevice *misc)
 {
+    pr_info("misc_register: name=%s\n", misc->name);
     return misc_register(misc);
 }
 
@@ -249,6 +252,7 @@ void ys_dev_kfree_skb_any(struct sk_buff *skb)
 
 static int ys_pci_register_driver(struct pci_driver *pdrv)
 {
+    pr_info("pci_register_driver: name=%s\n", pdrv->name);
     return pci_register_driver(pdrv);
 }
 

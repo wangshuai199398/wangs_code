@@ -1022,8 +1022,7 @@ int ys_add_cdev(struct pci_dev *pdev, const char *name, const struct file_operat
 	if (!ys_cdev)
 		return -ENOMEM;
 
-	snprintf(ys_cdev->misc_dev_name, MAX_MISC_DEV_NAME_BYTES,
-		 "%s", name);
+	snprintf(ys_cdev->misc_dev_name, MAX_MISC_DEV_NAME_BYTES, "%s", name);
 
 	ys_cdev->mdev.minor = MISC_DYNAMIC_MINOR;
 	ys_cdev->mdev.name = ys_cdev->misc_dev_name;
@@ -1040,8 +1039,7 @@ int ys_add_cdev(struct pci_dev *pdev, const char *name, const struct file_operat
 		kfree(ys_cdev);
 		return ret;
 	}
-	ys_info("Registered miscdev, name=%s, minor_number=%d\n",
-		ys_cdev->misc_dev_name, ys_cdev->mdev.minor);
+	ys_info("Registered miscdev, name=%s, minor_number=%d\n", ys_cdev->misc_dev_name, ys_cdev->mdev.minor);
 
 	list_add(&ys_cdev->list, cdev_list);
 
