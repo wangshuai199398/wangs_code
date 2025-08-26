@@ -202,7 +202,7 @@ int ys_misc_register(struct miscdevice *misc)
     return misc_register(misc);
 }
 
-struct devlink *ys_devlink_alloc(const struct devlink_ops *ops, size_t priv_size, struct device *dev)
+struct devlink *ysw_devlink_alloc(const struct devlink_ops *ops, size_t priv_size, struct device *dev)
 {
     return devlink_alloc(ops, priv_size, dev);
 }
@@ -573,7 +573,7 @@ static const struct ysif_ops ysif_linux_ops = {
 
     .misc_register = ys_misc_register,
 
-    .devlink_alloc = ys_devlink_alloc,
+    .devlink_alloc = ysw_devlink_alloc,
     .devlink_priv = ys_devlink_priv,
     .priv_to_devlink = ys_priv_to_devlink,
     .devlink_register = ys_devlink_register,
