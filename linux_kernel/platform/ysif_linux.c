@@ -51,13 +51,13 @@ static struct dentry *ys_debugfs_create_dir(const char *name, struct dentry *par
 
 static struct dentry *ys_debugfs_create_file(const char *name, umode_t mode, struct dentry *parent, void *data, const struct file_operations *fops)
 {
-    ys_info("debugfs_create_file: name=%s\n", name);
+    pr_info("debugfs_create_file: name=%s\n", name);
     return debugfs_create_file(name, mode, parent, data, fops);
 }
 
 static void ys_debugfs_remove(struct dentry *dentry)
 {
-    ys_info("debugfs_remove: name=%s\n", dentry->d_name.name);
+    pr_info("debugfs_remove: name=%s\n", dentry->d_name.name);
     debugfs_remove(dentry);
 }
 
