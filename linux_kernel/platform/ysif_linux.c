@@ -307,6 +307,7 @@ int ys_pci_alloc_irq_vectors(struct pci_dev *dev, unsigned int min_vecs, unsigne
 
 int ys_pci_irq_vector(struct pci_dev *dev, unsigned int nr)
 {
+    pr_info("pci_irq_vector: name=%s nr=%u pci_irq_vector: %d\n", dev->driver->name, nr, pci_irq_vector(dev, nr));
     return pci_irq_vector(dev, nr);
 }
 
