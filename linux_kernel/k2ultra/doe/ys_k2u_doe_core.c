@@ -19,6 +19,7 @@
 #include "../include/ys_platform.h"
 #include "../include/ys_doe.h"
 #include "../platform/ys_cdev.h"
+#include "../platform/ysif_linux.h"
 
 dev_t ys_k2u_doe_devt;
 LIST_HEAD(ys_k2u_doe_list);
@@ -95,6 +96,7 @@ static int ys_k2u_doe_register_irqs(struct ys_k2u_doe_device *ys_k2u_doe)
 						   ys_k2u_doe->doe_read_if };
 	char *name[2] = { "ys_doe_write", "ys_doe_read" };
 	u32 offset[2] = { YS_K2U_DOE_IRQ_WRITE, YS_K2U_DOE_IRQ_READ };
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	if (pdev->vendor == 0x10ee && pdev->device == 0x9338)
 		pf_id = 3;
@@ -109,11 +111,17 @@ static int ys_k2u_doe_register_irqs(struct ys_k2u_doe_device *ys_k2u_doe)
 	/* write irq register */
 	for (i = 0; i < 2; ++i) {
 		doe_if[i]->irq_nb.notifier_call = ys_k2u_doe_irq_handler;
-		ret = YS_REGISTER_NOTIFIER_IRQ(&pdev_priv->irq_table.nh,
-					       YS_IRQ_NB_REGISTER_ANY, 0,
-					       pdev_priv->pdev,
-					       YS_IRQ_TYPE_QUEUE, NULL,
-					       &doe_if[i]->irq_nb, name[i]);
+
+		ret = ({
+			int ret;
+			do {
+				struct ys_irq_nb irq_nb = YS_IRQ_NB_INIT(0, pdev_priv->pdev, YS_IRQ_TYPE_QUEUE, NULL, NULL, name[i]);
+				irq_nb.sub.bh_type = YS_IRQ_BH_NOTIFIER;
+				irq_nb.sub.bh.nb = &doe_if[i]->irq_nb;
+				ret = ops->blocking_notifier_call_chain(&pdev_priv->irq_table.nh, YS_IRQ_NB_REGISTER_ANY, &irq_nb);
+			} while (0);
+			ret;
+		});
 
 		doe_if[i]->irq_vector = ret;
 		ys_wr32(ys_k2u_doe->doe_base, offset[i],
