@@ -224,6 +224,7 @@ static int ys_irq_add_notifier(struct ys_pdev_priv *pdev_priv, int index,
 	struct ys_irq_table *irq_table = &pdev_priv->irq_table;
 	struct ys_irq *irq;
 	int ret;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	if (index < 0 || index >= irq_table->max)
 		return -EINVAL;
@@ -245,7 +246,7 @@ static int ys_irq_add_notifier(struct ys_pdev_priv *pdev_priv, int index,
 		return -EINVAL;
 	}
 
-	ret = atomic_notifier_chain_register(&irq->nh, sub->bh.nb);
+	ret = ops->atomic_notifier_chain_register(&irq->nh, sub->bh.nb);
 	if (ret < 0) {
 		mutex_unlock(&irq_table->lock);
 		return -EINVAL;

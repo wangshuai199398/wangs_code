@@ -170,7 +170,7 @@ int ys_blocking_notifier_call_chain(struct blocking_notifier_head *nh, unsigned 
 
 int ys_atomic_notifier_chain_register(struct atomic_notifier_head *nh, struct notifier_block *nb)
 {
-    pr_info("atomic_notifier_chain_register: name=%s\n", nb->notifier_call ? "ys_irq_notifier_handler ys_mbox_handle" : "NULL");
+    pr_info("atomic_notifier_chain_register: name=%s\n", nb->notifier_call ? "ys_irq_notifier_handler ys_mbox_handle ys_k2u_doe_irq_handler" : "NULL");
     return atomic_notifier_chain_register(nh, nb);
 }
 
