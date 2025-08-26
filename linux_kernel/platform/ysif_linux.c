@@ -209,7 +209,7 @@ int ys_misc_register(struct miscdevice *misc)
 
 struct devlink *ysw_devlink_alloc(const struct devlink_ops *ops, size_t priv_size, struct device *dev)
 {
-    pr_info("devlink_alloc: dev name=%s dev_driver name: %s \n", dev->init_name, dev->driver->name);
+    pr_info("devlink_alloc: dev name=%s dev_driver name: %s \n", dev_name(dev), dev->driver->name);
     return devlink_alloc(ops, priv_size, dev);
 }
 
@@ -309,16 +309,19 @@ static void *ys_ioremap(phys_addr_t offset, size_t size)
 
 int ys_dma_set_mask(struct device *dev, u64 mask)
 {
+    pr_info("dma_set_mask: dev name=%s mask: %llu\n", dev_name(dev), mask);
     return dma_set_mask(dev, mask);
 }
 
 int ys_dma_set_coherent_mask(struct device *dev, u64 mask)
 {
+    pr_info("dma_set_coherent_mask: dev name=%s mask: %llu\n", dev_name(dev), mask);
     return dma_set_coherent_mask(dev, mask);
 }
 
 int ys_dma_set_max_seg_size(struct device *dev, unsigned int size)
 {
+    pr_info("dma_set_max_seg_size: dev name=%s mask: %u\n", dev_name(dev), size);
     return dma_set_max_seg_size(dev, size);
 }
     
