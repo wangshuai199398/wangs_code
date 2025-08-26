@@ -182,8 +182,7 @@ static int ys_irq_request(struct ys_pdev_priv *pdev_priv, int index,
 				   index, irq->sub.bh_type);
 			return -EINVAL;
 		}
-		tasklet_init(&irq->tasklet, irq->sub.bh.tasklet_handler,
-			     (unsigned long)irq);
+		ops->tasklet_init(&irq->tasklet, irq->sub.bh.tasklet_handler, (unsigned long)irq);
 	}
 
 	if (irq->sub.devname) {

@@ -51,6 +51,8 @@ struct ysif_ops {
     int (*atomic_notifier_chain_register)(struct atomic_notifier_head *nh, struct notifier_block *nb);
     void (*YATOMIC_INIT_NOTIFIER_HEAD)(struct atomic_notifier_head *nh);
 
+    void (*tasklet_init)(struct tasklet_struct *t, void (*func)(unsigned long), unsigned long data);
+
     void (*yinit_completion)(struct completion *x);
 
 

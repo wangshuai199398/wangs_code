@@ -179,6 +179,12 @@ void ys_atomic_init_notifier_head(struct atomic_notifier_head *nh)
     ATOMIC_INIT_NOTIFIER_HEAD(nh);
 }
 
+void ys_tasklet_init(struct tasklet_struct *t, void (*func)(unsigned long), unsigned long data)
+{
+    pr_info("tasklet_init: func=ys_mbox_tasklet devname %s\n", ((struct ys_irq_nb *)data)->sub.devname);
+    tasklet_init(t, func, data);
+}
+
 static void ys_init_completion(struct completion *comp)
 {
     init_completion(comp);
@@ -609,6 +615,8 @@ static const struct ysif_ops ysif_linux_ops = {
 
     .atomic_notifier_chain_register = ys_atomic_notifier_chain_register,
     .YATOMIC_INIT_NOTIFIER_HEAD = ys_atomic_init_notifier_head,
+
+    .tasklet_init = ys_tasklet_init,
 
     .yinit_completion = ys_init_completion,
 
