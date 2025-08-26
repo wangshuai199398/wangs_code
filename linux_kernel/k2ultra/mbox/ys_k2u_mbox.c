@@ -1521,38 +1521,6 @@ int ys_k2u_mbox_init(struct pci_dev *pdev)
 	struct ys_pdev_priv *pdev_priv;
 	struct ys_mbox *mbox;
 	u32 reg;
-
-#ifdef CONFIG_YSHW_K2ULTRA_CS
-	/* Chi Shui */
-	struct ys_k2u_mbox_pf_vector pf_vector;
-	struct ys_k2u_mbox_host_master *pf_master;
-	struct ys_k2u_pf_num *k2u_pf_num;
-
-	pdev_priv = pci_get_drvdata(pdev);
-	if (IS_ERR_OR_NULL(pdev_priv))
-		return -EFAULT;
-
-	mbox = ys_aux_match_mbox_dev(pdev);
-	if (IS_ERR_OR_NULL(mbox))
-		return -EFAULT;
-
-	mbox->addr = (void __iomem *)pdev_priv->bar_addr[YS_K2U_CS_MBOX_BAR];
-	reg = ys_rd32(mbox->addr, YS_K2U_PF_NUM);
-	k2u_pf_num = (struct ys_k2u_pf_num *)&reg;
-	pdev_priv->pf_id = k2u_pf_num->pf_num + k2u_pf_num->host_id * 2;
-
-	reg = ys_rd32(mbox->addr, YS_K2U_MBOX_HOST_MASTER);
-	pf_master = (struct ys_k2u_mbox_host_master *)&reg;
-	if (pf_master->master_sel == 1) {
-		ys_dev_info("I'm pf master, id %d\n", pdev_priv->pf_id);
-		pdev_priv->master = YS_PF_MASTER;
-	} else {
-		ys_dev_info("I'm pf slave, id %d\n", pdev_priv->pf_id);
-		pdev_priv->master = YS_PF_SLAVE;
-	}
-	pf_vector.msix_vector = YS_K2U_MBOX_IRQ;
-	ys_wr32(mbox->addr, YS_K2U_MBOX_PF2PF_IRQ_VECTOR, *(u32 *)&pf_vector);
-#else
 	u32 i;
 	u32 pf_id;
 	u32 id = 0;
@@ -1724,7 +1692,7 @@ int ys_k2u_mbox_init(struct pci_dev *pdev)
 		ys_k2u_mbox_clear_send_mailbox(mbox, 0);
 		ys_k2u_mbox_clear_recv_mailbox(mbox, 0);
 	}
-#endif
+
 	/* TO DO cfg vf2pf and pf2vf vector */
 	mbox->mbox_hw_get_irq_id = ys_k2u_mbox_get_irq_id;
 	mbox->mbox_hw_send_msg = ys_k2u_mbox_send_msg;

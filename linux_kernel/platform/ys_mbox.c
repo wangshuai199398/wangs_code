@@ -9,6 +9,8 @@
 #include "../k2ultra/mbox/ys_k2u_mbox.h"
 #include "ys_reg_ops.h"
 
+#include "ysif_linux.h"
+
 static struct ys_mbox_test_statistics mbox_test_stat;
 
 static u8 ys_mbox_cal_checksum(struct ys_mbox_msg *mbox_msg)
@@ -1211,6 +1213,7 @@ static int ys_mbox_register_irqs(struct pci_dev *pdev)
 	struct ys_mbox *mbox;
 	int ret;
 	int index;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	mbox = ys_aux_match_mbox_dev(pdev);
 	memset(&sub, 0, sizeof(sub));
@@ -1225,12 +1228,20 @@ static int ys_mbox_register_irqs(struct pci_dev *pdev)
 
 	if (!IS_ERR_OR_NULL(mbox->mbox_hw_get_irq_id)) {
 		index = mbox->mbox_hw_get_irq_id(mbox);
-		snprintf(sub.devname, YS_MAX_IRQ_NAME,
-			 "%s[%d](%s)-mbox",
-			 pdev_priv->nic_type->func_name, index,
-			 pci_name(pdev_priv->pdev));
-		ret = YS_REGISTER_IRQ(&irq_table->nh, YS_IRQ_NB_REGISTER_FIXED,
-				      index, pdev_priv->pdev, sub);
+		snprintf(sub.devname, YS_MAX_IRQ_NAME, "%s[%d](%s)-mbox", pdev_priv->nic_type->func_name, index, pci_name(pdev_priv->pdev));
+
+		ret = ({
+			int ret; \
+			do { \
+				struct ys_irq_nb irq_nb; \
+				irq_nb.index = index;
+				irq_nb.pdev = pdev_priv->pdev;
+				irq_nb.sub = sub;
+				ret = ops->blocking_notifier_call_chain(&irq_table->nh, YS_IRQ_NB_REGISTER_FIXED, &irq_nb);
+			} while (0);
+			ret;
+		});
+
 		if (ret < 0) {
 			ys_dev_err("Setup irq %d error: %d", index, ret);
 			return ret;

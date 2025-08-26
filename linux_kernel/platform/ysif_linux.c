@@ -164,6 +164,7 @@ int ys_blocking_notifier_chain_register(struct blocking_notifier_head *nh, struc
 
 int ys_blocking_notifier_call_chain(struct blocking_notifier_head *nh, unsigned long val, void *v)
 {
+    pr_info("blocking_notifier_call_chain: val=%lu\n", val);
     return blocking_notifier_call_chain(nh, val, v);
 }
 
@@ -198,6 +199,7 @@ void ys_auxiliary_driver_unregister(struct auxiliary_driver *drv)
     pr_info("auxiliary_driver_unregister: name=%s\n", drv->name);
     auxiliary_driver_unregister(drv);
 }
+
 int ys_auxiliary_device_init(struct auxiliary_device *auxdev)
 {
     pr_info("auxiliary_device_init: name=%s id %u\n", auxdev->name, auxdev->id);

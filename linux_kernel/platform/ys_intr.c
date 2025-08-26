@@ -478,6 +478,7 @@ static int ys_irq_change_notify(struct notifier_block *nb, unsigned long mode,
 {
 	struct ys_irq_nb *irq_nb = (struct ys_irq_nb *)data;
 	int ret;
+	pr_info("ys_irq_change_notify mode=%lu, index=%d\n", mode, irq_nb->index);
 
 	switch (mode) {
 	case YS_IRQ_NB_REGISTER_FIXED:
