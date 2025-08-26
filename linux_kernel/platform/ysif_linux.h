@@ -62,7 +62,7 @@ struct ysif_ops {
     int (*yauxiliary_device_add)(struct auxiliary_device *auxdev);
     void (*auxiliary_device_uninit)(struct auxiliary_device *auxdev);
 
-    int (*ypci_register_driver)(struct pci_driver *pdrv);
+    
 
     int (*misc_register)(struct miscdevice *misc);
 
@@ -76,6 +76,7 @@ struct ysif_ops {
     void (*dev_consume_skb_any)(struct sk_buff *skb);
     void (*dev_kfree_skb_any)(struct sk_buff *skb);
 
+    int (*ypci_register_driver)(struct pci_driver *pdrv);
     void (*pci_set_drvdata)(struct pci_dev *pdev, void *data);
     int (*pci_enable_device)(struct pci_dev *dev);
     void (*pci_set_master)(struct pci_dev *dev);

@@ -73,6 +73,11 @@ void ys_bitmap_set(unsigned long *map, unsigned int start, unsigned int nbits)
     bitmap_set(map, start, nbits);
 }
 
+unsigned long ys_find_first_zero_bit(const unsigned long *addr, unsigned long size)
+{
+    return find_first_zero_bit(addr, size);
+}
+
 void ys_set_bit(long int a, volatile unsigned long *addr)
 {
     set_bit(a, addr);
@@ -108,50 +113,29 @@ void ys_refcount_set(refcount_t *r, unsigned int n)
     refcount_set(r, n);
 }
 
-static int ys_auxiliary_driver_register(struct auxiliary_driver *drv)
-{
-    return auxiliary_driver_register(drv);
-}
-
 static void ys_spin_lock_init(spinlock_t *spin)
 {
     spin_lock_init(spin);
 }
 
-static void ys_rwlock_init(rwlock_t *rwlock)
+void ys_spin_lock(spinlock_t *lock)
 {
-    rwlock_init(rwlock);
+    spin_lock(lock);
 }
 
-static int ys_pci_register_driver(struct pci_driver *pdrv)
+void ys_spin_unlock(spinlock_t *lock)
 {
-    return pci_register_driver(pdrv);
+    spin_unlock(lock);
 }
-
-static void *ys_ioremap(phys_addr_t offset, size_t size)
-{
-    return ioremap(offset, size);
-}
-
-unsigned long ys_find_first_zero_bit(const unsigned long *addr, unsigned long size)
-{
-    return find_first_zero_bit(addr, size);
-}
-
 
 void ys_mutex_init(struct mutex *mutex)
 {
     mutex_init(mutex);
 }
 
-void ys_blocking_init_notifier_head(struct blocking_notifier_head *nh)
+static void ys_rwlock_init(rwlock_t *rwlock)
 {
-    BLOCKING_INIT_NOTIFIER_HEAD(nh);
-}
-
-void ys_atomic_init_notifier_head(struct atomic_notifier_head *nh)
-{
-    ATOMIC_INIT_NOTIFIER_HEAD(nh);
+    rwlock_init(rwlock);
 }
 
 void ys_write_lock_irqsave(rwlock_t * rwlock, unsigned long flags)
@@ -164,9 +148,14 @@ void ys_write_unlock_irqrestore(rwlock_t * rwlock, unsigned long flags)
     write_unlock_irqrestore(rwlock, flags);
 }
 
-int ys_auxiliary_device_add(struct auxiliary_device *auxdev)
+void ys_blocking_init_notifier_head(struct blocking_notifier_head *nh)
 {
-    return auxiliary_device_add(auxdev);
+    BLOCKING_INIT_NOTIFIER_HEAD(nh);
+}
+
+void ys_atomic_init_notifier_head(struct atomic_notifier_head *nh)
+{
+    ATOMIC_INIT_NOTIFIER_HEAD(nh);
 }
 
 static void ys_init_completion(struct completion *comp)
@@ -174,9 +163,158 @@ static void ys_init_completion(struct completion *comp)
     init_completion(comp);
 }
 
-static struct net_device *ys_alloc_etherdev_mq(int sizeof_priv, unsigned int count)
+void ys_timer_setup(struct timer_list *timer, void (*func)(struct timer_list *), unsigned int flags)
 {
-    return alloc_etherdev_mq(sizeof_priv, count);
+    timer_setup(timer, func, flags);
+}
+
+int ys_mod_timer(struct timer_list *timer, unsigned long expires)
+{
+    return mod_timer(timer, expires);
+}
+
+static int ys_auxiliary_driver_register(struct auxiliary_driver *drv)
+{
+    return auxiliary_driver_register(drv);
+}
+
+void ys_auxiliary_driver_unregister(struct auxiliary_driver *drv)
+{
+    auxiliary_driver_unregister(drv);
+}
+int ys_auxiliary_device_init(struct auxiliary_device *auxdev)
+{
+    return auxiliary_device_init(auxdev);
+}
+
+int ys_auxiliary_device_add(struct auxiliary_device *auxdev)
+{
+    return auxiliary_device_add(auxdev);
+}
+
+void ys_auxiliary_device_uninit(struct auxiliary_device *auxdev)
+{
+    auxiliary_device_uninit(auxdev);
+}
+
+int ys_misc_register(struct miscdevice *misc)
+{
+    return misc_register(misc);
+}
+
+struct devlink *ys_devlink_alloc(const struct devlink_ops *ops, size_t priv_size, struct device *dev)
+{
+    return devlink_alloc(ops, priv_size, dev);
+}
+
+void *ys_devlink_priv(struct devlink *devlink)
+{
+    return devlink_priv(devlink);
+}
+
+struct devlink *ys_priv_to_devlink(void *priv)
+{
+    return priv_to_devlink(priv);
+}
+
+void ys_devlink_register(struct devlink *devlink)
+{
+    devlink_register(devlink);
+}
+
+int ys_devlink_params_register(struct devlink *devlink, const struct devlink_param *params, size_t params_count)
+{
+    return devlink_params_register(devlink, params, params_count);
+}
+
+int ys_devlink_param_driverinit_value_set(struct devlink *devlink, u32 param_id, union devlink_param_value init_val)
+{
+    return devlink_param_driverinit_value_set(devlink, param_id, init_val);
+}
+
+struct page *ys_dev_alloc_pages(unsigned int order)
+{
+    return dev_alloc_pages(order);
+}
+
+void ys_dev_consume_skb_any(struct sk_buff *skb)
+{
+    dev_consume_skb_any(skb);
+}
+
+void ys_dev_kfree_skb_any(struct sk_buff *skb)
+{
+    dev_kfree_skb_any(skb);
+}
+
+static int ys_pci_register_driver(struct pci_driver *pdrv)
+{
+    return pci_register_driver(pdrv);
+}
+
+void ys_pci_set_drvdata(struct pci_dev *pdev, void *data)
+{
+    pci_set_drvdata(pdev, data);
+}
+
+int ys_pci_enable_device(struct pci_dev *dev)
+{
+    return pci_enable_device(dev);
+}
+
+void ys_pci_set_master(struct pci_dev *dev)
+{
+    pci_set_master(dev);
+}
+
+int ys_pci_request_regions(struct pci_dev *dev, const char *name)
+{
+    return pci_request_regions(dev, name);
+}
+
+void *ys_pci_get_drvdata(struct pci_dev *pdev)
+{
+    return pci_get_drvdata(pdev);
+}
+
+int ys_pci_msix_vec_count(struct pci_dev *dev)
+{
+    return pci_msix_vec_count(dev);
+}
+
+int ys_pci_alloc_irq_vectors(struct pci_dev *dev, unsigned int min_vecs, unsigned int max_vecs, unsigned int flags)
+{
+    return pci_alloc_irq_vectors(dev, min_vecs, max_vecs, flags);
+}
+
+int ys_pci_irq_vector(struct pci_dev *dev, unsigned int nr)
+{
+    return pci_irq_vector(dev, nr);
+}
+
+static void *ys_ioremap(phys_addr_t offset, size_t size)
+{
+    return ioremap(offset, size);
+}
+
+int ys_dma_set_mask(struct device *dev, u64 mask)
+{
+    return dma_set_mask(dev, mask);
+}
+
+int ys_dma_set_coherent_mask(struct device *dev, u64 mask)
+{
+    return dma_set_coherent_mask(dev, mask);
+}
+
+int ys_dma_set_max_seg_size(struct device *dev, unsigned int size)
+{
+    return dma_set_max_seg_size(dev, size);
+}
+    
+void *ys_dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle, gfp_t gfp)
+{
+    return dma_alloc_coherent(dev, size, dma_handle, gfp);
 }
 
 static dma_addr_t ys_dma_map_single(struct device *dev, void *ptr, size_t size, enum dma_data_direction dir)
@@ -184,19 +322,19 @@ static dma_addr_t ys_dma_map_single(struct device *dev, void *ptr, size_t size, 
     return dma_map_single(dev, ptr, size, dir);
 }
 
+int ys_dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+{
+    return dma_mapping_error(dev, dma_addr);
+}
+
 void ys_dma_unmap_single(struct device *dev, dma_addr_t addr, size_t size, enum dma_data_direction dir)
 {
     dma_unmap_single(dev, addr, size, dir);
 }
 
-void ys_timer_setup(struct timer_list *timer, void (*func)(struct timer_list *), unsigned int flags)
+void ys_dma_free_coherent(struct device *dev, size_t size, void *cpu_addr, dma_addr_t dma_handle)
 {
-    timer_setup(timer, func, flags);
-}
-
-static void ys_netif_napi_add(struct net_device *dev, struct napi_struct *napi, int (*poll)(struct napi_struct *, int))
-{
-    netif_napi_add(dev, napi, poll);
+    dma_free_coherent(dev, size, cpu_addr, dma_handle);
 }
 
 dma_addr_t ys_dma_map_page(struct device *dev, struct page *page, size_t offset, size_t size, enum dma_data_direction dir)
@@ -207,6 +345,177 @@ dma_addr_t ys_dma_map_page(struct device *dev, struct page *page, size_t offset,
 void ys_dma_upmap_page(struct device *dev, dma_addr_t addr, size_t size, enum dma_data_direction dir)
 {
     dma_unmap_page(dev, addr, size, dir);
+}
+
+
+static struct net_device *ys_alloc_etherdev_mq(int sizeof_priv, unsigned int count)
+{
+    return alloc_etherdev_mq(sizeof_priv, count);
+}
+
+
+int ys_netif_set_real_num_tx_queues(struct net_device *dev, unsigned int txq)
+{
+    return netif_set_real_num_tx_queues(dev, txq);
+}
+
+int ys_netif_set_real_num_rx_queues(struct net_device *dev, unsigned int rxq)
+{
+    return netif_set_real_num_rx_queues(dev, rxq);
+}
+
+void ys_netif_device_attach(struct net_device *dev)
+{
+    netif_device_attach(dev);
+}
+
+void ys_netif_tx_schedule_all(struct net_device *dev)
+{
+    netif_tx_schedule_all(dev);
+}
+
+void ys_netif_carrier_on(struct net_device *dev)
+{
+    netif_carrier_on(dev);
+}
+
+void ys_netif_carrier_off(struct net_device *dev)
+{
+    netif_carrier_off(dev);
+}
+
+void ys_netif_tx_disable(struct net_device *dev)
+{
+    netif_tx_disable(dev);
+}
+
+static void ys_netif_napi_add(struct net_device *dev, struct napi_struct *napi, int (*poll)(struct napi_struct *, int))
+{
+    netif_napi_add(dev, napi, poll);
+}
+
+
+void ys_netif_tx_start_all_queues(struct net_device *dev)
+{
+    netif_tx_start_all_queues(dev);
+}
+
+void ys_netif_napi_del(struct napi_struct *napi)
+{
+    netif_napi_del(napi);
+}
+
+bool ys_netif_tx_queue_stopped(const struct netdev_queue *dev_queue)
+{
+    return netif_tx_queue_stopped(dev_queue);
+}
+
+void ys_netif_tx_wake_queue(struct netdev_queue *dev_queue)
+{
+    netif_tx_wake_queue(dev_queue);
+}
+
+void ys_netif_tx_stop_queue(struct netdev_queue *dev_queue)
+{
+    netif_tx_stop_queue(dev_queue);
+}
+
+
+struct netdev_queue *ys_netdev_get_tx_queue(const struct net_device *dev, unsigned int index)
+{
+    return netdev_get_tx_queue(dev, index);
+}
+
+bool ys_netdev_xmit_more(void)
+{
+    return netdev_xmit_more();
+}
+
+
+bool ys_napi_schedule_prep(struct napi_struct *n)
+{
+    return napi_schedule_prep(n);
+}
+
+void ys__napi_schedule_irqoff(struct napi_struct *n)
+{
+    __napi_schedule_irqoff(n);
+}
+
+bool ys_napi_schedule(struct napi_struct *n)
+{
+    return napi_schedule(n);
+}
+
+void ys_napi_enable(struct napi_struct *n)
+{
+    napi_enable(n);
+}
+
+void ys_napi_disable(struct napi_struct *n)
+{
+    napi_disable(n);
+}
+
+struct sk_buff *ys_napi_alloc_skb(struct napi_struct *napi, unsigned int length)
+{
+    return napi_alloc_skb(napi, length);
+}
+
+gro_result_t ys_napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
+{
+    return napi_gro_receive(napi, skb);
+}
+
+bool ys_napi_complete_done(struct napi_struct *n, int work_done)
+{
+    return napi_complete_done(n, work_done);
+}
+    
+
+void ys_eth_hw_addr_random(struct net_device *dev)
+{
+    eth_hw_addr_random(dev);
+}
+
+int ys_register_netdev(struct net_device *dev)
+{
+    return register_netdev(dev);
+}
+    
+void ys__vlan_hwaccel_put_tag(struct sk_buff *skb, __be16 vlan_proto, u16 vlan_tci)
+{
+    __vlan_hwaccel_put_tag(skb, vlan_proto, vlan_tci);
+}
+
+void ys_skb_set_hash(struct sk_buff *skb, __u32 hash, enum pkt_hash_types type)
+{
+    skb_set_hash(skb, hash, type);
+}
+
+void ys_skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off, int size, unsigned int truesize)
+{
+    skb_add_rx_frag(skb, i, page, off, size, truesize);    
+}
+
+void ys_skb_record_rx_queue(struct sk_buff *skb, u16 rx_queue)
+{
+    skb_record_rx_queue(skb, rx_queue);
+}
+
+bool ys_skb_is_gso(const struct sk_buff *skb)
+{
+    return skb_is_gso(skb);
+}
+
+void ys_skb_tx_timestamp(struct sk_buff *skb)
+{
+    skb_tx_timestamp(skb);
+}
+    
+unsigned long ys_copy_from_user(void *to, const void __user *from, unsigned long n)
+{
+    return copy_from_user(to, from, n);
 }
 
 static const struct ysif_ops ysif_linux_ops = {
@@ -234,8 +543,8 @@ static const struct ysif_ops ysif_linux_ops = {
     .list_add_rcu = list_add_rcu,
 
     .yspin_lock_init = ys_spin_lock_init,
-    .spin_lock = spin_lock,
-    .spin_unlock = spin_unlock,
+    .spin_lock = ys_spin_lock,
+    .spin_unlock = ys_spin_unlock,
 
     .yrwlock_init = ys_rwlock_init,
     .ywrite_lock_irqsave = ys_write_lock_irqsave,
@@ -252,92 +561,92 @@ static const struct ysif_ops ysif_linux_ops = {
     .yinit_completion = ys_init_completion,
 
     .ytimer_setup = ys_timer_setup,
-    .mod_timer = mod_timer,
+    .mod_timer = ys_mod_timer,
 
     .yauxiliary_driver_register   = ys_auxiliary_driver_register,
-    .auxiliary_driver_unregister = auxiliary_driver_unregister,
-    .auxiliary_device_init = auxiliary_device_init,
+    .auxiliary_driver_unregister = ys_auxiliary_driver_unregister,
+    .auxiliary_device_init = ys_auxiliary_device_init,
     .yauxiliary_device_add = ys_auxiliary_device_add,
-    .auxiliary_device_uninit = auxiliary_device_uninit,
+    .auxiliary_device_uninit = ys_auxiliary_device_uninit,
 
     .ypci_register_driver = ys_pci_register_driver,
 
-    .misc_register = misc_register,
+    .misc_register = ys_misc_register,
 
-    .devlink_alloc = devlink_alloc,
-    .devlink_priv = devlink_priv,
-    .priv_to_devlink = priv_to_devlink,
-    .devlink_register = devlink_register,
-    .devlink_params_register = devlink_params_register,
-    .devlink_param_driverinit_value_set = devlink_param_driverinit_value_set,
-    .dev_alloc_pages = dev_alloc_pages,
-    .dev_consume_skb_any = dev_consume_skb_any,
-    .dev_kfree_skb_any = dev_kfree_skb_any,
+    .devlink_alloc = ys_devlink_alloc,
+    .devlink_priv = ys_devlink_priv,
+    .priv_to_devlink = ys_priv_to_devlink,
+    .devlink_register = ys_devlink_register,
+    .devlink_params_register = ys_devlink_params_register,
+    .devlink_param_driverinit_value_set = ys_devlink_param_driverinit_value_set,
+    .dev_alloc_pages = ys_dev_alloc_pages,
+    .dev_consume_skb_any = ys_dev_consume_skb_any,
+    .dev_kfree_skb_any = ys_dev_kfree_skb_any,
 
-    .pci_set_drvdata = pci_set_drvdata,
-    .pci_enable_device = pci_enable_device,
-    .pci_set_master = pci_set_master,
-    .pci_request_regions = pci_request_regions,
-    .pci_get_drvdata = pci_get_drvdata,
-    .pci_msix_vec_count = pci_msix_vec_count,
-    .pci_alloc_irq_vectors = pci_alloc_irq_vectors,
-    .pci_irq_vector = pci_irq_vector,
+    .pci_set_drvdata = ys_pci_set_drvdata,
+    .pci_enable_device = ys_pci_enable_device,
+    .pci_set_master = ys_pci_set_master,
+    .pci_request_regions = ys_pci_request_regions,
+    .pci_get_drvdata = ys_pci_get_drvdata,
+    .pci_msix_vec_count = ys_pci_msix_vec_count,
+    .pci_alloc_irq_vectors = ys_pci_alloc_irq_vectors,
+    .pci_irq_vector = ys_pci_irq_vector,
 
     .yioremap = ys_ioremap,
 
-    .dma_set_mask = dma_set_mask,
-    .dma_set_coherent_mask = dma_set_coherent_mask,
-    .dma_set_max_seg_size = dma_set_max_seg_size,
-    .dma_alloc_coherent = dma_alloc_coherent,
+    .dma_set_mask = ys_dma_set_mask,
+    .dma_set_coherent_mask = ys_dma_set_coherent_mask,
+    .dma_set_max_seg_size = ys_dma_set_max_seg_size,
+    .dma_alloc_coherent = ys_dma_alloc_coherent,
     .ydma_map_single = ys_dma_map_single,
-    .dma_mapping_error = dma_mapping_error,
+    .dma_mapping_error = ys_dma_mapping_error,
     .ydma_unmap_single = ys_dma_unmap_single,
-    .dma_free_coherent = dma_free_coherent,
+    .dma_free_coherent = ys_dma_free_coherent,
     .ydma_map_page = ys_dma_map_page,
     .ydma_unmap_page = ys_dma_upmap_page,
 
     .yalloc_etherdev_mq = ys_alloc_etherdev_mq,
 
-    .netif_set_real_num_tx_queues = netif_set_real_num_tx_queues,
-    .netif_set_real_num_rx_queues = netif_set_real_num_rx_queues,
-    .netif_device_attach = netif_device_attach,
-    .netif_tx_schedule_all = netif_tx_schedule_all,
-    .netif_carrier_off = netif_carrier_off,
-    .netif_carrier_on = netif_carrier_on,
-    .netif_tx_disable = netif_tx_disable,
+    .netif_set_real_num_tx_queues = ys_netif_set_real_num_tx_queues,
+    .netif_set_real_num_rx_queues = ys_netif_set_real_num_rx_queues,
+    .netif_device_attach = ys_netif_device_attach,
+    .netif_tx_schedule_all = ys_netif_tx_schedule_all,
+    .netif_carrier_off = ys_netif_carrier_off,
+    .netif_carrier_on = ys_netif_carrier_on,
+    .netif_tx_disable = ys_netif_tx_disable,
     .ynetif_napi_add = ys_netif_napi_add,
-    .netif_napi_del = netif_napi_del,
-    .netif_tx_wake_queue = netif_tx_wake_queue,
-    .netdev_xmit_more = netdev_xmit_more,
+    .netif_napi_del = ys_netif_napi_del,
+    .netif_tx_wake_queue = ys_netif_tx_wake_queue,
+    .netdev_xmit_more = ys_netdev_xmit_more,
 
     
-    .napi_schedule = napi_schedule,
-    .napi_schedule_prep = napi_schedule_prep,
-    .__napi_schedule_irqoff = __napi_schedule_irqoff,
-    .napi_enable = napi_enable,
-    .napi_disable = napi_disable,
-    .napi_alloc_skb = napi_alloc_skb,
-    .napi_gro_receive = napi_gro_receive,
-    .napi_complete_done = napi_complete_done,
-    .netif_tx_queue_stopped = netif_tx_queue_stopped,
-    .netif_tx_stop_queue = netif_tx_stop_queue,
+    .napi_schedule = ys_napi_schedule,
+    .napi_schedule_prep = ys_napi_schedule_prep,
+    .__napi_schedule_irqoff = ys__napi_schedule_irqoff,
+    .napi_enable = ys_napi_enable,
+    .napi_disable = ys_napi_disable,
+    .napi_alloc_skb = ys_napi_alloc_skb,
+    .napi_gro_receive = ys_napi_gro_receive,
+    .napi_complete_done = ys_napi_complete_done,
+    .netif_tx_queue_stopped = ys_netif_tx_queue_stopped,
+    .netif_tx_stop_queue = ys_netif_tx_stop_queue,
 
-    .eth_hw_addr_random = eth_hw_addr_random,
+    .eth_hw_addr_random = ys_eth_hw_addr_random,
 
-    .register_netdev = register_netdev,
-    .netif_tx_start_all_queues = netif_tx_start_all_queues,
+    .register_netdev = ys_register_netdev,
+    .netif_tx_start_all_queues = ys_netif_tx_start_all_queues,
 
-    .netdev_get_tx_queue = netdev_get_tx_queue,
+    .netdev_get_tx_queue = ys_netdev_get_tx_queue,
 
-    .__vlan_hwaccel_put_tag = __vlan_hwaccel_put_tag,
+    .__vlan_hwaccel_put_tag = ys__vlan_hwaccel_put_tag,
 
-    .skb_set_hash = skb_set_hash,
-    .skb_add_rx_frag = skb_add_rx_frag,
-    .skb_record_rx_queue = skb_record_rx_queue,
-    .skb_is_gso = skb_is_gso,
-    .skb_tx_timestamp = skb_tx_timestamp,
+    .skb_set_hash = ys_skb_set_hash,
+    .skb_add_rx_frag = ys_skb_add_rx_frag,
+    .skb_record_rx_queue = ys_skb_record_rx_queue,
+    .skb_is_gso = ys_skb_is_gso,
+    .skb_tx_timestamp = ys_skb_tx_timestamp,
 
-    .copy_from_user = copy_from_user,
+    .copy_from_user = ys_copy_from_user,
 };
 
 void ysif_ops_init(void)
