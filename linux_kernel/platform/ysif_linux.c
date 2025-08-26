@@ -334,7 +334,7 @@ int ys_pci_irq_vector(struct pci_dev *dev, unsigned int nr)
     return pci_irq_vector(dev, nr);
 }
 
-int request_irq(unsigned int irq, irq_handler_t handler, unsigned long flags, const char *name, void *dev)
+int ys_request_irq(unsigned int irq, irq_handler_t handler, unsigned long flags, const char *name, void *dev)
 {
     pr_info("request_irq: irq=%u, name=%s handler ys_irq_notifier_handler \n", irq, name);
     return request_irq(irq, handler, flags, name, dev);
