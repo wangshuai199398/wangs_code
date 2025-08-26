@@ -11,11 +11,7 @@ int ys_k2u_debugfs_init(struct ys_pdev_priv *pdev_priv, struct dentry **root)
 	struct pci_dev *pdev = pdev_priv->pdev;
 	const struct ysif_ops *ops = ysif_get_ops();
 
-	sprintf(name, "k2u_%04x:%02x:%02x.%d",
-		pci_domain_nr(pdev->bus),
-		pdev->bus->number,
-		PCI_SLOT(pdev->devfn),
-		PCI_FUNC(pdev->devfn));
+	sprintf(name, "k2u_%04x:%02x:%02x.%d", pci_domain_nr(pdev->bus), pdev->bus->number, PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn));
 	*root = ops->debugfs_create_dir(name, ys_debugfs_root);
 	if (IS_ERR(*root)) {
 		ys_dev_err("Failed to create debugfs root directory");

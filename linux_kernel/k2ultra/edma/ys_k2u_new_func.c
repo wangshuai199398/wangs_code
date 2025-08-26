@@ -612,8 +612,7 @@ int ys_k2u_pdev_func_init(struct ys_pdev_priv *pdev_priv)
 
 	if (func->debugfs_root) {
 		snprintf(name, sizeof(name), "info");
-		func->debugfs_info_file = ops->debugfs_create_file(name, 0400, func->debugfs_root, func,
-							      &func_debugfs_fops);
+		func->debugfs_info_file = ops->debugfs_create_file(name, 0400, func->debugfs_root, func, &func_debugfs_fops);
 		if (IS_ERR(func->debugfs_info_file))
 			ys_dev_err("func_info debugfs file create failed");
 	}
