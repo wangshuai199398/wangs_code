@@ -301,6 +301,7 @@ int ys_pci_msi_vec_count(struct pci_dev *dev)
 
 int ys_pci_alloc_irq_vectors(struct pci_dev *dev, unsigned int min_vecs, unsigned int max_vecs, unsigned int flags)
 {
+    pr_info("pci_alloc_irq_vectors: name=%s min_vecs=%u max_vecs=%u\n", dev->driver->name, min_vecs, max_vecs);
     return pci_alloc_irq_vectors(dev, min_vecs, max_vecs, flags);
 }
 
