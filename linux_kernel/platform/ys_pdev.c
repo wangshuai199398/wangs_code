@@ -87,7 +87,7 @@ static int ys_pdev_mmap(struct ys_pdev_priv *pdev_priv)
 		}
 
 		pdev_priv->bar_pa[i] = bar_start;
-		ys_dev_debug("BAR_%d [0x%08lx-0x%08lx] flag[0x%08lx] mapped to 0x%p, length %lu mode %d",
+		ys_dev_info("BAR_%d ioremap [0x%08lx-0x%08lx] flag[0x%08lx] mapped to 0x%p, length %lu mode %d",
 			     i, bar_start, bar_end, bar_flags,
 			     pdev_priv->bar_addr[i],
 			     (unsigned long)pdev_priv->bar_size[i],
