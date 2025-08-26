@@ -207,6 +207,7 @@ int ys_misc_register(struct miscdevice *misc)
 
 struct devlink *ysw_devlink_alloc(const struct devlink_ops *ops, size_t priv_size, struct device *dev)
 {
+    pr_info("devlink_alloc: dev name=%s dev_driver name: %s \n", dev->init_name, dev->driver->name);
     return devlink_alloc(ops, priv_size, dev);
 }
 
