@@ -83,6 +83,7 @@ struct ysif_ops {
     int (*pci_request_regions)(struct pci_dev *dev, const char *name);
     void *(*pci_get_drvdata)(struct pci_dev *pdev);
     int (*pci_msix_vec_count)(struct pci_dev *dev);
+    int (*pci_msi_vec_count)(struct pci_dev *dev);
     int (*pci_alloc_irq_vectors)(struct pci_dev *dev, unsigned int min_vecs, unsigned int max_vecs, unsigned int flags);
     int (*pci_irq_vector)(struct pci_dev *dev, unsigned int nr);
 

@@ -289,7 +289,14 @@ void *ys_pci_get_drvdata(struct pci_dev *pdev)
 
 int ys_pci_msix_vec_count(struct pci_dev *dev)
 {
+    pr_info("pci_msix_vec_count: name=%s\n", dev->driver->name);
     return pci_msix_vec_count(dev);
+}
+
+int ys_pci_msi_vec_count(struct pci_dev *dev)
+{
+    pr_info("pci_msi_vec_count: name=%s\n", dev->driver->name);
+    return pci_msi_vec_count(dev);
 }
 
 int ys_pci_alloc_irq_vectors(struct pci_dev *dev, unsigned int min_vecs, unsigned int max_vecs, unsigned int flags)
@@ -602,6 +609,7 @@ static const struct ysif_ops ysif_linux_ops = {
     .pci_request_regions = ys_pci_request_regions,
     .pci_get_drvdata = ys_pci_get_drvdata,
     .pci_msix_vec_count = ys_pci_msix_vec_count,
+    .pci_msi_vec_count = ys_pci_msi_vec_count,
     .pci_alloc_irq_vectors = ys_pci_alloc_irq_vectors,
     .pci_irq_vector = ys_pci_irq_vector,
 

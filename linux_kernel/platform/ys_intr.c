@@ -16,6 +16,7 @@ static int ys_irq_get_max_required_vectors(struct ys_pdev_priv *pdev_priv)
 	int ret = 0;
 	int irq_sum = nic_type->irq_sum;
 	u32 val;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	if (nic_type->is_vf) {
 		val = ys_rd32(pdev_priv->bar_addr[0], YS_K2U_RP_PFVFID);
@@ -31,10 +32,10 @@ static int ys_irq_get_max_required_vectors(struct ys_pdev_priv *pdev_priv)
 	 * an error should be reported.
 	 */
 	if (nic_type->irq_flag | PCI_IRQ_MSIX)
-		ret = pci_msix_vec_count(pdev_priv->pdev);
+		ret = ops->pci_msix_vec_count(pdev_priv->pdev);
 
 	if (ret <= 0 && (nic_type->irq_flag | PCI_IRQ_MSI))
-		ret = pci_msi_vec_count(pdev_priv->pdev);
+		ret = ops->pci_msi_vec_count(pdev_priv->pdev);
 
 	if (irq_sum > 0)
 		ret = min(ret, irq_sum);
