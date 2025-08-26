@@ -264,16 +264,19 @@ void ys_pci_set_drvdata(struct pci_dev *pdev, void *data)
 
 int ys_pci_enable_device(struct pci_dev *dev)
 {
+    pr_info("pci_enable_device: name=%s\n", dev->driver->name);
     return pci_enable_device(dev);
 }
 
 void ys_pci_set_master(struct pci_dev *dev)
 {
+    pr_info("pci_set_master: name=%s\n", dev->driver->name);
     pci_set_master(dev);
 }
 
 int ys_pci_request_regions(struct pci_dev *dev, const char *name)
 {
+    pr_info("pci_request_regions: name=%s\n", name);
     return pci_request_regions(dev, name);
 }
 
