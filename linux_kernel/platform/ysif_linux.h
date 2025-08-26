@@ -48,6 +48,7 @@ struct ysif_ops {
     int (*blocking_notifier_chain_register)(struct blocking_notifier_head *nh, struct notifier_block *n);
     int (*blocking_notifier_call_chain)(struct blocking_notifier_head *nh, unsigned long val, void *v);
 
+    int (*atomic_notifier_chain_register)(struct atomic_notifier_head *nh, struct notifier_block *nb);
     void (*YATOMIC_INIT_NOTIFIER_HEAD)(struct atomic_notifier_head *nh);
 
     void (*yinit_completion)(struct completion *x);

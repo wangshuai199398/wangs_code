@@ -124,6 +124,7 @@ static int ys_irq_request(struct ys_pdev_priv *pdev_priv, int index,
 			  struct ys_irq_sub *sub)
 {
 	struct ys_irq_table *irq_table = &pdev_priv->irq_table;
+	const struct ysif_ops *ops = ysif_get_ops();
 	struct ys_irq *irq;
 	int ret;
 
@@ -167,7 +168,7 @@ static int ys_irq_request(struct ys_pdev_priv *pdev_priv, int index,
 		INIT_WORK(&irq->work, irq->sub.bh.work_handler);
 	} else if (irq->sub.bh_type == YS_IRQ_BH_NOTIFIER) {
 		irq->sub.handler = ys_irq_notifier_handler;
-		ret = atomic_notifier_chain_register(&irq->nh, sub->bh.nb);
+		ret = ops->atomic_notifier_chain_register(&irq->nh, sub->bh.nb);
 		if (ret < 0) {
 			memset(&irq->sub, 0, sizeof(struct ys_irq_sub));
 			mutex_unlock(&irq_table->lock);
@@ -189,8 +190,7 @@ static int ys_irq_request(struct ys_pdev_priv *pdev_priv, int index,
 	}
 
 	if (irq->sub.devname) {
-		ret = request_irq(irq->irqn, irq->sub.handler, 0,
-				  irq->sub.devname, irq);
+		ret = request_irq(irq->irqn, irq->sub.handler, 0, irq->sub.devname, irq);
 	} else {
 		irq->sub.devname = kcalloc(YS_MAX_IRQ_NAME,
 					   sizeof(char), GFP_KERNEL);

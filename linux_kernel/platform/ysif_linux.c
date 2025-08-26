@@ -14,7 +14,7 @@
 #include <linux/dma-mapping.h>
 #include <linux/if_vlan.h>
 
-
+#include "ys_irq.h"
 #include "ysif_linux.h"
 
 static const struct ysif_ops *g_ys_ops;
@@ -164,8 +164,14 @@ int ys_blocking_notifier_chain_register(struct blocking_notifier_head *nh, struc
 
 int ys_blocking_notifier_call_chain(struct blocking_notifier_head *nh, unsigned long val, void *v)
 {
-    pr_info("blocking_notifier_call_chain: val=%lu\n", val);
+    pr_info("blocking_notifier_call_chain: val=%lu devname %s\n", val, ((struct ys_irq_nb *)v)->sub.devname);
     return blocking_notifier_call_chain(nh, val, v);
+}
+
+int ys_atomic_notifier_chain_register(struct atomic_notifier_head *nh, struct notifier_block *nb)
+{
+    pr_info("atomic_notifier_chain_register: name=%s\n", nb->notifier_call ? "ys_irq_notifier_handler ys_mbox_handle" : "NULL");
+    return atomic_notifier_chain_register(nh, nb);
 }
 
 void ys_atomic_init_notifier_head(struct atomic_notifier_head *nh)
@@ -595,6 +601,7 @@ static const struct ysif_ops ysif_linux_ops = {
     .blocking_notifier_chain_register = ys_blocking_notifier_chain_register,
     .blocking_notifier_call_chain = ys_blocking_notifier_call_chain,
 
+    .atomic_notifier_chain_register = ys_atomic_notifier_chain_register,
     .YATOMIC_INIT_NOTIFIER_HEAD = ys_atomic_init_notifier_head,
 
     .yinit_completion = ys_init_completion,
