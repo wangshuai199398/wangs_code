@@ -244,7 +244,7 @@ static int ys_irq_add_notifier(struct ys_pdev_priv *pdev_priv, int index,
 		mutex_unlock(&irq_table->lock);
 		return -EINVAL;
 	}
-
+	pr_info("ys_irq_add_notifier again!!!!\n");
 	ret = ops->atomic_notifier_chain_register(&irq->nh, sub->bh.nb);
 	if (ret < 0) {
 		mutex_unlock(&irq_table->lock);
