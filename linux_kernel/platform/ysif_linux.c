@@ -164,13 +164,13 @@ int ys_blocking_notifier_chain_register(struct blocking_notifier_head *nh, struc
 
 int ys_blocking_notifier_call_chain(struct blocking_notifier_head *nh, unsigned long val, void *v)
 {
-    pr_info("blocking_notifier_call_chain: val=%lu devname %s\n", val, ((struct ys_irq_nb *)v)->sub.devname);
+    pr_info("\nblocking_notifier_call_chain: val=%lu devname %s\n", val, ((struct ys_irq_nb *)v)->sub.devname);
     return blocking_notifier_call_chain(nh, val, v);
 }
 
 int ys_atomic_notifier_chain_register(struct atomic_notifier_head *nh, struct notifier_block *nb)
 {
-    pr_info("atomic_notifier_chain_register: name=%s\n", nb->notifier_call ? "ys_irq_notifier_handler ys_mbox_handle ys_k2u_doe_irq_handler" : "NULL");
+    pr_info("\natomic_notifier_chain_register: name=%s\n", nb->notifier_call ? "ys_irq_notifier_handler ys_mbox_handle ys_k2u_doe_irq_handler" : "NULL");
     return atomic_notifier_chain_register(nh, nb);
 }
 
