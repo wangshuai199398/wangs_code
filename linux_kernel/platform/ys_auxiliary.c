@@ -330,7 +330,7 @@ struct ys_adev *ys_aux_add_adev(struct pci_dev *pdev, int idx,
 		return ERR_PTR(ret);
 	}
 
-	ys_dev_err("add aux device %s:%d\n", name, idx);
+	ys_dev_err("add aux device %s:%d\n\n", name, idx);
 
 	return adev;
 }

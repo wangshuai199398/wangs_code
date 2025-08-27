@@ -170,8 +170,14 @@ int ys_blocking_notifier_call_chain(struct blocking_notifier_head *nh, unsigned 
 
 int ys_atomic_notifier_chain_register(struct atomic_notifier_head *nh, struct notifier_block *nb)
 {
-    pr_info("\natomic_notifier_chain_register: name=%s\n", nb->notifier_call ? "ys_irq_notifier_handler ys_mbox_handle ys_k2u_doe_irq_handler" : "NULL");
+    pr_info("\natomic_notifier_chain_register: name=%s\n", nb->notifier_call ? "ys_k2u_doe_irq_handler ys_xmac_intr" : "NULL");
     return atomic_notifier_chain_register(nh, nb);
+}
+
+int ys_request_irq(unsigned int irq, irq_handler_t handler, unsigned long flags, const char *name, void *dev)
+{
+    pr_info("request_irq: irq=%u, name=%s handler ys_mbox_handle ys_irq_notifier_handler \n", irq, name);
+    return request_irq(irq, handler, flags, name, dev);
 }
 
 void ys_atomic_init_notifier_head(struct atomic_notifier_head *nh)
@@ -340,12 +346,6 @@ int ys_pci_irq_vector(struct pci_dev *dev, unsigned int nr)
     return pci_irq_vector(dev, nr);
 }
 
-int ys_request_irq(unsigned int irq, irq_handler_t handler, unsigned long flags, const char *name, void *dev)
-{
-    pr_info("request_irq: irq=%u, name=%s handler ys_mbox_tasklet ys_irq_notifier_handler \n", irq, name);
-    return request_irq(irq, handler, flags, name, dev);
-}
-
 static void *ys_ioremap(phys_addr_t offset, size_t size)
 {
     return ioremap(offset, size);
@@ -368,7 +368,7 @@ int ys_dma_set_max_seg_size(struct device *dev, unsigned int size)
     pr_info("dma_set_max_seg_size: dev name=%s mask: %u\n", dev_name(dev), size);
     return dma_set_max_seg_size(dev, size);
 }
-    
+
 void *ys_dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle, gfp_t gfp)
 {
     return dma_alloc_coherent(dev, size, dma_handle, gfp);

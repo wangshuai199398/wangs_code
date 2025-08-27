@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 
 #include "ys_xmac.h"
+#include "../../../platform/ysif_linux.h"
 
 static const char ys_xmac_stats_strings[][ETH_GSTRING_LEN] = {
 	"cycle_count_phy",
@@ -577,6 +578,7 @@ int ys_xmac_init(struct auxiliary_device *auxdev)
 	void __iomem *hw_addr;
 	u32 val;
 	int ret;
+	const struct ysif_ops *ops = ysif_get_ops();
 
 	INIT_LIST_HEAD(&mac->ndev_list);
 	spin_lock_init(&mac->list_lock);
@@ -591,9 +593,17 @@ int ys_xmac_init(struct auxiliary_device *auxdev)
 	else
 		mac->irq_vector = 0;
 
-	ret = YS_REGISTER_NOTIFIER_IRQ(&pdev_priv->irq_table.nh, YS_IRQ_NB_REGISTER_ANY,
-		0, pdev_priv->pdev, YS_IRQ_TYPE_MAC,
-		NULL, &mac->irq_nb, "xmac");
+	ret = ({
+		int ret;
+		do {
+			struct ys_irq_nb irq_nb = YS_IRQ_NB_INIT(0, pdev_priv->pdev, YS_IRQ_TYPE_MAC, NULL, NULL, "xmac");
+			irq_nb.sub.bh_type = YS_IRQ_BH_NOTIFIER;
+			irq_nb.sub.bh.nb = &mac->irq_nb;
+			ret = ops->blocking_notifier_call_chain(&pdev_priv->irq_table.nh, YS_IRQ_NB_REGISTER_ANY, &irq_nb);
+		} while (0);
+		ret;
+	});
+
 	if (ret < 0) {
 		ys_dev_err("ys_xmac alloc irq failed for xmac\n");
 		return -ENOMEM;
