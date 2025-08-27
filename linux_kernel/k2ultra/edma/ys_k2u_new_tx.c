@@ -197,8 +197,7 @@ static int ys_k2u_create_txcq(struct ys_k2u_txq *txq)
 	txcq->hw_addr = txq->hw_addr;
 
 	/* dma */
-	txcq->txc_head_dma_addr = ops->ydma_map_single(txq->dev, &txcq->txcdrb.head,
-						 sizeof(txcq->txcdrb.head), DMA_FROM_DEVICE);
+	txcq->txc_head_dma_addr = ops->ydma_map_single(txq->dev, &txcq->txcdrb.head, sizeof(txcq->txcdrb.head), DMA_FROM_DEVICE);
 	if (ops->dma_mapping_error(txq->dev, txcq->txc_head_dma_addr)) {
 		ys_net_err("txcq %d dma map failed", txq->qid.l_id);
 		ret = -ENOMEM;
@@ -219,7 +218,7 @@ static int ys_k2u_create_txcq(struct ys_k2u_txq *txq)
 			struct ys_irq_nb irq_nb = YS_IRQ_NB_INIT(0, pdev_priv->pdev, YS_IRQ_TYPE_QUEUE, ndev_priv->ndev, NULL, NULL);
 			irq_nb.sub.bh_type = YS_IRQ_BH_NOTIFIER;
 			irq_nb.sub.bh.nb = &txcq->irq_nb;
-			ret = ops->blocking_notifier_call_chain(&pdev_priv->irq_table.nh, YS_IRQ_NB_REGISTER_ANY, &irq_nb);/* -> irqs_change_nb */
+			ret = ops->blocking_notifier_call_chain(&pdev_priv->irq_table.nh, YS_IRQ_NB_REGISTER_ANY, &irq_nb);/* -> ys_irq_change_notify */
 		} while (0);
 		ret;
 	});
@@ -295,8 +294,7 @@ int ys_k2u_create_txq(struct ys_k2u_ndev *k2u_ndev, u16 idx, u32 depth)
 	/* txd & txi */
 	ys_ringb_init(&txq->txdrb, depth);
 	size = sizeof(struct ys_k2u_txd) * depth;
-	txq->txd = ops->dma_alloc_coherent(&ndev_priv->pdev->dev, size,
-				      &txq->txd_dma_addr, GFP_KERNEL);
+	txq->txd = ops->dma_alloc_coherent(&ndev_priv->pdev->dev, size, &txq->txd_dma_addr, GFP_KERNEL);
 	if (!txq->txd) {
 		ret = -ENOMEM;
 		goto txq_failed;

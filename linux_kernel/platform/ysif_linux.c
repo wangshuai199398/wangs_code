@@ -170,7 +170,7 @@ int ys_blocking_notifier_call_chain(struct blocking_notifier_head *nh, unsigned 
 
 int ys_atomic_notifier_chain_register(struct atomic_notifier_head *nh, struct notifier_block *nb)
 {
-    pr_info("\natomic_notifier_chain_register: name=%s\n", nb->notifier_call ? "ys_k2u_doe_irq_handler ys_xmac_intr" : "NULL");
+    pr_info("\natomic_notifier_chain_register: name=%s\n", nb->notifier_call ? "ys_k2u_doe_irq_handler ys_xmac_intr ys_k2u_txcq_int ys_k2u_rxcq_int" : "NULL");
     return atomic_notifier_chain_register(nh, nb);
 }
 
@@ -371,11 +371,13 @@ int ys_dma_set_max_seg_size(struct device *dev, unsigned int size)
 
 void *ys_dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle, gfp_t gfp)
 {
+    pr_info("dma_alloc_coherent: dev name=%s [ys_k2u_txd * depth] size: %zu\n", dev_name(dev), size);
     return dma_alloc_coherent(dev, size, dma_handle, gfp);
 }
 
 static dma_addr_t ys_dma_map_single(struct device *dev, void *ptr, size_t size, enum dma_data_direction dir)
 {
+    pr_info("dma_map_single: dev name=%s txcq->txcdrb.head size=%zu dir=%d\n", dev_name(dev), size, dir);
     return dma_map_single(dev, ptr, size, dir);
 }
 
@@ -407,17 +409,20 @@ void ys_dma_upmap_page(struct device *dev, dma_addr_t addr, size_t size, enum dm
 
 static struct net_device *ys_alloc_etherdev_mq(int sizeof_priv, unsigned int count)
 {
-    return alloc_etherdev_mq(sizeof_priv, count);
+    struct net_device *dev = alloc_etherdev_mq(sizeof_priv, count);
+    pr_info("alloc_etherdev_mq: sizeof_priv %d count=%u dev name=%s\n", sizeof_priv, count, dev ? dev->name : "NULL");
+    return dev;
 }
-
 
 int ys_netif_set_real_num_tx_queues(struct net_device *dev, unsigned int txq)
 {
+    pr_info("netif_set_real_num_tx_queues: dev name=%s txq=%u\n", dev->name, txq);
     return netif_set_real_num_tx_queues(dev, txq);
 }
 
 int ys_netif_set_real_num_rx_queues(struct net_device *dev, unsigned int rxq)
 {
+    pr_info("netif_set_real_num_rx_queues: dev name=%s rxq=%u\n", dev->name, rxq);
     return netif_set_real_num_rx_queues(dev, rxq);
 }
 

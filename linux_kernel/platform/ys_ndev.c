@@ -252,14 +252,12 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 		}
 	}
 
-	ndev_priv->rx_napi_list = kcalloc(ndev_priv->qi.ndev_qnum,
-					  sizeof(struct ys_napi), GFP_KERNEL);
+	ndev_priv->rx_napi_list = kcalloc(ndev_priv->qi.ndev_qnum, sizeof(struct ys_napi), GFP_KERNEL);
 
 	if (!ndev_priv->rx_napi_list)
 		goto fail;
 
-	ndev_priv->tx_napi_list = kcalloc(ndev_priv->qi.ndev_qnum,
-					  sizeof(struct ys_napi), GFP_KERNEL);
+	ndev_priv->tx_napi_list = kcalloc(ndev_priv->qi.ndev_qnum, sizeof(struct ys_napi), GFP_KERNEL);
 
 	if (!ndev_priv->tx_napi_list)
 		goto fail;
