@@ -359,8 +359,6 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 	/* create ndev sysfs */
 	ys_ndev_create_sysfs_group(ndev);
 
-	ys_net_err("[] register_netdev success %s", ndev->name);
-
 	return ndev;
 
 fail:

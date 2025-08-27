@@ -486,7 +486,7 @@ static netdev_features_t ys_ndo_fix_features(struct net_device *ndev,
 					     netdev_features_t features)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-	pr_err("ys_ndo_fix_features\n");
+	pr_err("ys_ndo_fix_features 0x%x\n", features);
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
 		return features;
 

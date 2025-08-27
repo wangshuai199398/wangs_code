@@ -542,6 +542,7 @@ void ys_eth_hw_addr_random(struct net_device *dev)
 
 int ys_register_netdev(struct net_device *dev)
 {
+    pr_info("register_netdev: dev name=%s\n", dev->name);
     return register_netdev(dev);
 }
     

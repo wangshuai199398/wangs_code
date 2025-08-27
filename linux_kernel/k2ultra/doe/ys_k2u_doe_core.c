@@ -263,7 +263,7 @@ static const struct file_operations ys_k2u_doe_fops = {
 int ys_k2u_doe_module_add_cdev(struct pci_dev *pdev)
 {
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
-
+	pr_err("ys_k2u_doe_module_add_cdev");
 	if (pdev_priv->doe_schedule.doe_master &&
 	    (pdev_priv->dpu_mode == MODE_SMART_NIC ||
 	    pdev_priv->dpu_mode == MODE_DPU_SOC ||
