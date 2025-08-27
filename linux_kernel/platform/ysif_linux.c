@@ -164,7 +164,7 @@ int ys_blocking_notifier_chain_register(struct blocking_notifier_head *nh, struc
 
 int ys_blocking_notifier_call_chain(struct blocking_notifier_head *nh, unsigned long val, void *v)
 {
-    pr_info("\nblocking_notifier_call_chain: val=%lu devname %s\n", val, ((struct ys_irq_nb *)v)->sub.devname);
+    pr_info("\nblocking_notifier_call_chain: %s devname %s\n", val==1? "ANY":"FIX", ((struct ys_irq_nb *)v)->sub.devname);
     return blocking_notifier_call_chain(nh, val, v);
 }
 
@@ -176,7 +176,7 @@ int ys_atomic_notifier_chain_register(struct atomic_notifier_head *nh, struct no
 
 int ys_request_irq(unsigned int irq, irq_handler_t handler, unsigned long flags, const char *name, void *dev)
 {
-    pr_info("request_irq: irq=%u, name=%s handler ys_mbox_handle ys_irq_notifier_handler \n", irq, name);
+    pr_info("request_irq: irq=%u, name=%s tasklet-ys_mbox_handle notifier-ys_irq_notifier_handler\n", irq, name);
     return request_irq(irq, handler, flags, name, dev);
 }
 
@@ -371,13 +371,13 @@ int ys_dma_set_max_seg_size(struct device *dev, unsigned int size)
 
 void *ys_dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle, gfp_t gfp)
 {
-    pr_info("dma_alloc_coherent: dev name=%s [ys_k2u_txd * depth] size: %zu\n", dev_name(dev), size);
+    pr_info("dma_alloc_coherent: dev name=%s [txd|rxd|rxcd * depth] size: %zu\n", dev_name(dev), size);
     return dma_alloc_coherent(dev, size, dma_handle, gfp);
 }
 
 static dma_addr_t ys_dma_map_single(struct device *dev, void *ptr, size_t size, enum dma_data_direction dir)
 {
-    pr_info("dma_map_single: dev name=%s txcq->txcdrb.head size=%zu dir=%d\n", dev_name(dev), size, dir);
+    pr_info("dma_map_single: dev name=%s txcq->txcdrb.head rxcq->rxcdrb.head size=%zu dir=%d\n", dev_name(dev), size, dir);
     return dma_map_single(dev, ptr, size, dir);
 }
 
