@@ -86,6 +86,7 @@ int ys_k2u_ndev_create_queues(struct ys_k2u_ndev *k2u_ndev)
 		return -ENOMEM;
 
 	for (i = 0; i < total_qnum; i++) {
+		pr_err("create queue start\n");
 		if (i < tx_qnum) {
 			depth = k2u_ndev->txq_depth;
 			depth = roundup_pow_of_two(depth);
@@ -105,6 +106,7 @@ int ys_k2u_ndev_create_queues(struct ys_k2u_ndev *k2u_ndev)
 				goto failed;
 			}
 		}
+		pr_err("create queue end\n");
 	}
 
 	return 0;
