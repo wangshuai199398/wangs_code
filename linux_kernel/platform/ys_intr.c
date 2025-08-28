@@ -427,7 +427,7 @@ static int ys_irq_register_any(struct ys_irq_nb *irq_nb)
 
 	index = ys_irq_find_bh_notifier_vector(irq_table, sub);
 	if (index >= 0) {
-		pr_info("ys_irq_add_notifier again!!!!\n");
+		pr_info("ys_irq_add_notifier again!\n");
 		ret = ys_irq_add_notifier(pdev_priv, index, sub);
 		if (ret == 0)
 			return index;
