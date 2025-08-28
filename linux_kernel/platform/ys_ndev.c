@@ -326,7 +326,7 @@ static struct net_device *ys_ndev_create(struct ys_pdev_priv *pdev_priv,
 		else
 			ndev_priv->ys_ndev_hw->ys_update_cfg(ndev, 0);
 	}
-
+	pr_err("set netdev_ops and ethtool_ops\n");
 	ndev->netdev_ops = &ys_ndev_ops;
 	ndev->ethtool_ops = &ys_ethtool_ops;
 	ndev->udp_tunnel_nic_info = &ys_udp_tunnels;

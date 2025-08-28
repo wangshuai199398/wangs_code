@@ -131,8 +131,10 @@ static int ys_irq_request(struct ys_pdev_priv *pdev_priv, int index,
 	if (index < 0 || index >= irq_table->max)
 		return -EINVAL;
 
-	if (IS_ERR_OR_NULL(sub))
+	if (IS_ERR_OR_NULL(sub)) {
+		ys_dev_err("sub is NULL\n");
 		return -EINVAL;
+	}
 
 	if (sub->irq_type < YS_IRQ_TYPE_QUEUE ||
 	    sub->irq_type >= YS_IRQ_TYPE_HW_MAX) {
@@ -244,7 +246,7 @@ static int ys_irq_add_notifier(struct ys_pdev_priv *pdev_priv, int index,
 		mutex_unlock(&irq_table->lock);
 		return -EINVAL;
 	}
-	pr_info("ys_irq_add_notifier again!!!!\n");
+
 	ret = ops->atomic_notifier_chain_register(&irq->nh, sub->bh.nb);
 	if (ret < 0) {
 		mutex_unlock(&irq_table->lock);
@@ -425,6 +427,7 @@ static int ys_irq_register_any(struct ys_irq_nb *irq_nb)
 
 	index = ys_irq_find_bh_notifier_vector(irq_table, sub);
 	if (index >= 0) {
+		pr_info("ys_irq_add_notifier again!!!!\n");
 		ret = ys_irq_add_notifier(pdev_priv, index, sub);
 		if (ret == 0)
 			return index;
