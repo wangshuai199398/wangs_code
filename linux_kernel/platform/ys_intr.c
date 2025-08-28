@@ -424,7 +424,7 @@ static int ys_irq_register_any(struct ys_irq_nb *irq_nb)
 
 	if (sub->bh_type != YS_IRQ_BH_NOTIFIER)
 		return -EINVAL;
-
+	pr_info("index %d\n", index);
 	index = ys_irq_find_bh_notifier_vector(irq_table, sub);
 	if (index >= 0) {
 		pr_info("ys_irq_add_notifier again!\n");
