@@ -40,7 +40,7 @@ int ys_tc_setup_tc(struct net_device *ndev, enum tc_setup_type type,
 	struct ys_tc_priv *tc_priv;
 	struct ys_ndev_priv *ndev_priv;
 	struct ys_pdev_priv *pdev_priv;
-	pr_err("ys_tc_setup_tc\n");
+	pr_debug("ys_tc_setup_tc\n");
 	ndev_priv = netdev_priv(ndev);
 	pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 

@@ -380,8 +380,10 @@ static int ys_sysfs_create_hw_group(struct pci_dev *pdev)
 	int attrs_num;
 	int ret;
 
-	if (IS_ERR_OR_NULL(pdev_priv->ops->hw_adp_detect_sysfs_attrs))
+	if (IS_ERR_OR_NULL(pdev_priv->ops->hw_adp_detect_sysfs_attrs)) {
+		pr_err("ndev_adp_detect_sysfs_attrs is NULL\n");
 		return 0;
+	}
 
 	attrs_num = pdev_priv->ops->hw_adp_detect_sysfs_attrs(&device_attrs);
 

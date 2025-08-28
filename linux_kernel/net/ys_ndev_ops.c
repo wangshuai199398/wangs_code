@@ -108,7 +108,7 @@ static int ys_ndo_open(struct net_device *ndev)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	int ret = 0;
-	ys_err("ys_ndo_open\n");
+	pr_debug("ys_ndo_open\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
@@ -544,7 +544,7 @@ static void ys_ndo_set_rx_mode(struct net_device *ndev)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv;
-	pr_err("ys_ndo_set_rx_mode\n");
+	pr_debug("ys_ndo_set_rx_mode\n");
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF))
 		return;
 
@@ -1060,7 +1060,7 @@ static u16 ys_ndo_select_queue(struct net_device *dev, struct sk_buff *skb,
 			       struct net_device *sb_dev,
 			       select_queue_fallback_t fallback)
 {
-	pr_err("ys_ndo_select_queue\n");
+	pr_debug("ys_ndo_select_queue\n");
 	return ys_ndo_select_queue_nocb(dev, skb, sb_dev);
 }
 

@@ -429,130 +429,130 @@ int ys_netif_set_real_num_rx_queues(struct net_device *dev, unsigned int rxq)
 
 void ys_netif_device_attach(struct net_device *dev)
 {
-    pr_info("netif_device_attach: dev name=%s\n", dev->name);
+    pr_debug("netif_device_attach: dev name=%s\n", dev->name);
     netif_device_attach(dev);
 }
 
 void ys_netif_tx_schedule_all(struct net_device *dev)
 {
-    pr_info("netif_tx_schedule_all: dev name=%s\n", dev->name);
+    pr_debug("netif_tx_schedule_all: dev name=%s\n", dev->name);
     netif_tx_schedule_all(dev);
 }
 
 void ys_netif_carrier_on(struct net_device *dev)
 {
-    pr_info("netif_carrier_on: dev name=%s\n", dev->name);
+    pr_debug("netif_carrier_on: dev name=%s\n", dev->name);
     netif_carrier_on(dev);
 }
 
 void ys_netif_carrier_off(struct net_device *dev)
 {
-    pr_info("netif_carrier_off: dev name=%s\n", dev->name);
+    pr_debug("netif_carrier_off: dev name=%s\n", dev->name);
     netif_carrier_off(dev);
 }
 
 void ys_netif_tx_disable(struct net_device *dev)
 {
-    pr_info("netif_tx_disable: dev name=%s\n", dev->name);
+    pr_debug("netif_tx_disable: dev name=%s\n", dev->name);
     netif_tx_disable(dev);
 }
 
 static void ys_netif_napi_add(struct net_device *dev, struct napi_struct *napi, int (*poll)(struct napi_struct *, int))
 {
-    pr_info("netif_napi_add: dev name=%s ys_k2u_rxcq_handler ys_k2u_txcq_handler\n", dev->name);
+    pr_debug("netif_napi_add: dev name=%s ys_k2u_rxcq_handler ys_k2u_txcq_handler\n", dev->name);
     netif_napi_add(dev, napi, poll);
 }
 
 
 void ys_netif_tx_start_all_queues(struct net_device *dev)
 {
-    pr_info("netif_tx_start_all_queues: dev name=%s\n", dev->name);
+    pr_debug("netif_tx_start_all_queues: dev name=%s\n", dev->name);
     netif_tx_start_all_queues(dev);
 }
 
 void ys_netif_napi_del(struct napi_struct *napi)
 {
-    pr_info("netif_napi_del\n");
+    pr_debug("netif_napi_del\n");
     netif_napi_del(napi);
 }
 
 bool ys_netif_tx_queue_stopped(const struct netdev_queue *dev_queue)
 {
-    pr_info("netif_tx_queue_stopped\n");
+    pr_debug("netif_tx_queue_stopped\n");
     return netif_tx_queue_stopped(dev_queue);
 }
 
 void ys_netif_tx_wake_queue(struct netdev_queue *dev_queue)
 {
-    pr_info("netif_tx_wake_queue\n");
+    pr_debug("netif_tx_wake_queue\n");
     netif_tx_wake_queue(dev_queue);
 }
 
 void ys_netif_tx_stop_queue(struct netdev_queue *dev_queue)
 {
-    pr_info("netif_tx_stop_queue\n");
+    pr_debug("netif_tx_stop_queue\n");
     netif_tx_stop_queue(dev_queue);
 }
 
 
 struct netdev_queue *ys_netdev_get_tx_queue(const struct net_device *dev, unsigned int index)
 {
-    pr_info("netdev_get_tx_queue: dev name=%s index=%u\n", dev->name, index);
+    pr_debug("netdev_get_tx_queue: dev name=%s index=%u\n", dev->name, index);
     return netdev_get_tx_queue(dev, index);
 }
 
 bool ys_netdev_xmit_more(void)
 {
-    pr_info("netdev_xmit_more\n");
+    pr_debug("netdev_xmit_more\n");
     return netdev_xmit_more();
 }
 
 
 bool ys_napi_schedule_prep(struct napi_struct *n)
 {
-    pr_info("napi_schedule_prep\n");
+    pr_debug("napi_schedule_prep\n");
     return napi_schedule_prep(n);
 }
 
 void ys__napi_schedule_irqoff(struct napi_struct *n)
 {
-    pr_info("napi_schedule_irqoff\n");
+    pr_debug("napi_schedule_irqoff\n");
     __napi_schedule_irqoff(n);
 }
 
 bool ys_napi_schedule(struct napi_struct *n)
 {
-    pr_info("napi_schedule\n");
+    pr_debug("napi_schedule\n");
     return napi_schedule(n);
 }
 
 void ys_napi_enable(struct napi_struct *n)
 {
-    pr_info("napi_enable\n");
+    pr_debug("napi_enable\n");
     napi_enable(n);
 }
 
 void ys_napi_disable(struct napi_struct *n)
 {
-    pr_info("napi_disable\n");
+    pr_debug("napi_disable\n");
     napi_disable(n);
 }
 
 struct sk_buff *ys_napi_alloc_skb(struct napi_struct *napi, unsigned int length)
 {
-    pr_info("napi_alloc_skb: length=%u\n", length);
+    pr_debug("napi_alloc_skb: length=%u\n", length);
     return napi_alloc_skb(napi, length);
 }
 
 gro_result_t ys_napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
 {
-    pr_info("napi_gro_receive: dev name=%s\n", napi->dev ? napi->dev->name : "NULL");
+    pr_debug("napi_gro_receive: dev name=%s\n", napi->dev ? napi->dev->name : "NULL");
     return napi_gro_receive(napi, skb);
 }
 
 bool ys_napi_complete_done(struct napi_struct *n, int work_done)
 {
-    pr_info("napi_complete_done: dev name=%s work_done=%d\n", n->dev ? n->dev->name : "NULL", work_done);
+    pr_debug("napi_complete_done: dev name=%s work_done=%d\n", n->dev ? n->dev->name : "NULL", work_done);
     return napi_complete_done(n, work_done);
 }
 
@@ -600,7 +600,7 @@ bool ys_skb_is_gso(const struct sk_buff *skb)
 
 void ys_skb_tx_timestamp(struct sk_buff *skb)
 {
-    pr_info("skb_tx_timestamp: dev name=%s\n", skb->dev ? skb->dev->name : "NULL");
+    pr_debug("skb_tx_timestamp: dev name=%s\n", skb->dev ? skb->dev->name : "NULL");
     skb_tx_timestamp(skb);
 }
     
