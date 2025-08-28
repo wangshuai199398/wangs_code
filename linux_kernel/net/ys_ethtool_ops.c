@@ -277,7 +277,7 @@ static int ys_get_sset_count(struct net_device *ndev, int sset)
 	struct ys_pdev_priv *pdev_priv;
 	struct ys_adev *adev, *temp;
 	int len = 0;
-	pr_err("ys_get_sset_count\n");
+	pr_err("ys_get_sset_count, sset %d\n", sset);
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
