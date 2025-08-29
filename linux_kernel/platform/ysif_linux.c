@@ -478,8 +478,9 @@ void ys_netif_napi_del(struct napi_struct *napi)
 
 bool ys_netif_tx_queue_stopped(const struct netdev_queue *dev_queue)
 {
-    pr_debug("netif_tx_queue_stopped\n");
-    return netif_tx_queue_stopped(dev_queue);
+    bool ret = netif_tx_queue_stopped(dev_queue);
+    pr_debug("netif_tx_queue_stopped %d\n", ret);
+    return ret;
 }
 
 void ys_netif_tx_wake_queue(struct netdev_queue *dev_queue)
@@ -503,15 +504,17 @@ struct netdev_queue *ys_netdev_get_tx_queue(const struct net_device *dev, unsign
 
 bool ys_netdev_xmit_more(void)
 {
-    pr_debug("netdev_xmit_more\n");
-    return netdev_xmit_more();
+    bool ret = netdev_xmit_more();
+    pr_debug("netdev_xmit_more %d\n", ret);
+    return ret;
 }
 
 
 bool ys_napi_schedule_prep(struct napi_struct *n)
 {
-    pr_debug("napi_schedule_prep\n");
-    return napi_schedule_prep(n);
+    bool ret = napi_schedule_prep(n);
+    pr_debug("napi_schedule_prep %d\n", ret);
+    return ret;
 }
 
 void ys__napi_schedule_irqoff(struct napi_struct *n)
@@ -522,8 +525,9 @@ void ys__napi_schedule_irqoff(struct napi_struct *n)
 
 bool ys_napi_schedule(struct napi_struct *n)
 {
-    pr_debug("napi_schedule\n");
-    return napi_schedule(n);
+    bool ret = napi_schedule(n);
+    pr_debug("napi_schedule %d\n", ret);
+    return ret;
 }
 
 void ys_napi_enable(struct napi_struct *n)
@@ -552,8 +556,9 @@ gro_result_t ys_napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
 
 bool ys_napi_complete_done(struct napi_struct *n, int work_done)
 {
-    pr_debug("napi_complete_done: dev name=%s work_done=%d\n", n->dev ? n->dev->name : "NULL", work_done);
-    return napi_complete_done(n, work_done);
+    bool ret = napi_complete_done(n, work_done);
+    pr_debug("napi_complete_done %d: dev name=%s work_done=%d\n", ret, n->dev ? n->dev->name : "NULL", work_done);
+    return ret;
 }
 
 
@@ -594,8 +599,9 @@ void ys_skb_record_rx_queue(struct sk_buff *skb, u16 rx_queue)
 
 bool ys_skb_is_gso(const struct sk_buff *skb)
 {
-    pr_info("skb_is_gso: dev name=%s\n", skb->dev ? skb->dev->name : "NULL");
-    return skb_is_gso(skb);
+    bool ret = skb_is_gso(skb);
+    pr_info("skb_is_gso %d: dev name=%s\n", ret, skb->dev ? skb->dev->name : "NULL");
+    return ret;
 }
 
 void ys_skb_tx_timestamp(struct sk_buff *skb)
