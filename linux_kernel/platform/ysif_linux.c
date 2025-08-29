@@ -609,7 +609,7 @@ void ys_skb_tx_timestamp(struct sk_buff *skb)
     pr_debug("skb_tx_timestamp: dev name=%s\n", skb->dev ? skb->dev->name : "NULL");
     skb_tx_timestamp(skb);
 }
-    
+
 unsigned long ys_copy_from_user(void *to, const void __user *from, unsigned long n)
 {
     return copy_from_user(to, from, n);
