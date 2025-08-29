@@ -459,7 +459,7 @@ void ys_netif_tx_disable(struct net_device *dev)
 
 static void ys_netif_napi_add(struct net_device *dev, struct napi_struct *napi, int (*poll)(struct napi_struct *, int))
 {
-    pr_debug("netif_napi_add: dev name=%s ys_k2u_rxcq_handler ys_k2u_txcq_handler\n", dev->name);
+    dynamic_pr_debug("netif_napi_add: dev name=%s ys_k2u_rxcq_handler ys_k2u_txcq_handler\n", dev->name);
     netif_napi_add(dev, napi, poll);
 }
 
