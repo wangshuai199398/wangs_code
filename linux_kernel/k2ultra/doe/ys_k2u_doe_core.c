@@ -222,11 +222,15 @@ int ys_k2u_doe_kernel_call(u32 card_id, struct ys_doe_sw_cmd *sw_cmd,
 			   u8 poll_wait)
 {
 	int ret;
-	struct ys_k2u_doe_device *ys_k2u_doe = ys_k2u_doe_get_device(card_id);
-	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ys_k2u_doe->pdev);
+	struct ys_k2u_doe_device *ys_k2u_doe = NULL;
+	struct ys_pdev_priv *pdev_priv = NULL;
 
-	ys_dev_debug("Recive cmd opc 0x%x tbl %d\n", sw_cmd->opcode,
-		     sw_cmd->tbl_id);
+	ys_k2u_doe = ys_k2u_doe_get_device(card_id);
+	if (!ys_k2u_doe)
+		return -EFAULT;
+
+	pdev_priv = pci_get_drvdata(ys_k2u_doe->pdev);
+	ys_dev_debug("Recive cmd opc 0x%x tbl %d\n", sw_cmd->opcode, sw_cmd->tbl_id);
 
 	if (sw_cmd->opcode == YS_DOE_SW_HW_INIT && ys_k2u_doe->init)
 		return 0;
@@ -315,10 +319,11 @@ ys_k2u_doe_alloc_interface(struct ys_k2u_doe_device *ys_k2u_doe,
 	struct ys_k2u_doe_event_queue *eq;
 	struct ys_doe_sw_cmd *sw_cmd;
 	struct ys_k2u_doe_desc *desc;
+	int len = 0;
 	int i;
 
 	/* alloc interface structure */
-	doe_if = devm_kzalloc(dev, sizeof(*doe_if), GFP_KERNEL);
+	doe_if = kzalloc(sizeof(*doe_if), GFP_KERNEL);
 	if (!doe_if)
 		return ERR_PTR(-ENOMEM);
 
@@ -336,7 +341,8 @@ ys_k2u_doe_alloc_interface(struct ys_k2u_doe_device *ys_k2u_doe,
 	doe_if->cb_depth = cmd_buffer_cnt;
 	atomic_set(&doe_if->cmdbuffer_count, cmd_buffer_cnt);
 	atomic_set(&doe_if->hw_buffer_count, cmd_buffer_cnt);
-	doe_if->cb = devm_kzalloc(dev, sizeof(*doe_if->cb) * cmd_buffer_cnt, GFP_KERNEL);
+	len = sizeof(*doe_if->cb) * cmd_buffer_cnt;
+	doe_if->cb = kzalloc(len, GFP_KERNEL);
 	if (!doe_if->cb)
 		return ERR_PTR(-ENOMEM);
 
@@ -397,7 +403,7 @@ static void ys_k2u_doe_destroy_interface(struct ys_k2u_doe_interface *doe_if)
 	struct ys_k2u_doe_cmd_buffer *cb;
 	struct llist_node *node;
 	struct ys_doe_sw_cmd *sw_cmd;
-	struct ys_k2u_doe_desc *desc;
+	struct ys_k2u_doe_desc *desc, *temp;
 	int i = 0;
 
 	if (!doe_if)
@@ -415,8 +421,13 @@ static void ys_k2u_doe_destroy_interface(struct ys_k2u_doe_interface *doe_if)
 	}
 
 	/* free cmd buffer */
-	if (doe_if->cb)
-		devm_kfree(dev, doe_if->cb);
+	kfree(doe_if->cb);
+
+	list_for_each_entry_safe(desc, temp, &doe_if->work_list, list) {
+		list_del(&desc->list);
+		ys_k2u_doe_free_cmd(doe_if, desc->cmd);
+		ys_k2u_doe_free_dsc(doe_if, desc);
+	}
 
 	while (!llist_empty(&doe_if->cmd_mpool)) {
 		node = llist_del_first(&doe_if->cmd_mpool);
@@ -439,9 +450,11 @@ static void ys_k2u_doe_destroy_interface(struct ys_k2u_doe_interface *doe_if)
 	if (eq->hw_tail_ptr)
 		dma_free_coherent(dev, sizeof(u64), eq->hw_tail_ptr, eq->dma_hw_tail);
 
-	if (doe_if)
-		devm_kfree(dev, doe_if);
+	kfree(doe_if);
 }
+
+static int ys_k2u_doe_hw_resources_begin_move(struct pci_dev *pdev);
+static int ys_k2u_doe_hw_resources_finish_move(struct pci_dev *pdev);
 
 static int ys_k2u_doe_hw_resources_init(struct ys_k2u_doe_device *ys_k2u_doe)
 {
@@ -460,10 +473,10 @@ static int ys_k2u_doe_hw_resources_init(struct ys_k2u_doe_device *ys_k2u_doe)
 	init_waitqueue_head(&ys_k2u_doe->wait);
 	init_rwsem(&ys_k2u_doe->mutex);
 	mutex_init(&ys_k2u_doe->mtx_init);
-	ys_k2u_doe->tbl_bitmap = devm_kzalloc(dev, ((YS_K2U_DOE_USER_TBL_NUM - 1) /
-					      sizeof(unsigned long) + 1) *
-					      sizeof(unsigned long),
-					      GFP_KERNEL);
+	ys_k2u_doe->tbl_bitmap = kzalloc(((YS_K2U_DOE_USER_TBL_NUM - 1) /
+					 sizeof(unsigned long) + 1) *
+					 sizeof(unsigned long),
+					 GFP_KERNEL);
 	if (!ys_k2u_doe->tbl_bitmap)
 		return -ENOMEM;
 
@@ -624,6 +637,12 @@ static int ys_k2u_doe_hw_resources_init(struct ys_k2u_doe_device *ys_k2u_doe)
 		goto err_with_index_sram;
 	}
 
+	if (pdev_priv->doe_schedule.enble_doe_schedule)	{
+		ys_k2u_doe_hw_resources_finish_move(pdev_priv->pdev);
+		pdev_priv->doe_schedule.enble_doe_schedule = false;
+		ys_k2u_doe->enble_doe_schedule = true;
+	}
+
 	return 0;
 
 err_with_index_sram:
@@ -633,7 +652,7 @@ err_with_ram:
 err_with_ddr1:
 	ys_k2u_doe_mm_uninit(ys_k2u_doe->ddr0);
 err_with_ddr0:
-	devm_kfree(dev, ys_k2u_doe->tbl_bitmap);
+	kfree(ys_k2u_doe->tbl_bitmap);
 err_with_host_ddr:
 	if (ys_k2u_doe->enble_host_ddr || ys_k2u_doe->enble_soc_ddr)
 		ys_k2u_doe_addrmap_uninit(ys_k2u_doe);
@@ -641,13 +660,18 @@ err_with_host_ddr:
 	return ret;
 }
 
+
+
 static void ys_k2u_doe_hw_resources_uninit(struct ys_k2u_doe_device *ys_k2u_doe)
 {
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ys_k2u_doe->pdev);
-	struct device *dev = &pdev_priv->pdev->dev;
 
-	if (ys_k2u_doe->tbl_bitmap)
-		devm_kfree(dev, ys_k2u_doe->tbl_bitmap);
+	if (pdev_priv->doe_schedule.enble_doe_schedule)	{
+		ys_k2u_doe_hw_resources_begin_move(pdev_priv->pdev);
+		pdev_priv->doe_schedule.enble_doe_schedule = false;
+	}
+
+	kfree(ys_k2u_doe->tbl_bitmap);
 
 	if (ys_k2u_doe->index_sram) {
 		ys_k2u_doe_mm_uninit(ys_k2u_doe->index_sram);
@@ -673,39 +697,54 @@ static void ys_k2u_doe_hw_resources_uninit(struct ys_k2u_doe_device *ys_k2u_doe)
 		ys_k2u_doe_addrmap_uninit(ys_k2u_doe);
 }
 
-static int ys_k2u_doe_hw_resources_move(struct pci_dev *pdev)
+static int ys_k2u_doe_hw_resources_begin_move(struct pci_dev *pdev)
 {
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
-	struct ys_k2u_doe_device *doe_from = pdev_priv->doe_schedule.schedule_buf;
-	struct ys_k2u_doe_device *doe_to = ys_aux_match_adev(pdev, AUX_TYPE_DOE, 0);
+	struct ys_k2u_doe_device *doe_to = NULL;
+	struct ys_k2u_doe_device *doe_from = ys_aux_match_adev(pdev, AUX_TYPE_DOE, 0);
 	u32 len = 0;
-	u32 i = 0;
+
+	doe_to = kzalloc(sizeof(*doe_to), GFP_KERNEL);
+	if (!doe_to)
+		return -ENOMEM;
+	pdev_priv->doe_schedule.schedule_buf = doe_to;
 
 	ys_wr32(doe_from->doe_base, YS_K2U_DOE_PROTECT_CFG, 0x3);
-	ys_wr32(doe_to->doe_base, YS_K2U_DOE_PROTECT_CFG, 0x3);
 
-	doe_from->enble_doe_schedule = true;
-	doe_to->enble_doe_schedule = true;
 	if (doe_from->tbl_bitmap) {
-		len = YS_K2U_DOE_TBL_NUM / sizeof(unsigned long);
-		memcpy(doe_to->tbl_bitmap, doe_from->tbl_bitmap, len);
+		doe_to->tbl_bitmap = doe_from->tbl_bitmap;
+		doe_from->tbl_bitmap = NULL;
 	}
 
-	if (doe_from->index_sram)
-		ys_k2u_doe_mm_move(doe_to->index_sram, doe_from->index_sram);
+	if (doe_from->index_sram) {
+		doe_to->index_sram = doe_from->index_sram;
+		doe_from->index_sram = NULL;
+	}
 
-	if (doe_from->ram)
-		ys_k2u_doe_mm_move(doe_to->ram, doe_from->ram);
+	if (doe_from->ram) {
+		doe_to->ram = doe_from->ram;
+		doe_from->ram = NULL;
+	}
 
-	if (doe_from->ddr1)
-		ys_k2u_doe_mm_move(doe_to->ddr1, doe_from->ddr1);
+	if (doe_from->ddr1) {
+		doe_to->ddr1 = doe_from->ddr1;
+		doe_from->ddr1 = NULL;
+	}
 
-	if (doe_from->ddr0)
-		ys_k2u_doe_mm_move(doe_to->ddr0, doe_from->ddr0);
+	if (doe_from->ddr0) {
+		doe_to->ddr0 = doe_from->ddr0;
+		doe_from->ddr0 = NULL;
+	}
 
 	if (doe_from->enble_host_ddr || doe_from->enble_soc_ddr) {
-		for (i = 0; i < doe_from->ddrh_array_max && i < doe_to->ddrh_array_max; i++)
-			ys_k2u_doe_mm_move(doe_to->ddrh[i], doe_from->ddrh[i]);
+		doe_to->ddrh = doe_from->ddrh;
+		doe_to->manage_host = doe_from->manage_host;
+		doe_to->ddrh_array_max = doe_from->ddrh_array_max;
+		doe_to->manage_host_max = doe_from->manage_host_max;
+		doe_to->enble_host_ddr = doe_from->enble_host_ddr;
+		doe_to->enble_soc_ddr = doe_from->enble_soc_ddr;
+		doe_from->ddrh = NULL;
+		doe_from->manage_host = NULL;
 	}
 
 	len = sizeof(struct ys_doe_table_param) * YS_K2U_DOE_TBL_NUM;
@@ -715,18 +754,63 @@ static int ys_k2u_doe_hw_resources_move(struct pci_dev *pdev)
 	doe_to->hash_tbl_cnt = doe_from->hash_tbl_cnt;
 	doe_to->user_tbl_used = doe_from->user_tbl_used;
 
-	ys_k2u_doe_unfix_mode(doe_from);
-	ys_k2u_doe_destroy_interface(doe_from->doe_read_if);
-	ys_k2u_doe_destroy_interface(doe_from->doe_write_if);
+	return 0;
+}
 
-	list_del(&doe_from->list);
-	ys_k2u_doe_hw_resources_uninit(doe_from);
-	ys_wr32(doe_to->doe_base, YS_K2U_DOE_PROTECT_CFG, 0x0);
-	ys_wr32(doe_from->doe_base, YS_K2U_DOE_PROTECT_CFG, 0x0);
+static int ys_k2u_doe_hw_resources_finish_move(struct pci_dev *pdev)
+{
+	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(pdev);
+	struct ys_k2u_doe_device *doe_from = pdev_priv->doe_schedule.schedule_buf;
+	struct ys_k2u_doe_device *doe_to = ys_aux_match_adev(pdev, AUX_TYPE_DOE, 0);
+	u32 len = 0;
+	u32 i = 0;
 
-	doe_from->enble_doe_schedule = false;
-	doe_to->enble_doe_schedule = false;
+	if (doe_from->tbl_bitmap) {
+		kfree(doe_to->tbl_bitmap);
+		doe_to->tbl_bitmap = doe_from->tbl_bitmap;
+		doe_from->tbl_bitmap = NULL;
+	}
+
+	if (doe_from->index_sram) {
+		ys_k2u_doe_mm_uninit(doe_to->index_sram);
+		doe_to->index_sram = doe_from->index_sram;
+		doe_from->index_sram = NULL;
+	}
+
+	if (doe_from->ram) {
+		ys_k2u_doe_mm_uninit(doe_to->ram);
+		doe_to->ram = doe_from->ram;
+		doe_from->ram = NULL;
+	}
+
+	if (doe_from->ddr1) {
+		ys_k2u_doe_mm_uninit(doe_to->ddr1);
+		doe_to->ddr1 = doe_from->ddr1;
+		doe_from->ddr1 = NULL;
+	}
+
+	if (doe_from->ddr0) {
+		ys_k2u_doe_mm_uninit(doe_to->ddr0);
+		doe_to->ddr0 = doe_from->ddr0;
+		doe_from->ddr0 = NULL;
+	}
+
+	if (doe_from->enble_host_ddr || doe_from->enble_soc_ddr) {
+		for (i = 0; i < doe_from->ddrh_array_max && i < doe_to->ddrh_array_max; i++) {
+			ys_k2u_doe_mm_move(doe_to->ddrh[i], doe_from->ddrh[i]);
+			ys_k2u_doe_mm_uninit(doe_from->ddrh[i]);
+		}
+	}
+
+	len = sizeof(struct ys_doe_table_param) * YS_K2U_DOE_TBL_NUM;
+	memcpy(doe_to->param, doe_from->param, len);
+	len = sizeof(struct ys_k2u_doe_table_spec) * (YS_K2U_DOE_USER_TBL_NUM + 2);
+	memcpy(doe_to->spec, doe_from->spec, len);
+	doe_to->hash_tbl_cnt = doe_from->hash_tbl_cnt;
+	doe_to->user_tbl_used = doe_from->user_tbl_used;
+
 	kfree(doe_from);
+	pdev_priv->doe_schedule.schedule_buf = NULL;
 
 	return ys_k2u_doe_add_cdev(pdev);
 }
@@ -782,11 +866,12 @@ int ys_k2u_doe_aux_probe(struct auxiliary_device *auxdev)
 	ys_k2u_doe->doe_read_if->is_read = 1;
 
 	/* DOE hardware resources init */
+	pdev_priv->doe_schedule.ys_doe_begin_schedule = ys_k2u_doe_hw_resources_begin_move;
+	pdev_priv->doe_schedule.ys_doe_finish_schedule = ys_k2u_doe_hw_resources_finish_move;
+
 	ret = ys_k2u_doe_hw_resources_init(ys_k2u_doe);
 	if (ret)
 		return ret;
-
-	list_add(&ys_k2u_doe->list, &ys_k2u_doe_list);
 
 	/* init doe event and dma config */
 	ret = ys_k2u_doe_reg_init(ys_k2u_doe);
@@ -804,14 +889,18 @@ int ys_k2u_doe_aux_probe(struct auxiliary_device *auxdev)
 	/* Set doe aux ops to adev data */
 	ys_k2u_doe->auxdev_ops = auxdev_ops;
 	adev->adev_extern_ops = auxdev_ops;
-	pdev_priv->doe_schedule.ys_doe_schedule = ys_k2u_doe_hw_resources_move;
+
 	/* register irq */
 	ys_k2u_doe_fix_mode(ys_k2u_doe);
+
+	list_add(&ys_k2u_doe->list, &ys_k2u_doe_list);
+	ys_dev_info("Install DOE successfully, version %08x\n",
+		    readl(ys_k2u_doe->doe_base + YS_K2U_DOE_VERSION));
+
 
 	return 0;
 
 err_with_reg_init:
-	list_del(&ys_k2u_doe->list);
 	ys_k2u_doe_hw_resources_uninit(ys_k2u_doe);
 	ys_k2u_doe_destroy_interface(ys_k2u_doe->doe_read_if);
 	ys_k2u_doe_destroy_interface(ys_k2u_doe->doe_write_if);
@@ -828,11 +917,11 @@ void ys_k2u_doe_aux_remove(struct auxiliary_device *auxdev)
 	if (!ys_k2u_doe)
 		return;
 
+	list_del(&ys_k2u_doe->list);
 	ys_k2u_doe_unfix_mode(ys_k2u_doe);
 	ys_k2u_doe_destroy_interface(ys_k2u_doe->doe_read_if);
 	ys_k2u_doe_destroy_interface(ys_k2u_doe->doe_write_if);
 
-	list_del(&ys_k2u_doe->list);
 	ys_k2u_doe_hw_resources_uninit(ys_k2u_doe);
 	kfree(ys_k2u_doe);
 }
@@ -929,8 +1018,6 @@ int ys_k2u_doe_pdev_init(struct ys_pdev_priv *pdev_priv)
 
 	ys_dev_debug("Install DOE successfully, version %08x\n",
 		    readl(ys_k2u_doe->doe_base + YS_K2U_DOE_VERSION));
-
-	pdev_priv->doe_schedule.ys_doe_schedule = ys_k2u_doe_hw_resources_move;
 
 	return 0;
 
@@ -1289,7 +1376,6 @@ ys_k2u_doe_sw_cmd_prepare(struct ys_k2u_doe_device *ys_k2u_doe,
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ys_k2u_doe->pdev);
 	struct ys_doe_sw_cmd *sw_cmd;
 	struct ys_doe_sw_cmd temp_cmd = {0};
-	const void *raw_cmd;
 	u32 batch_koi_len = 0;
 	u32 batch_pair_len = 0;
 	u8 key_len, dov_len;
@@ -1332,17 +1418,6 @@ ys_k2u_doe_sw_cmd_prepare(struct ys_k2u_doe_device *ys_k2u_doe,
 		break;
 	/* user raw cmd */
 	case YS_DOE_SW_RAW_CMD:
-		raw_cmd = (const void *)(sw_cmd->cmd);
-		sw_cmd->cmd = kzalloc(sw_cmd->cmd_size, GFP_KERNEL);
-		if (!sw_cmd->cmd) {
-			ret = -ENOMEM;
-			goto err_with_sw_cmd;
-		}
-
-		if (copy_from_user(sw_cmd->cmd, raw_cmd, sw_cmd->cmd_size)) {
-			ret = -EIO;
-			goto err_with_raw_cmd;
-		}
 		ys_dev_debug("Recive raw cmd opc 0x%x tbl %d\n",
 			     *(u8 *)sw_cmd->cmd, *(u8 *)(sw_cmd->cmd + 1));
 		return sw_cmd;
@@ -1407,9 +1482,6 @@ err_with_pair_map:
 					 sw_cmd->pair_nr_pages,
 					 (struct page **)sw_cmd->pair_pages);
 err_with_koi_map:
-err_with_raw_cmd:
-	if (sw_cmd->opcode == YS_DOE_SW_RAW_CMD)
-		kfree(sw_cmd->cmd);
 err_with_sw_cmd:
 	ys_k2u_doe_free_cmd(doe_if, sw_cmd);
 err_with_io_cmd:
@@ -1491,8 +1563,7 @@ int ys_k2u_doe_sw_cmd_unprepare(struct ys_k2u_doe_device *ys_k2u_doe,
 	if (sw_cmd->koi_nr_pages)
 		ys_k2u_doe_address_unmap(sw_cmd->koi_list, sw_cmd->koi_nr_pages,
 					 (struct page **)sw_cmd->koi_pages);
-	if (sw_cmd->opcode == YS_DOE_SW_RAW_CMD)
-		kfree(sw_cmd->cmd);
+
 	ys_k2u_doe_free_cmd(doe_if, sw_cmd);
 
 	return ret;
@@ -2230,6 +2301,7 @@ int ys_k2u_doe_submit_ddr_spec(struct ys_k2u_doe_device *ys_k2u_doe,
 		ys_k2u_doe_free_cmd(ys_k2u_doe->doe_write_if, cmd);
 		return ret;
 	}
+	parent->cnt += 1;
 	ys_k2u_doe_push_submit(ys_k2u_doe, parent);
 
 	/* submit aie table */
@@ -2248,6 +2320,7 @@ int ys_k2u_doe_submit_ddr_spec(struct ys_k2u_doe_device *ys_k2u_doe,
 		ys_k2u_doe_free_cmd(ys_k2u_doe->doe_write_if, cmd);
 		return ret;
 	}
+	parent->cnt += 1;
 	ys_k2u_doe_push_submit(ys_k2u_doe, parent);
 
 	/* submit internal cache table */
@@ -2266,7 +2339,7 @@ int ys_k2u_doe_submit_ddr_spec(struct ys_k2u_doe_device *ys_k2u_doe,
 		ys_k2u_doe_free_cmd(ys_k2u_doe->doe_write_if, cmd);
 		return ret;
 	}
-
+	parent->cnt += 1;
 	return 0;
 }
 
@@ -2682,6 +2755,13 @@ int ys_k2u_doe_process_cmd(struct ys_k2u_doe_device *ys_k2u_doe,
 		if (!ys_k2u_doe->init) {
 			ys_k2u_doe_reset(ys_k2u_doe, cmd);
 			ys_k2u_doe->init = 1;
+			/*
+			 * submit air/miu_param for table 239 (hash index resource) which
+			 * covers the entire array_ddr1 address space.
+			 * index resource and table 238 (hash flush table) will be initialized
+			 * at the stage of HashTBL Create.
+			 */
+			ys_k2u_doe_submit_ddr_spec(ys_k2u_doe, YS_K2U_DOE_INDEX_RES_TABLE, cmd, ys_k2u_doe_complete_desc);
 		}
 		mutex_unlock(&ys_k2u_doe->mtx_init);
 		break;
@@ -2734,8 +2814,7 @@ void ys_k2u_doe_pdev_unfix_mode(struct ys_pdev_priv *priv)
 int ys_k2u_doe_fix_mode(struct ys_k2u_doe_device *ys_k2u_doe)
 {
 	int ret;
-	struct ys_doe_sw_cmd *init_cmd = NULL;
-	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ys_k2u_doe->pdev);
+	static struct ys_doe_sw_cmd init_cmd = {0};
 
 	ret = ys_k2u_doe_register_irqs(ys_k2u_doe);
 	if (ret) {
@@ -2744,33 +2823,18 @@ int ys_k2u_doe_fix_mode(struct ys_k2u_doe_device *ys_k2u_doe)
 	}
 
 	ys_wr32(ys_k2u_doe->doe_base, YS_K2U_DOE_PROTECT_CFG, 0x1);
-	ys_k2u_doe->init = 1;
-	/* init DOE just when schedule_buf is NULL */
-	if (pdev_priv->doe_schedule.schedule_buf)
+
+	if (ys_k2u_doe->enble_doe_schedule) {
+		ys_k2u_doe->enble_doe_schedule = false;
+		ys_k2u_doe->init = 1;
 		return 0;
+	}
 
-	init_cmd = kzalloc(sizeof(*init_cmd), GFP_KERNEL);
-	if (!init_cmd)
-		return -ENOMEM;
-	init_cmd->opcode = YS_DOE_SW_HW_INIT;
-	INIT_LIST_HEAD(&init_cmd->cache_list);
-	ys_k2u_doe_reset(ys_k2u_doe, init_cmd);
-	ys_k2u_doe_polling_work(ys_k2u_doe->doe_write_if, init_cmd);
-
+	memset(&init_cmd, 0, sizeof(init_cmd));
+	init_cmd.opcode = YS_DOE_SW_HW_INIT;
+	INIT_LIST_HEAD(&init_cmd.cache_list);
+	ys_k2u_doe_user_cmd_context(ys_k2u_doe,  &init_cmd);
 	ret = ys_k2u_doe_cache_reset(ys_k2u_doe);
-	/*
-	 * submit air/miu_param for table 239 (hash index resource) which
-	 * covers the entire array_ddr1 address space.
-	 * index resource and table 238 (hash flush table) will be initialized
-	 * at the stage of HashTBL Create.
-	 */
-	ret = ys_k2u_doe_submit_ddr_spec(ys_k2u_doe, YS_K2U_DOE_INDEX_RES_TABLE,
-					 init_cmd, NULL);
-	if (ret)
-		return ret;
-
-	ys_k2u_doe_polling_work(ys_k2u_doe->doe_write_if, init_cmd);
-
 	return 0;
 }
 

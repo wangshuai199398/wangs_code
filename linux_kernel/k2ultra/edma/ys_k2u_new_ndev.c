@@ -406,6 +406,7 @@ void ys_k2u_ndev_uninit(struct net_device *ndev)
 	struct ys_k2u_ndev *k2u_ndev = ndev_priv->adp_priv;
 
 	ys_tc_exit(ndev);
+	ys_k2u_rss_redir_timer_delete(ndev);
 	ys_k2u_message_uninit(ndev_priv);
 	ys_k2u_ndev_destroy_queues(k2u_ndev);
 	debugfs_remove(k2u_ndev->debugfs_info_file);

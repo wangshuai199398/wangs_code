@@ -98,7 +98,7 @@ struct ys_doe_sw_cmd {
 		/* user define for debug */
 		struct {
 			unsigned int cmd_size;
-			void *cmd;
+			char cmd[256];
 		};
 		/* single array load/store; counter enable */
 		struct {

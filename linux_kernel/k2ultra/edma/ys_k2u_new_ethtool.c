@@ -6,7 +6,6 @@
 #include "ys_k2u_debugfs.h"
 #include "ys_k2u_new_ethtool.h"
 #include "ys_k2u_new_ndev.h"
-#include "../mbox/ys_k2u_mbox.h"
 #include "ys_k2u_rss_redirect.h"
 
 #include "../../platform/ysif_linux.h"
@@ -18,13 +17,24 @@ int ys_k2u_et_set_channels(struct net_device *ndev, struct ethtool_channels *ch)
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_k2u_ndev *k2u_ndev = ndev_priv->adp_priv;
 
+	if (k2u_ndev->rss_redirect_dynamic_adjust)
+		ys_k2u_rss_redir_timer_delete(ndev);
+
 	ys_k2u_ndev_destroy_queues(k2u_ndev);
 
 	ops->netif_set_real_num_tx_queues(ndev, ch->combined_count);
 	ops->netif_set_real_num_rx_queues(ndev, ch->combined_count);
 	ret = ys_k2u_ndev_create_queues(k2u_ndev);
-	if (!ret)
+	if (!ret) {
 		ys_k2u_rss_redirect_table_init(ndev, (u16)ndev->real_num_rx_queues);
+
+		if (k2u_ndev->rss_redirect_dynamic_adjust) {
+			if (ch->combined_count > 1)
+				ys_k2u_rss_redir_timer_setup(k2u_ndev);
+			else
+				k2u_ndev->rss_redirect_dynamic_adjust = 0;
+		}
+	}
 	return ret;
 }
 
@@ -322,56 +332,15 @@ u32 ys_k2u_get_rxfh_indir_size(struct net_device *ndev)
 int ys_k2u_get_rxfh(struct net_device *ndev, u32 *indir, u8 *key, u8 *hfunc)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 	struct ys_k2u_ndev *k2u_ndev = ndev_priv->adp_priv;
-	struct ys_mbox *mbox;
-	struct ys_mbox_msg mbox_msg = {0}, ack_msg = {0};
-	struct ys_k2u_mbox_rss_redirect_cmd *cmd, *ack_cmd;
-	void __iomem *hw_addr = ys_k2u_func_get_hwaddr(k2u_ndev->pdev_priv);
-	u32 send_id = 0;
-	struct ys_k2u_mbox_ctx *ctx = (struct ys_k2u_mbox_ctx *)&send_id;
-	u32 i = 0, j = 0, val = 0;
-	u16 qstart = k2u_ndev->g_qbase.start;
-	u32 real_tbl_size;
-	u32 qcount;
+	u32 i = 0;
+	u32 qcount = ndev->real_num_rx_queues;
 
-	qcount = ndev->real_num_rx_queues;
-	real_tbl_size = qcount;
 	if (indir) {
 		if (k2u_ndev->rss_redirect_en) {
-			real_tbl_size = 4 * qcount;
-			if (pdev_priv->nic_type->is_vf) {
-				mbox = ys_aux_match_mbox_dev(ndev_priv->pdev);
-				if (!mbox) {
-					ys_dev_err("rss redirect get mbox not support!\n");
-					return 0;
-				}
-				cmd = (struct ys_k2u_mbox_rss_redirect_cmd *)mbox_msg.data;
-				cmd->cmd_type = YS_K2U_CMD_RSS_REDIRECT_GET;
-				cmd->qstart = qstart;
-				cmd->qnb = (u16)(qcount);
-				mbox_msg.opcode = YS_MBOX_OPCODE_RSS_REDIRECT;
-				ctx->type = MB_PF;
-				if (!ys_mbox_send_msg(mbox, &mbox_msg, send_id,
-						      MB_WAIT_REPLY, 1000, &ack_msg)) {
-					ack_cmd = (struct ys_k2u_mbox_rss_redirect_cmd *)
-							   ack_msg.data;
-					for (i = 0; i < real_tbl_size; i++)
-						indir[i] = ack_cmd->cmd_data[i];
-				}
-			} else {
-				for (i = 0; i < qcount; i++) {
-					val = ys_rd32(hw_addr,
-						      YS_K2U_RSS_REDIRECT_BASE + 4 * qstart
-						      + 4 * i);
-					indir[j++] = val & 0xff;
-					indir[j++] = (val >> 8) & 0xff;
-					indir[j++] = (val >> 16) & 0xff;
-					indir[j++] = (val >> 24) & 0xff;
-				}
-			}
+			ys_k2u_rss_redirect_table_get(ndev, indir);
 		} else {
-			for (i = 0; i < real_tbl_size; i++)
+			for (i = 0; i < qcount; i++)
 				indir[i] = i;
 		}
 	}
@@ -379,95 +348,25 @@ int ys_k2u_get_rxfh(struct net_device *ndev, u32 *indir, u8 *key, u8 *hfunc)
 	if (hfunc)
 		*hfunc = ETH_RSS_HASH_TOP;
 
-	if (key) {
-		if (pdev_priv->nic_type->is_vf) {
-			mbox = ys_aux_match_mbox_dev(ndev_priv->pdev);
-			if (!mbox) {
-				ys_dev_err("rss key-get mbox not support!\n");
-				return 0;
-			}
-			cmd = (struct ys_k2u_mbox_rss_redirect_cmd *)mbox_msg.data;
-			cmd->cmd_type = YS_K2U_CMD_RSS_REDIRECT_KEY_GET;
-			cmd->qstart = qstart;
-			cmd->qnb = (u16)(qcount);
-			mbox_msg.opcode = YS_MBOX_OPCODE_RSS_REDIRECT;
-			ctx->type = MB_PF;
-			if (!ys_mbox_send_msg(mbox, &mbox_msg, send_id,
-					      MB_WAIT_REPLY, 1000, &ack_msg)) {
-				ack_cmd = (struct ys_k2u_mbox_rss_redirect_cmd *)
-						   ack_msg.data;
-				memcpy(key, ack_cmd->cmd_data, YS_K2U_RSS_HASH_KEY_SIZE);
-			}
-		} else {
-			ys_k2u_pf_hash_key_get(hw_addr, key);
-		}
-	}
+	if (key)
+		ys_k2u_rss_key_get(ndev, key);
+
 	return 0;
 }
 
 int ys_k2u_set_rxfh(struct net_device *ndev, const u32 *indir, const u8 *key, const u8 hfunc)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 	struct ys_k2u_ndev *k2u_ndev = ndev_priv->adp_priv;
-	struct ys_mbox *mbox;
-	struct ys_mbox_msg mbox_msg = {0};
-	struct ys_k2u_mbox_rss_redirect_cmd *cmd;
-	void __iomem *hw_addr = ys_k2u_func_get_hwaddr(k2u_ndev->pdev_priv);
-	u32 send_id = 0;
-	struct ys_k2u_mbox_ctx *ctx = (struct ys_k2u_mbox_ctx *)&send_id;
-	u32 i = 0, val = 0;
-	u16 qstart = k2u_ndev->g_qbase.start;
-	u32 qcount = ndev->real_num_rx_queues;
 
 	if (hfunc != ETH_RSS_HASH_NO_CHANGE && hfunc != ETH_RSS_HASH_TOP)
 		return -EOPNOTSUPP;
 
-	if (key) {
-		if (pdev_priv->nic_type->is_vf) {
-			mbox = ys_aux_match_mbox_dev(ndev_priv->pdev);
-			if (!mbox) {
-				ys_dev_err("rss key-set mbox not support!\n");
-				return 0;
-			}
-			cmd = (struct ys_k2u_mbox_rss_redirect_cmd *)mbox_msg.data;
-			cmd->cmd_type = YS_K2U_CMD_RSS_REDIRECT_KEY_SET;
-			cmd->qstart = qstart;
-			cmd->qnb = (u16)(qcount);
-			mbox_msg.opcode = YS_MBOX_OPCODE_RSS_REDIRECT;
-			ctx->type = MB_PF;
-			memcpy(cmd->cmd_data, key, YS_K2U_RSS_HASH_KEY_SIZE);
-			ys_mbox_send_msg(mbox, &mbox_msg, pdev_priv->vf_id,
-					 MB_NO_REPLY, 0, NULL);
-		} else {
-			ys_k2u_pf_hash_key_set(hw_addr, key);
-		}
-	}
+	if (key)
+		ys_k2u_rss_key_set(ndev, key);
 
-	if (indir && k2u_ndev->rss_redirect_en) {
-		if (pdev_priv->nic_type->is_vf) {
-			mbox = ys_aux_match_mbox_dev(ndev_priv->pdev);
-			if (!mbox) {
-				ys_dev_err("rss redirect set mbox not support!\n");
-				return 0;
-			}
-			cmd = (struct ys_k2u_mbox_rss_redirect_cmd *)mbox_msg.data;
-			cmd->cmd_type = YS_K2U_CMD_RSS_REDIRECT_TABLE_SET;
-			cmd->qstart = qstart;
-			cmd->qnb = (u16)(qcount);
-			mbox_msg.opcode = YS_MBOX_OPCODE_RSS_REDIRECT;
-			ctx->type = MB_PF;
-			for (i = 0; i < 4 * qcount; i++)
-				cmd->cmd_data[i] = (u8)(indir[i] & 0xff);
-			ys_mbox_send_msg(mbox, &mbox_msg, pdev_priv->vf_id,
-					 MB_NO_REPLY, 0, NULL);
-		} else {
-			for (i = 0; i < 4 * qcount; i += 4) {
-				val = ((indir[i + 3] & 0xff) << 24) | ((indir[i + 2] & 0xff) << 16)
-					| ((indir[i + 1] & 0xff) << 8) | (indir[i] & 0xff);
-				ys_wr32(hw_addr, YS_K2U_RSS_REDIRECT_BASE + 4 * qstart + i, val);
-			}
-		}
-	}
+	if (indir && k2u_ndev->rss_redirect_en && !k2u_ndev->rss_redirect_dynamic_adjust)
+		ys_k2u_rss_redirect_table_set(ndev, indir);
+
 	return 0;
 }

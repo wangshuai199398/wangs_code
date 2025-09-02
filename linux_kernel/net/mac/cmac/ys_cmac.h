@@ -46,7 +46,7 @@ u32 ys_cmac_get_link_duplex(struct net_device *ndev);
 u8 ys_cmac_get_link_autoneg(struct net_device *ndev);
 u32 ys_cmac_get_link_port_type(struct net_device *ndev);
 u32 ys_cmac_get_priv_flags(struct net_device *ndev);
-u32 ys_cmac_set_priv_flags(struct net_device *ndev, u32 falg);
+int ys_cmac_set_priv_flags(struct net_device *ndev, u32 falg);
 int ys_cmac_get_coalesce(struct net_device *ndev, struct ethtool_coalesce *ec,
 			 struct kernel_ethtool_coalesce *kec,
 			 struct netlink_ext_ack *ack);

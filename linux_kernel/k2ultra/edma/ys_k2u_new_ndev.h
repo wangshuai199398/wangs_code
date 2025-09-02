@@ -43,6 +43,8 @@ struct ys_k2u_ndev {
 	struct dentry *debugfs_dir;
 	struct dentry *debugfs_info_file;
 	u8 rss_redirect_en;
+	u8 rss_redirect_dynamic_adjust;
+	struct timer_list rss_redir_timer;
 };
 
 static inline bool ys_k2u_ndev_is_rep(struct ys_ndev_priv *ndev_priv)

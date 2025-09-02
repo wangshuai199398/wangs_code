@@ -64,7 +64,7 @@ struct ys_ethtool_hw_ops {
 	u32 (*et_get_link_port_type)(struct net_device *ndev);
 	u32 (*et_get_link_transceiver)(struct net_device *ndev);
 	u32 (*et_get_priv_flags)(struct net_device *ndev);
-	u32 (*et_set_priv_flags)(struct net_device *ndev, u32 flag);
+	int (*et_set_priv_flags)(struct net_device *ndev, u32 flag);
 	int (*et_get_coalesce)(struct net_device *ndev,
 			       struct ethtool_coalesce *ec);
 	int (*et_set_coalesce)(struct net_device *ndev,

@@ -150,7 +150,7 @@ u32 ys_cmac_get_priv_flags(struct net_device *ndev)
 	return flag;
 }
 
-u32 ys_cmac_set_priv_flags(struct net_device *ndev, u32 flag)
+int ys_cmac_set_priv_flags(struct net_device *ndev, u32 flag)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	bool cmac_flag = false;

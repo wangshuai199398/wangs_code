@@ -3,6 +3,8 @@
 #ifndef __YS_K2U_RSS_REDIRECT_H__
 #define __YS_K2U_RSS_REDIRECT_H__
 
+#define YS_K2U_RSS_REDIR_TIMER_PERIOD	5
+
 enum {
 	YS_K2U_CMD_RSS_REDIRECT_GET = 1,
 	YS_K2U_CMD_RSS_REDIRECT_TABLE_INIT,
@@ -25,8 +27,14 @@ void ys_k2u_pf_rss_redirect_table_set(void __iomem *hw_addr, u16 qstart, u16 qnb
 void ys_k2u_pf_rss_redirect_table_get(void __iomem *hw_addr, u16 qstart, u16 qnb, u8 *out);
 void ys_k2u_pf_hash_key_set(void __iomem *hw_addr, const u8 *key);
 void ys_k2u_pf_hash_key_get(void __iomem *hw_addr, u8 *out);
+void ys_k2u_rss_redirect_table_set(struct net_device *ndev, const u32 *indir);
+void ys_k2u_rss_redirect_table_get(struct net_device *ndev, u32 *indir);
+void ys_k2u_rss_key_set(struct net_device *ndev, const u8 *key);
+void ys_k2u_rss_key_get(struct net_device *ndev, u8 *key);
 void ys_k2u_rss_redirect_table_init(struct net_device *ndev, u16 rxqnum);
 void ys_k2u_mbox_rss_redirect_proc(struct ys_mbox *mbox, struct ys_mbox_msg *msg, u32 channel);
+void ys_k2u_rss_redir_timer_setup(struct ys_k2u_ndev *k2u_ndev);
+void ys_k2u_rss_redir_timer_delete(struct net_device *ndev);
 void ys_k2u_rss_init(struct net_device *ndev);
 
 #endif /*__YS_K2U_RSS_REDIRECT_H__*/

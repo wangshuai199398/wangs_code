@@ -621,8 +621,8 @@ static int ys_ndo_set_vf_vlan(struct net_device *ndev, int vf, u16 vlan, u8 qos,
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH))
 		return -EPERM;
 
-	if (pdev_priv->dpu_mode == MODE_DPU_SOC)
-		return -EPERM;
+	if (pdev_priv->dpu_mode != MODE_LEGACY)
+		return -EOPNOTSUPP;
 
 	if (vf >= pdev_priv->sriov_info.num_vfs || vlan > 4095 || qos > 7)
 		return -EINVAL;

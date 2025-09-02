@@ -803,30 +803,36 @@ static u32 ys_get_rxfh_key_size_eth(struct net_device *ndev)
 static int ys_get_rxfh_eth_old(struct net_device *ndev, u32 *indir, u8 *key, u8 *hfunc)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-	pr_err("ys_get_rxfh_eth_old\n");
+	int ret = -EOPNOTSUPP;
+
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
+	mutex_lock(&ndev_priv->state_lock);
 	if (ndev_priv->ys_eth_hw->ys_get_rxfh)
-		return ndev_priv->ys_eth_hw->ys_get_rxfh(ndev, indir, key,
-							 hfunc);
+		ret = ndev_priv->ys_eth_hw->ys_get_rxfh(ndev, indir, key,
+							hfunc);
+	mutex_unlock(&ndev_priv->state_lock);
 
-	return -EOPNOTSUPP;
+	return ret;
 }
 
 static int ys_set_rxfh_eth_old(struct net_device *ndev, const u32 *indir,
 			       const u8 *key, const u8 hfunc)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
-	pr_err("ys_set_rxfh_eth_old\n");
+	int ret = -EOPNOTSUPP;
+
 	if (ys_ndev_check_permission(ndev_priv, AUX_TYPE_ETH | AUX_TYPE_SF | AUX_TYPE_REP))
 		return -EPERM;
 
+	mutex_lock(&ndev_priv->state_lock);
 	if (ndev_priv->ys_eth_hw->ys_set_rxfh)
-		return ndev_priv->ys_eth_hw->ys_set_rxfh(ndev, indir, key,
-							 hfunc);
+		ret = ndev_priv->ys_eth_hw->ys_set_rxfh(ndev, indir, key,
+							hfunc);
+	mutex_unlock(&ndev_priv->state_lock);
 
-	return -EOPNOTSUPP;
+	return ret;
 }
 
 static int ys_get_eeprom_len(struct net_device *ndev)

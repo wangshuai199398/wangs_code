@@ -384,19 +384,25 @@ static void ys_tc_hashtable_del_cb(struct ys_tc_priv *tc_priv,
 	}
 }
 
-static void ys_tc_table_work_proc(struct ys_tc_table *table)
+static inline struct workqueue_struct *ys_tc_table_wq(struct ys_tc_table *table)
+{
+	return table->wq ? table->wq : table->switchdev->wq;
+}
+
+static void ys_tc_table_work_proc(struct ys_tc_table *table, void (*extra)(struct ys_tc_table *))
 {
 	struct llist_node *dellist = NULL;
 	struct llist_node *addlist = NULL;
 	struct ys_tc_table_entry *entry = NULL;
 	struct ys_tc_table_entry *tmp = NULL;
 	struct ys_tc_switchdev *switchdev = table->switchdev;
+	struct workqueue_struct *wq = ys_tc_table_wq(table);
 
 	set_bit(YS_TC_TABLE_FLAG_WORK_PROCESS, &table->flags);
 	if (test_bit(YS_TC_TABLE_FLAG_DUMP, &table->flags)) {
 		/* Dump in progress, trigger a next round. */
+		mod_delayed_work(wq, &table->tc_work, 0);
 		atomic64_inc(&switchdev->metrics[YS_TC_METRICS_WORK_RETRY_TOTAL]);
-		mod_delayed_work(switchdev->wq, &table->tc_work, 0);
 		return;
 	}
 	/* put dellist first to avoid race */
@@ -422,6 +428,9 @@ static void ys_tc_table_work_proc(struct ys_tc_table *table)
 		kfree(entry);
 	}
 
+	if (extra)
+		extra(table);
+
 	clear_bit(YS_TC_TABLE_FLAG_WORK_PROCESS, &table->flags);
 }
 
@@ -429,7 +438,7 @@ static void ys_tc_table_work(struct work_struct *work)
 {
 	struct ys_tc_table *table = container_of(work, struct ys_tc_table, tc_work.work);
 
-	ys_tc_table_work_proc(table);
+	ys_tc_table_work_proc(table, NULL);
 }
 
 static void ys_tc_cnt_table_walk_update_array_load(struct ys_tc_table *table)
@@ -557,21 +566,19 @@ static int ys_tc_meter_table_add_cb(struct ys_tc_priv *tc_priv,
 static void ys_tc_counter_work_on_ram(struct work_struct *work)
 {
 	struct ys_tc_table *table = container_of(work, struct ys_tc_table, tc_work.work);
-	struct ys_tc_switchdev *switchdev = table->switchdev;
+	struct workqueue_struct *wq = ys_tc_table_wq(table);
 
-	ys_tc_table_work_proc(table);
-	ys_tc_cnt_table_walk_update_array_load(table);
-	queue_delayed_work(switchdev->wq, &table->tc_work, table->work_interval);
+	queue_delayed_work(wq, &table->tc_work, table->work_interval);
+	ys_tc_table_work_proc(table, ys_tc_cnt_table_walk_update_array_load);
 }
 
 static void ys_tc_counter_work_on_ddr(struct work_struct *work)
 {
 	struct ys_tc_table *table = container_of(work, struct ys_tc_table, tc_work.work);
-	struct ys_tc_switchdev *switchdev = table->switchdev;
+	struct workqueue_struct *wq = ys_tc_table_wq(table);
 
-	ys_tc_table_work_proc(table);
-	ys_tc_cnt_table_walk_update_counter_load(table);
-	queue_delayed_work(switchdev->wq, &table->tc_work, table->work_interval);
+	queue_delayed_work(wq, &table->tc_work, table->work_interval);
+	ys_tc_table_work_proc(table, ys_tc_cnt_table_walk_update_counter_load);
 }
 
 static int ys_tc_ref_table_create_cb(struct ys_tc_priv *tc_priv,
@@ -797,6 +804,7 @@ static int ys_tc_table_create(struct ys_tc_priv *tc_priv,
 	struct ys_tc_switchdev *switchdev = (struct ys_tc_switchdev *)(tc_priv->switchdev);
 	char name[32] = {0};
 	struct ys_tc_table *table = NULL;
+	char work_q_name[32] = {0};
 
 	table = kvzalloc(struct_size(table, entry_list, param->size), GFP_KERNEL);
 	if (!table)
@@ -853,6 +861,16 @@ static int ys_tc_table_create(struct ys_tc_priv *tc_priv,
 	if (table->type & YS_TC_TABLE_ARRAY)
 		table->start_idx = param->start_idx;
 
+	if (table->type & YS_TC_TABLE_CNT) {
+		snprintf(work_q_name, sizeof(work_q_name), "ys_tc_sw_%d_work_%d",
+			 switchdev->id, table->id);
+		table->wq = create_singlethread_workqueue(work_q_name);
+		if (!table->wq) {
+			ret = -ENOMEM;
+			goto wq_fail;
+		}
+	}
+
 	ys_tc_info("Create: table %s, id %d, size %u, type %d, location %d, key_len %d, value %d.\n",
 		   table->name, table->id,
 		   table->size, param->extra.tbl_type, param->extra.location,
@@ -862,7 +880,7 @@ static int ys_tc_table_create(struct ys_tc_priv *tc_priv,
 	ret = table->ops->create(tc_priv, table);
 	if (ret) {
 		ys_tc_err("Failed to create table %s, ret %d.\n", table->name, ret);
-		goto failed;
+		goto table_create_fail;
 	}
 
 	switchdev->ys_tc_tables[table->id] = table;
@@ -879,7 +897,10 @@ static int ys_tc_table_create(struct ys_tc_priv *tc_priv,
 
 	return 0;
 
-failed:
+table_create_fail:
+	if (table->wq)
+		destroy_workqueue(table->wq);
+wq_fail:
 	kvfree(table);
 	return ret;
 }
@@ -894,7 +915,7 @@ static void ys_tc_table_destroy(struct ys_tc_priv *tc_priv,
 	if (!table)
 		return;
 
-	ys_tc_table_work_proc(table);
+	ys_tc_table_work_proc(table, NULL);
 	for (i = 0; i < table->size; i++) {
 		entry = table->entry_list[i];
 		if (entry) {
@@ -903,6 +924,9 @@ static void ys_tc_table_destroy(struct ys_tc_priv *tc_priv,
 		}
 	}
 	ys_tc_info("Destroy table %d, %u entries.", table->id, nb);
+
+	if (table->wq)
+		destroy_workqueue(table->wq);
 
 	table->ops->destroy(tc_priv, table);
 	idr_destroy(&table->idr);
@@ -987,6 +1011,7 @@ static void ys_tc_table_do_del_and_free(struct ys_tc_priv *tc_priv,
 {
 	struct ys_tc_table *table = entry->table;
 	struct ys_tc_switchdev *switchdev = table->switchdev;
+	struct workqueue_struct *wq = ys_tc_table_wq(table);
 
 	table->ops->del(tc_priv, entry);
 
@@ -1000,7 +1025,7 @@ static void ys_tc_table_do_del_and_free(struct ys_tc_priv *tc_priv,
 
 	llist_add(&entry->dellist, &table->dellist);
 	if (!test_bit(YS_TC_TABLE_FLAG_WORK_CANCEL, &table->flags))
-		mod_delayed_work(switchdev->wq, &table->tc_work, 0);
+		queue_delayed_work(wq, &table->tc_work, 0);
 }
 
 void ys_tc_table_free(struct ys_tc_priv *tc_priv,
@@ -1026,7 +1051,8 @@ int ys_tc_table_add(struct ys_tc_priv *tc_priv, struct ys_tc_table_entry *entry)
 {
 	struct ys_tc_table *table = entry->table;
 	struct ys_tc_switchdev *switchdev = table->switchdev;
-	int ret;
+	int ret = 0;
+	struct workqueue_struct *wq = ys_tc_table_wq(table);
 
 	/* For reference entry, job done. */
 	if (test_bit(YS_TC_TABLE_ENTRY_VALID, &entry->flags))
@@ -1046,8 +1072,13 @@ int ys_tc_table_add(struct ys_tc_priv *tc_priv, struct ys_tc_table_entry *entry)
 	set_bit(YS_TC_TABLE_ENTRY_VALID, &entry->flags);
 
 	llist_add(&entry->addlist, &table->addlist);
+	/*
+	 * If work is Pending(waiting for enqueue to execute),
+	 * queue_delayed_work will not change the delay time,
+	 * but mod_delayed_work will.
+	 */
 	if (!test_bit(YS_TC_TABLE_FLAG_WORK_CANCEL, &table->flags))
-		mod_delayed_work(switchdev->wq, &table->tc_work, 0);
+		queue_delayed_work(wq, &table->tc_work, 0);
 
 	return 0;
 }

@@ -152,10 +152,10 @@ ys_tc_action_parse_jump_mac_vlan_ip_ipv6(struct ys_tc_priv *tc_priv,
 
 	switch (ops->type) {
 	case YS_TC_ACTION_SET_MAC_SRC:
-		memcpy(act_entry->data.src_eth, action_meta->eth.h_source, ETH_ALEN);
+		ether_addr_copy(act_entry->data.src_eth, action_meta->eth.h_source);
 		break;
 	case YS_TC_ACTION_SET_MAC_DST:
-		memcpy(act_entry->data.dst_eth, action_meta->eth.h_dest, ETH_ALEN);
+		ether_addr_copy(act_entry->data.dst_eth, action_meta->eth.h_dest);
 		break;
 	case YS_TC_ACTION_PUSH_VLAN:
 		act_entry->data.vlan_tag = action_meta->vlan_tag;
@@ -997,15 +997,40 @@ static inline bool ys_tc_action_empty(struct ys_tc_action_meta *action_meta)
 
 static int ys_tc_get_action_type_by_pos(const struct ys_tc_action_meta *action_meta, int pos)
 {
-	int ret = YS_TC_ACTION_MAX;
-	int i = 0;
+	int type = 0;
 
-	for (i = 0; i < ARRAY_SIZE(action_meta->action_pos_list); i++) {
-		if (action_meta->action_pos_list[i] == pos)
-			return i;
+	for (type = 0; type < YS_TC_ACTION_MAX; type++) {
+		if (action_meta->action_pos_list[type] == pos)
+			return type;
 	}
 
-	return ret;
+	return YS_TC_ACTION_MAX;
+}
+
+static void ys_tc_action_order_tune(struct ys_tc_action_meta *action_meta)
+{
+	const int vxlan_encap_pos = action_meta->action_pos_list[YS_TC_ACTION_VXLAN_ENCAP];
+	const int geneve_encap_pos = action_meta->action_pos_list[YS_TC_ACTION_GENEVE_ENCAP];
+	int target_pos = 0;
+	enum ys_tc_action_type type_to_swap = YS_TC_ACTION_MAX;
+
+	if (!vxlan_encap_pos && !geneve_encap_pos)
+		return;
+
+	if (action_meta->encap_in_mirror)
+		target_pos = action_meta->action_pos_list[YS_TC_ACTION_FLOW_MIRROR] - 1;
+	else
+		target_pos = action_meta->action_pos_list[YS_TC_ACTION_OUTPUT_PORT] - 1;
+
+	type_to_swap = ys_tc_get_action_type_by_pos(action_meta, target_pos);
+	if (type_to_swap < 0 || type_to_swap >= YS_TC_ACTION_MAX)
+		return;
+	action_meta->action_pos_list[type_to_swap] = vxlan_encap_pos + geneve_encap_pos;
+
+	if (vxlan_encap_pos)
+		action_meta->action_pos_list[YS_TC_ACTION_VXLAN_ENCAP] = target_pos;
+	else
+		action_meta->action_pos_list[YS_TC_ACTION_GENEVE_ENCAP] = target_pos;
 }
 
 static const struct ys_tc_ops_action *ys_tc_get_action_ops(enum ys_tc_action_type action_type)
@@ -1583,8 +1608,8 @@ static int ys_tc_flow_valid(struct ys_tc_priv *tc_priv,
 		ys_tc_debug("flow eth addrs valid failed\n");
 		return -EINVAL;
 	}
-	memcpy(flow_md->src_eth, eth_match.key->src, ETH_ALEN);
-	memcpy(flow_md->dst_eth, eth_match.key->dst, ETH_ALEN);
+	ether_addr_copy(flow_md->src_eth, eth_match.key->src);
+	ether_addr_copy(flow_md->dst_eth, eth_match.key->dst);
 
 	/* vlan */
 	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_VLAN)) {
@@ -1808,8 +1833,8 @@ static int ys_tc_flow_compile_match(struct ys_tc_priv *tc_priv,
 
 	if (!md->src_addr.is_ipv6) {
 		ipv4 = (struct ys_tc_key_ipv4 *)(flow->table_entry->data);
-		memcpy(ipv4->src_eth, md->src_eth, ETH_ALEN);
-		memcpy(ipv4->dst_eth, md->dst_eth, ETH_ALEN);
+		ether_addr_copy(ipv4->src_eth, md->src_eth);
+		ether_addr_copy(ipv4->dst_eth, md->dst_eth);
 
 		ipv4->protocol = md->proto;
 		ipv4->src_ip = md->src_addr.ipv4;
@@ -1826,8 +1851,8 @@ static int ys_tc_flow_compile_match(struct ys_tc_priv *tc_priv,
 		ipv4->src_qset = cpu_to_be16(in_tc_priv->qset);
 	} else {
 		ipv6 = (struct ys_tc_key_ipv6 *)(flow->table_entry->data);
-		memcpy(ipv6->src_eth, md->src_eth, ETH_ALEN);
-		memcpy(ipv6->dst_eth, md->dst_eth, ETH_ALEN);
+		ether_addr_copy(ipv6->src_eth, md->src_eth);
+		ether_addr_copy(ipv6->dst_eth, md->dst_eth);
 
 		ipv6->protocol = md->proto;
 		memcpy(ipv6->src_ip, &md->src_addr.ipv6,
@@ -1947,6 +1972,13 @@ static int ys_tc_flow_compile_action(struct ys_tc_priv *tc_priv,
 			return ret;
 	}
 	ys_tc_action_add(YS_TC_ACTION_END, action_meta);
+	/*
+	 * OVS actions="push_vlan:0x8100,set_field:0x11F4->vlan_vid,output=vxlan1"
+	 * For current tunnel conf, tc kernel would offload action:
+	 * encap / push vlan / output(vxlan_4789).
+	 * In such case, encap should be placed to very end.
+	 */
+	ys_tc_action_order_tune(action_meta);
 
 	tbl_entry = flow->table_entry;
 	action_buf->data = tbl_entry->data + ys_tc_table_get_keylen(tbl_entry->table);
@@ -2372,14 +2404,14 @@ failed:
 static struct rhashtable_params tc_ht_params = {
 	.head_offset = offsetof(struct ys_tc_flow, node),
 	.key_offset = offsetof(struct ys_tc_flow, cookie),
-	.key_len = sizeof(((struct ys_tc_flow *)0)->cookie),
+	.key_len = sizeof_field(struct ys_tc_flow, cookie),
 	.automatic_shrinking = true,
 };
 
 static struct rhashtable_params multicast_ht_params = {
 	.head_offset = offsetof(struct ys_tc_group_entry, node),
 	.key_offset = offsetof(struct ys_tc_group_entry, bitmap),
-	.key_len = sizeof(((struct ys_tc_group_entry *)0)->bitmap),
+	.key_len = sizeof_field(struct ys_tc_group_entry, bitmap),
 	.automatic_shrinking = true,
 };
 

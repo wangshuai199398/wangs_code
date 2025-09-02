@@ -403,7 +403,7 @@ out:
 static struct rhashtable_params meter_ht_params = {
 	.head_offset = offsetof(struct ys_tc_meter, node),
 	.key_offset = offsetof(struct ys_tc_meter, index),
-	.key_len = sizeof(((struct ys_tc_meter *)0)->index),
+	.key_len = sizeof_field(struct ys_tc_meter, index),
 	.automatic_shrinking = true,
 };
 

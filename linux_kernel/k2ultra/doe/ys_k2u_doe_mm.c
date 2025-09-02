@@ -251,7 +251,7 @@ void ys_k2u_doe_free(struct ys_k2u_doe_mm *ymm, u64 address)
 		new_mr = new_mr->next;
 	}
 	if (!new_mr) {
-		pr_warn("Unknowned address to free\n");
+		pr_warn("Unknowned address:0x%llx to free\n", address);
 		return;
 	}
 

@@ -81,8 +81,10 @@ struct ys_state_statistics {
 
 struct ys_doe_schedule {
 	bool doe_master;
+	bool enble_doe_schedule;
 	void *schedule_buf;
-	int (*ys_doe_schedule)(struct pci_dev *pdev);
+	int (*ys_doe_begin_schedule)(struct pci_dev *pdev);
+	int (*ys_doe_finish_schedule)(struct pci_dev *pdev);
 };
 
 struct ys_adev {

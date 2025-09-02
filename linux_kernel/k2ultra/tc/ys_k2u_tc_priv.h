@@ -207,6 +207,7 @@ struct ys_tc_table {
 	__u16 value_len;
 
 	struct ys_tc_switchdev *switchdev;
+	struct workqueue_struct *wq;
 	struct delayed_work tc_work;
 	unsigned long work_interval;
 	unsigned long flags;

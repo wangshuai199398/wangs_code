@@ -24,7 +24,8 @@ struct ys_k2ulan_mbox_ctx {
 static const char ys_k2ulan_priv_strings[][ETH_GSTRING_LEN] = {
 	"veb_enable",
 	"rss_sel_udp_tunnel_info",
-	"pvid_miss_upload"
+	"pvid_miss_upload",
+	"rss_dynamic_adjust"
 };
 
 static void ys_k2ulan_enable_qset(struct net_device *ndev, u16 vf_id, u8 enable);
@@ -1573,38 +1574,6 @@ static int ys_k2ulan_update_uc_mac_addr(struct net_device *ndev, u16 vf_id,
 	return 0;
 }
 
-static void ys_k2ulan_mbox_req_clear_hash(struct ys_mbox *mbox)
-{
-	struct ys_pdev_priv *pdev_priv;
-	struct ys_mbox_msg msg = {0}, ack_msg;
-	struct ys_hash_field hash_field = {0};
-	struct ys_k2ulan_cmd *cmd, *cmd_ack;
-	u32 send_id = 0;
-	struct ys_k2ulan_mbox_ctx *ctx = (struct ys_k2ulan_mbox_ctx *)&send_id;
-
-	if (IS_ERR_OR_NULL(mbox)) {
-		ys_err("vf req_clear_hash get mbox failed!");
-		return;
-	}
-	pdev_priv = pci_get_drvdata(mbox->pdev);
-	if (mbox->role != MB_VF) {
-		ys_dev_err("req_clear_hash mbox role is invalid, role:%x", mbox->role);
-		return;
-	}
-	ctx->type = MB_PF;
-
-	cmd = (struct ys_k2ulan_cmd *)msg.data;
-	cmd->cmd_type = YS_K2ULAN_CMD_VF_HASH_CLEAR;
-	cmd->data_len = sizeof(hash_field);
-	memcpy(cmd->cmd_data, &hash_field, cmd->data_len);
-	cmd_ack = (struct ys_k2ulan_cmd *)ack_msg.data;
-
-	if (ys_k2ulan_cmd_exec(mbox, YS_MBOX_OPCODE_CLEAR_HASH, send_id,
-			       cmd, sizeof(*cmd) + cmd->data_len, &ack_msg)) {
-		ys_dev_err("vf clear hash mode failed. status:%x", cmd_ack->cmd_status);
-	}
-}
-
 static int ys_k2ulan_mbox_clear_hash(struct ys_mbox *mbox, struct ys_k2ulan_cmd *cmd, u16 vf_id)
 {
 	struct ys_pdev_priv *pdev_priv;
@@ -1635,25 +1604,35 @@ static void ys_k2ulan_clear_qset_hash(struct net_device *ndev)
 	struct ys_ndev_priv *ndev_priv;
 	struct ys_pdev_priv *pdev_priv;
 	void __iomem *hw_addr;
-	struct ys_mbox *mbox;
+	struct k2ulan_qset_hash *qset_hash;
+	u8 hash_mode = 0;
+	u32 reg;
 	u16 qset;
 
 	ndev_priv = netdev_priv(ndev);
 	pdev_priv = pci_get_drvdata(ndev_priv->pdev);
+
+	if (pdev_priv->nic_type->is_vf)
+		return;
+
 	qset = ndev_priv->qi.qset;
 	hw_addr = pdev_priv->bar_addr[YS_K2ULAN_REGS_BAR];
+	/* reset default hash config */
+	hash_mode = YS_HASH_FIELD_SEL_SRC_IP |
+		    YS_HASH_FIELD_SEL_DST_IP |
+		    YS_HASH_FIELD_SEL_L4_SPORT |
+		    YS_HASH_FIELD_SEL_L4_DPORT |
+		    YS_HASH_FIELD_SEL_L3_PROTO,
 
-	if (pdev_priv->nic_type->is_vf) {
-		/*request pf set vf hash*/
-		mbox = ys_aux_match_mbox_dev(ndev_priv->pdev);
-		if (!mbox) {
-			ys_dev_err("mbox not support!\n");
-			return;
-		}
-		ys_k2ulan_mbox_req_clear_hash(mbox);
-	} else {
-		ys_wr32(hw_addr, YS_K2ULAN_STEERING_QSET_HASH(qset), 0);
-	}
+	/* init pf qset hash */
+	reg = ys_rd32(hw_addr, YS_K2ULAN_STEERING_QSET_HASH(qset));
+	qset_hash = (struct k2ulan_qset_hash *)&reg;
+	qset_hash->q_ipv4_tcp_hash_mode = hash_mode;
+	qset_hash->q_ipv6_tcp_hash_mode = hash_mode;
+	qset_hash->q_ipv4_udp_hash_mode = hash_mode;
+	qset_hash->q_ipv6_udp_hash_mode = hash_mode;
+	qset_hash->q_tunnel_pkt_hash_sel = YS_K2ULAN_HASH_TUNNEL_PKT_SEL_OUTER;
+	ys_wr32(hw_addr, YS_K2ULAN_STEERING_QSET_HASH(qset), reg);
 }
 
 static void ys_k2ulan_clear_qset_vlan(struct net_device *ndev)
@@ -2415,6 +2394,11 @@ static u32 ys_k2ulan_get_priv_flags(struct net_device *ndev)
 	if (ndev_priv->pvid_miss_upload && !pdev_priv->nic_type->is_vf)
 		flag |= (1 << YS_K2ULAN_PFLAG_PVID_MISS_UPLOAD);
 
+	if (pdev_priv->ops->hw_adp_rss_redir_dynamic_adjust_get &&
+	    pdev_priv->ops->hw_adp_rss_redir_dynamic_adjust_get(ndev)) {
+		flag |= (1 << YS_K2ULAN_PFLAG_RSS_REDIR_DYNAMIC_ADJUST_EN);
+	}
+
 	ys_net_debug("\n%s : %s\n",
 		     ys_k2ulan_priv_strings[YS_K2ULAN_PFLAG_VEB_ENABLE],
 		     ndev_priv->veb_enable ? "on" : "off");
@@ -2425,16 +2409,20 @@ static u32 ys_k2ulan_get_priv_flags(struct net_device *ndev)
 		     ys_k2ulan_priv_strings[YS_K2ULAN_PFLAG_RSS_SEL_UDP_TUN_INFO],
 		     pdev_priv->nic_type->is_vf ? "na" :
 		     ndev_priv->rss_sel_udp_tun_info ? "on" : "off");
+	ys_net_debug("\n%s : %s\n",
+		     ys_k2ulan_priv_strings[YS_K2ULAN_PFLAG_RSS_REDIR_DYNAMIC_ADJUST_EN],
+		     (flag & (1 << YS_K2ULAN_PFLAG_RSS_REDIR_DYNAMIC_ADJUST_EN)) ? "on" : "off");
 
 	return flag;
 }
 
-static u32 ys_k2ulan_set_priv_flags(struct net_device *ndev, u32 flag)
+
+static int ys_k2ulan_set_priv_flags(struct net_device *ndev, u32 flag)
 {
 	struct ys_ndev_priv *ndev_priv = netdev_priv(ndev);
 	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(ndev_priv->pdev);
 	struct ys_mbox *mbox;
-	u32 err = 0;
+	int err = 0;
 
 	if (pdev_priv->nic_type->is_vf) {
 		/*request pf set vf priv flag*/
@@ -2465,7 +2453,12 @@ static u32 ys_k2ulan_set_priv_flags(struct net_device *ndev, u32 flag)
 					ndev_priv->pvid_miss_upload);
 	}
 
-	return (u32)err;
+	if (pdev_priv->ops->hw_adp_rss_redir_dynamic_adjust_set) {
+		err = pdev_priv->ops->hw_adp_rss_redir_dynamic_adjust_set(ndev,
+			(flag & (1 << YS_K2ULAN_PFLAG_RSS_REDIR_DYNAMIC_ADJUST_EN)) != 0);
+	}
+
+	return err;
 }
 
 static void ys_k2ulan_lib_set_promisc(struct ys_pdev_priv *pdev_priv,
@@ -3559,6 +3552,7 @@ static void ys_k2ulan_reset_vf_cfg(struct net_device *ndev, u16 vf_id)
 	}
 	hw_addr = pdev_priv->bar_addr[YS_K2ULAN_REGS_BAR];
 	vf_info = &pdev_priv->sriov_info.vfinfo[vf_id];
+	ys_dev_info("reset vf %d qset %d!\n", vf_id, vf_info->qset);
 	ys_k2ulan_reset_vf_regs(hw_addr, vf_info->qset);
 	ys_k2ulan_clear_port_vf_vlan(hw_addr, vf_info->qset);
 }

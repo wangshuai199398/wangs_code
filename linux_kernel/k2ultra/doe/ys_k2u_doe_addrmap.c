@@ -188,15 +188,13 @@ void ys_k2u_doe_addrmap_uninit(struct ys_k2u_doe_device *ys_k2u_doe)
 	if (!ys_k2u_doe->ddrh || !ys_k2u_doe->manage_host)
 		goto err_with_addrmap;
 
-	if (!ys_k2u_doe->enble_doe_schedule) {
-		ys_wr32(ys_k2u_doe->doe_base, YS_K2U_DOE_ADDRMAP_ENABLE, 0);
+	ys_wr32(ys_k2u_doe->doe_base, YS_K2U_DOE_ADDRMAP_ENABLE, 0);
 
-		for (i = 0; i < YS_K2U_DOE_ADDRMAP_PAGE_LIMIT; i++)
-			ys_k2u_doe_set_page(ys_k2u_doe, (u64)0, i);
+	for (i = 0; i < YS_K2U_DOE_ADDRMAP_PAGE_LIMIT; i++)
+		ys_k2u_doe_set_page(ys_k2u_doe, (u64)0, i);
 
-		for (i = 0; i < YS_K2U_DOE_PAGEINFO_ENTRY_LIMIT; i++)
-			ys_k2u_doe_set_page_info(ys_k2u_doe, i, false, 0, 0, 0, 0);
-	}
+	for (i = 0; i < YS_K2U_DOE_PAGEINFO_ENTRY_LIMIT; i++)
+		ys_k2u_doe_set_page_info(ys_k2u_doe, i, false, 0, 0, 0, 0);
 
 	for (i = 0; i < YS_K2U_DOE_ADDRMAP_PAGE_LIMIT; i++) {
 		if (ys_k2u_doe->ddrh[i])
@@ -207,8 +205,7 @@ void ys_k2u_doe_addrmap_uninit(struct ys_k2u_doe_device *ys_k2u_doe)
 	}
 
 err_with_addrmap:
-	if (!ys_k2u_doe->enble_doe_schedule)
-		ys_wr32(ys_k2u_doe->doe_base, YS_K2U_DOE_ADDRMAP_ENABLE, 0);
+	ys_wr32(ys_k2u_doe->doe_base, YS_K2U_DOE_ADDRMAP_ENABLE, 0);
 	kfree(ys_k2u_doe->manage_host);
 	kfree(ys_k2u_doe->ddrh);
 }

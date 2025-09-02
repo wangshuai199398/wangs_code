@@ -38,5 +38,5 @@ void ys_aux_doe_remove(struct auxiliary_device *auxdev)
 	    !IS_ERR_OR_NULL(pdev_priv->ops->hw_adp_doe_uninit))
 		pdev_priv->ops->hw_adp_doe_uninit(auxdev);
 
-	//g_ys_pdev_manager.doe_ops = NULL;
+	g_ys_pdev_manager.doe_ops = NULL;
 }

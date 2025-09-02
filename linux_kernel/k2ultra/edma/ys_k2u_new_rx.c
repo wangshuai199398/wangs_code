@@ -3,6 +3,7 @@
 #include "ys_k2u_new_rx.h"
 #include "ys_k2u_new_func.h"
 #include "ys_k2u_new_ndev.h"
+#include "ys_k2u_rss_redirect.h"
 
 #include "../../platform/ysif_linux.h"
 

@@ -65,6 +65,8 @@ struct hw_adapter_ops {
 	int (*hw_adp_cdev_qos_sync)(struct net_device *ndev, u16 qid);
 	int (*hw_adp_cdev_link_gqbase_get)(struct net_device *ndev, u16 *qstart, u16 *qnum);
 	u16 (*hw_adp_cdev_peer_qset_get)(struct net_device *ndev);
+	u8 (*hw_adp_rss_redir_dynamic_adjust_get)(struct net_device *ndev);
+	int (*hw_adp_rss_redir_dynamic_adjust_set)(struct net_device *ndev, u8 enable);
 };
 
 #endif /* __YS_ADPTER_H_ */

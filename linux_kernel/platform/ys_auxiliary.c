@@ -547,7 +547,7 @@ static void ys_aux_doe_dev_uninit(struct pci_dev *pdev)
 	struct ys_pdev_priv *temp = NULL;
 	struct list_head *schedule_list = NULL;
 	struct ys_adev *adev;
-	void *adev_priv = NULL;
+	//void *adev_priv = NULL;
 
 	doe_enable = pdev_priv->nic_type->doe_enable &&
 		     !pdev_priv->nic_type->is_vf  &&
@@ -576,25 +576,24 @@ static void ys_aux_doe_dev_uninit(struct pci_dev *pdev)
 
 	spin_unlock(&pdev_priv->pdev_manager->doe_schedule_lock);
 
-	if (pdev_priv->doe_schedule.doe_master && schedule_priv) {
-		ys_dev_info("DOE will be schedule master PF to PF%d\n", schedule_priv->pf_id);
-		adev_priv = ys_aux_match_adev(pdev, AUX_TYPE_DOE, 0);
-		adev = ys_aux_get_adev(pdev, AUX_TYPE_DOE, adev_priv);
-
-		schedule_priv->doe_schedule.schedule_buf = adev_priv;
-		adev->adev_priv = NULL;
+	if (pdev_priv->doe_schedule.doe_master) {
+		if (schedule_priv) {
+			ys_dev_info("DOE will be schedule master PF to PF%d\n",
+				    schedule_priv->pf_id);
+			pdev_priv->doe_schedule.enble_doe_schedule = true;
+			schedule_priv->doe_schedule.enble_doe_schedule = true;
+		}
+		ys_aux_del_match_adev(pdev_priv->pdev, 0, AUX_NAME_DOE);
 	}
 
-	if (pdev_priv->doe_schedule.doe_master)
-		ys_aux_del_match_adev(pdev_priv->pdev, 0, AUX_NAME_DOE);
-
 	if (pdev_priv->doe_schedule.doe_master && schedule_priv) {
+		schedule_priv->doe_schedule.schedule_buf = pdev_priv->doe_schedule.schedule_buf;
+		schedule_priv->doe_schedule.enble_doe_schedule = true;
 		adev = ys_aux_add_adev(schedule_priv->pdev, 0, AUX_NAME_DOE, NULL);
 		if (IS_ERR_OR_NULL(adev)) {
 			ys_dev_err("DOE schedule master PF fail\n");
 			return;
 		}
-		pdev_priv->doe_schedule.ys_doe_schedule(schedule_priv->pdev);
 		ys_dev_info("DOE schedule master PF success\n");
 		pdev_priv->doe_schedule.doe_master = false;
 		schedule_priv->doe_schedule.doe_master = true;

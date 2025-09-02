@@ -30,6 +30,7 @@ extern bool dpu_host;
 
 #define YS_K2U_DOE_READ_EVENTQ_DEPTH		1024
 #define YS_K2U_DOE_READ_EVENTQ_ENTRY_SIZE	4096
+#define YS_K2U_DOE_EVENT_MAX_LIMIT		63
 
 #define YS_K2U_DOE_CMD_TIMEOUT			(20 * HZ)	/* 20s */
 #define POLLING_TIMEDOUT			100000000ULL	/* 100ms */

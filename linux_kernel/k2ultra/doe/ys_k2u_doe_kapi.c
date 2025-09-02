@@ -51,27 +51,10 @@ s32 hados_doe_create_arraytbl_v25(u32 card_id, u8 tbl_id, u32 depth,
 	cmd.tbl_param.dov_len = data_len;
 	cmd.tbl_param.index_sram_size = 512;
 	if (cfg) {
-		if (cfg->shared_tbl ||
-		    *(u32 *)cfg->l1_cache_ways != 0 ||
-		    *(u32 *)(cfg->l1_cache_ways + 4) != 0 ||
-		    *(u32 *)(cfg->l1_cache_ways + 8) != 0 ||
-		    *(u32 *)(cfg->l1_cache_ways + 12) != 0 ||
-		    cfg->l2_cache_ways != 0) {
-			cmd.tbl_param.use_cache = 1;
-			cmd.tbl_param.shared_tbl = cfg->shared_tbl;
-			memcpy(cmd.tbl_param.l1_cache_ways, cfg->l1_cache_ways,
-			       sizeof(u8) * 16);
-			cmd.tbl_param.l2_cache_ways = cfg->l2_cache_ways;
-		} else {
-			cmd.tbl_param.use_cache = 0;
-		}
-
 		cmd.tbl_param.location = cfg->location;
 		cmd.tbl_param.tbl_type = cfg->tbl_type;
 		cmd.tbl_param.endian = cfg->endian;
 		cmd.tbl_param.ddr_mode = cfg->ddr_mode;
-	} else {
-		cmd.tbl_param.use_cache = 0;
 	}
 
 	return ys_k2u_doe_kernel_call(card_id, &cmd, poll_wait);
@@ -142,21 +125,6 @@ s32 hados_doe_create_hashtbl_v25(u32 card_id, u8 tbl_id, u32 depth,
 	cmd.tbl_param.key_len = key_len;
 	cmd.tbl_param.dov_len = value_len;
 	if (cfg) {
-		if (cfg->shared_tbl ||
-		    *(u32 *)cfg->l1_cache_ways != 0 ||
-		    *(u32 *)(cfg->l1_cache_ways + 4) != 0 ||
-		    *(u32 *)(cfg->l1_cache_ways + 8) != 0 ||
-		    *(u32 *)(cfg->l1_cache_ways + 12) != 0 ||
-		    cfg->l2_cache_ways != 0) {
-			cmd.tbl_param.use_cache = 1;
-			cmd.tbl_param.shared_tbl = cfg->shared_tbl;
-			memcpy(cmd.tbl_param.l1_cache_ways, cfg->l1_cache_ways,
-			       sizeof(u8) * 16);
-			cmd.tbl_param.l2_cache_ways = cfg->l2_cache_ways;
-		} else {
-			cmd.tbl_param.use_cache = 0;
-		}
-
 		cmd.tbl_param.location = cfg->location;
 		cmd.tbl_param.tbl_type = cfg->tbl_type;
 		cmd.tbl_param.endian = cfg->endian;
@@ -164,7 +132,6 @@ s32 hados_doe_create_hashtbl_v25(u32 card_id, u8 tbl_id, u32 depth,
 		cmd.tbl_param.sdepth = (cfg->sdepth / 64 + 1) * 64;
 		cmd.tbl_param.chain_limit = cfg->chain_limit;
 	} else {
-		cmd.tbl_param.use_cache = 0;
 		cmd.tbl_param.sdepth = (depth / 64 + 1) * 64; // Depth * 1
 	}
 

@@ -14,11 +14,12 @@
 static int ys_k2u_doe_invalidate_cmd(struct ys_k2u_doe_interface *doe_if,
 				     struct ys_doe_sw_cmd *cmd)
 {
-	struct ys_pdev_priv *pdev_priv = pci_get_drvdata(doe_if->ys_k2u_doe->pdev);
+	struct ys_pdev_priv *pdev_priv = NULL;
 	struct ys_k2u_doe_desc *desc;
 	struct ys_k2u_doe_desc *temp;
 	unsigned long flags;
 
+	pdev_priv = pci_get_drvdata(doe_if->ys_k2u_doe->pdev);
 	list_for_each_entry_safe(desc, temp, &cmd->cache_list, cache) {
 		if (desc->parent ? desc->parent == cmd : desc->cmd == cmd) {
 			list_del(&desc->cache);
@@ -459,6 +460,13 @@ void ys_k2u_desc_completed(struct ys_k2u_doe_interface *doe_if)
 			event_num = le32_to_cpu(*(u32 *)addr);
 			addr += (4 + (event_num - 1) *
 				 sizeof(struct ys_k2u_doe_event));
+			
+			if (event_num >= YS_K2U_DOE_EVENT_MAX_LIMIT) {
+				ys_dev_err("%s eq recv event:%u over max limit\n",
+					   doe_if->name, event_num);
+				event_num = YS_K2U_DOE_EVENT_MAX_LIMIT;
+			}
+
 
 			for (j = 0; j < event_num; j++) {
 				ys_k2u_doe_process_working_list(doe_if, addr);
