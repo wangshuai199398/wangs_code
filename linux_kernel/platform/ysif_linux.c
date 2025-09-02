@@ -617,19 +617,19 @@ unsigned long ys_copy_from_user(void *to, const void __user *from, unsigned long
 
 int ys_rhashtable_init(struct rhashtable *ht, const struct rhashtable_params *params)
 {
-    pr_info("rhashtable_init\n");
+    pr_info("[tc] rhashtable_init\n");
     return rhashtable_init(ht, params);
 }
 
 int ys_register_netdevice_notifier_dev_net(struct net_device *dev, struct notifier_block *nb, struct netdev_net_notifier *nn)
 {
-    pr_info("register_netdevice_notifier_dev_net: dev name=%s\n", dev->name);
+    pr_info("[tc] register_netdevice_notifier_dev_net: dev name=%s\n", dev->name);
     return register_netdevice_notifier_dev_net(dev, nb, nn);
 }
 
 int ys_flow_indr_dev_register(flow_indr_block_bind_cb_t *cb, void *cb_priv)
 {
-    pr_info("flow_indr_dev_register\n");
+    pr_info("[tc] flow_indr_dev_register\n");
     return flow_indr_dev_register(cb, cb_priv);
 }
 

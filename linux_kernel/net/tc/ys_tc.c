@@ -195,7 +195,7 @@ ys_tc_indr_block_bind_cb(struct net_device *ndev, struct Qdisc *sch,
 			 void *type_data, void *data,
 			 void (*cleanup)(struct flow_block_cb *block_cb))
 {
-	pr_info("ys_tc_indr_block_bind_cb\n");
+	pr_info("[tc] ys_tc_indr_block_bind_cb\n");
 	if (!ndev)
 		return ys_tc_indr_setup_nodev(cb_priv, type, data);
 
