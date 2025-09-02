@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 
 #include "ys_k2u_tc_priv.h"
-#include "ysif_linux.h"
+#include "../platform/ysif_linux.h"
 
 /* ystc basic start */
 
