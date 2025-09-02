@@ -50,6 +50,7 @@
         "unordered_map": "c",
         "vector": "c",
         "ys_k2u_mbox.h": "c",
-        "ys_k2u_np.h": "c"
+        "ys_k2u_np.h": "c",
+        "typeinfo": "c"
     }
 }

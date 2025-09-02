@@ -615,6 +615,24 @@ unsigned long ys_copy_from_user(void *to, const void __user *from, unsigned long
     return copy_from_user(to, from, n);
 }
 
+int ys_rhashtable_init(struct rhashtable *ht, const struct rhashtable_params *params)
+{
+    pr_info("rhashtable_init\n");
+    return rhashtable_init(ht, params);
+}
+
+int ys_register_netdevice_notifier_dev_net(struct net_device *dev, struct notifier_block *nb, struct netdev_net_notifier *nn)
+{
+    pr_info("register_netdevice_notifier_dev_net: dev name=%s\n", dev->name);
+    return register_netdevice_notifier_dev_net(dev, nb, nn);
+}
+
+int ys_flow_indr_dev_register(flow_indr_block_bind_cb_t *cb, void *cb_priv)
+{
+    pr_info("flow_indr_dev_register\n");
+    return flow_indr_dev_register(cb, cb_priv);
+}
+
 static const struct ysif_ops ysif_linux_ops = {
     .debugfs_create_dir = ys_debugfs_create_dir,
     .debugfs_create_file = ys_debugfs_create_file,
@@ -750,6 +768,10 @@ static const struct ysif_ops ysif_linux_ops = {
     .skb_tx_timestamp = ys_skb_tx_timestamp,
 
     .copy_from_user = ys_copy_from_user,
+
+    .rhashtable_init = ys_rhashtable_init,
+    .register_netdevice_notifier_dev_net = ys_register_netdevice_notifier_dev_net,
+    .flow_indr_dev_register = ys_flow_indr_dev_register,
 };
 
 void ysif_ops_init(void)

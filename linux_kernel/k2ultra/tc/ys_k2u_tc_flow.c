@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 
 #include "ys_k2u_tc_priv.h"
+#include "ysif_linux.h"
 
 /* ystc basic start */
 
@@ -2418,8 +2419,9 @@ static struct rhashtable_params multicast_ht_params = {
 int ys_tc_flow_init(struct ys_tc_priv *tc_priv)
 {
 	int ret;
+	const struct ysif_ops *ops = ysif_get_ops();
 
-	ret = rhashtable_init(&tc_priv->tc_ht, &tc_ht_params);
+	ret = ops->rhashtable_init(&tc_priv->tc_ht, &tc_ht_params);
 	if (ret != 0) {
 		ys_tc_err("create tc flow hashtable failed\n");
 		return ret;

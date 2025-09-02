@@ -147,6 +147,10 @@ struct ysif_ops {
     void (*skb_tx_timestamp)(struct sk_buff *skb);
     
     unsigned long (*copy_from_user)(void *to, const void __user *from, unsigned long n);
+
+    int (*rhashtable_init)(struct rhashtable *ht, const struct rhashtable_params *params);
+    int (*register_netdevice_notifier_dev_net)(struct net_device *dev, struct notifier_block *nb, struct netdev_net_notifier *nn);
+    int (*flow_indr_dev_register)(flow_indr_block_bind_cb_t *cb, void *cb_priv);
 };
 
 const struct ysif_ops *ysif_get_ops(void);

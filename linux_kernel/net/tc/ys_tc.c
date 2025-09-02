@@ -2,6 +2,7 @@
 
 #include "ys_tc.h"
 #include "../../platform/ys_debugfs.h"
+#include "../../platform/ysif_linux.h"
 
 bool ys_tc_flow_enable;
 
@@ -194,6 +195,7 @@ ys_tc_indr_block_bind_cb(struct net_device *ndev, struct Qdisc *sch,
 			 void *type_data, void *data,
 			 void (*cleanup)(struct flow_block_cb *block_cb))
 {
+	pr_info("ys_tc_indr_block_bind_cb\n");
 	if (!ndev)
 		return ys_tc_indr_setup_nodev(cb_priv, type, data);
 
@@ -233,17 +235,17 @@ static int ys_tc_switchdev_event(struct notifier_block *nb, unsigned long event,
 int ys_tc_tunnel_cb_init(struct ys_tc_priv *tc_priv)
 {
 	int ret;
-
+	const struct ysif_ops *ops = ysif_get_ops();
 	if (!tc_priv->is_uplink)
 		return 0;
 
 	tc_priv->tun_nb.notifier_call = ys_tc_switchdev_event;
-	ret = register_netdevice_notifier_dev_net(tc_priv->ndev, &tc_priv->tun_nb,
+	ret = ops->register_netdevice_notifier_dev_net(tc_priv->ndev, &tc_priv->tun_nb,
 						  &tc_priv->tun_nn);
 	if (ret)
 		return ret;
 
-	return flow_indr_dev_register(ys_tc_indr_block_bind_cb, tc_priv);
+	return ops->flow_indr_dev_register(ys_tc_indr_block_bind_cb, tc_priv);
 }
 
 void ys_tc_tunnel_cb_exit(struct ys_tc_priv *tc_priv)
