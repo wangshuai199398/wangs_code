@@ -440,7 +440,6 @@ static void ys_ndo_get_stats64(struct net_device *ndev,
 	ys_ndo_update_stats(ndev);
 	netdev_stats_to_stats64(stats, &ndev->stats);
 	spin_unlock_bh(&ndev_priv->statistics_lock);
-	pr_err("ys_ndo_get_stats64\n");
 }
 
 static void ys_ndo_change_rx_flags(struct net_device *ndev, int flags)
