@@ -125,7 +125,7 @@ ys_tc_indr_setup_block(struct net_device *ndev, struct Qdisc *sch,
 
 	if (!ys_tc_is_netdev_to_offload(ndev))
 		return -EOPNOTSUPP;
-
+	pr_info("[tc] ys_tc_indr_setup_block %s\n", ndev->name);
 	f->unlocked_driver_cb = true;
 	f->driver_block_list = &ys_tc_indr_block_list;
 
